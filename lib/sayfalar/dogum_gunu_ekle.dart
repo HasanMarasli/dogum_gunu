@@ -1,10 +1,11 @@
 import 'package:dogum_gunu/models/dogum_gunu.dart';
 import 'package:dogum_gunu/tema/tema_yoneticisi.dart';
+import 'package:dogum_gunu/widgets/ozel_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:dogum_gunu/veriTabani/dogum_gunu_veri_tabani.dart';
-import 'package:uuid/uuid.dart'; // Benzersiz ID oluşturmak için
+import 'package:uuid/uuid.dart';
 
 class DogumGunuEkle extends StatefulWidget {
   const DogumGunuEkle({super.key});
@@ -17,7 +18,6 @@ class _KisiEkleState extends State<DogumGunuEkle> {
   final TextEditingController kisiAd = TextEditingController();
   DateTime? secilenTarih;
 
-  // Veri yönetim nesnesi
   final DogumGunuVeriYonetim dogumGunuYonetim = Get.find();
 
   Future<void> _tarihSec(BuildContext context) async {
@@ -52,56 +52,40 @@ class _KisiEkleState extends State<DogumGunuEkle> {
 
   Future<void> _tarihEkle() async {
     if (kisiAd.text.isEmpty || secilenTarih == null) {
-      Get.snackbar(
-        'add.error.title'.tr,
-        'add.error.missing'.tr,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
+      OzelSnackbar.hata(
+        baslik: 'add.error.title'.tr,
+        mesaj: 'add.error.missing'.tr,
       );
       return;
     }
 
-    // Aynı isim engeli
     final isim = kisiAd.text.trim();
     if (await DogumGunuVeriTabani.isimZatenVar(isim)) {
-      Get.snackbar(
-        'add.error.title'.tr,
-        'add.error.duplicate'.tr,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.orange,
-        colorText: Colors.white,
+      OzelSnackbar.uyari(
+        baslik: 'add.error.title'.tr,
+        mesaj: 'add.error.duplicate'.tr,
       );
       return;
     }
 
-    // Benzersiz ID oluştur
     final String id = const Uuid().v4();
 
-    // Yeni doğum günü verisi oluştur
     final DogumGunu yeniDogum = DogumGunu(
       id: id,
       isim: isim,
       dogumTarihi: secilenTarih!,
     );
 
-    // Veritabanına ekle
     await DogumGunuVeriTabani.veriEkle(yeniDogum);
 
-    // RxList'e yeni veriyi ekle
     dogumGunuYonetim.dogumGunuListe.add(yeniDogum);
     Get.back();
 
-    // Başarı mesajı
-    Get.snackbar(
-      'add.success.title'.tr,
-      'add.success.message'.tr,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
+    OzelSnackbar.basari(
+      baslik: 'add.success.title'.tr,
+      mesaj: 'add.success.message'.tr,
     );
 
-    // Formu sıfırla
     setState(() {
       kisiAd.clear();
       secilenTarih = null;
@@ -227,7 +211,9 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
-                                    secilenTarih == null ? 'add.field.date.placeholder'.tr : DateFormat('d MMMM y', Get.locale?.toLanguageTag() ?? 'tr').format(secilenTarih!),
+                                    secilenTarih == null
+                                        ? 'add.field.date.placeholder'.tr
+                                        : DateFormat('d MMMM y', Get.locale?.toLanguageTag() ?? 'tr').format(secilenTarih!),
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       color: secilenTarih == null ? Colors.grey.shade600 : Colors.black,
