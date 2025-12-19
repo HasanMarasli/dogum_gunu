@@ -115,20 +115,7 @@ class DogumGunu {
 
   static String tarihYazdir(DateTime tarih) {
     // Ay isimlerini Türkçe olarak tanımlıyoruz
-    List<String> aylar = [
-      "Ocak",
-      "Şubat",
-      "Mart",
-      "Nisan",
-      "Mayıs",
-      "Haziran",
-      "Temmuz",
-      "Ağustos",
-      "Eylül",
-      "Ekim",
-      "Kasım",
-      "Aralık"
-    ];
+    List<String> aylar = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
 
     // Gün, ay ve yılı alıyoruz
     int gun = tarih.day;

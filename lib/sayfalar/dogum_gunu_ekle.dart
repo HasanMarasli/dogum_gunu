@@ -60,13 +60,26 @@ class _KisiEkleState extends State<DogumGunuEkle> {
       return;
     }
 
+    // Aynı isim engeli
+    final isim = kisiAd.text.trim();
+    if (await DogumGunuVeriTabani.isimZatenVar(isim)) {
+      Get.snackbar(
+        "Hata",
+        "Bu isimle bir kayıt zaten var.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
     // Benzersiz ID oluştur
     final String id = const Uuid().v4();
 
     // Yeni doğum günü verisi oluştur
     final DogumGunu yeniDogum = DogumGunu(
       id: id,
-      isim: kisiAd.text,
+      isim: isim,
       dogumTarihi: secilenTarih!,
     );
 
