@@ -1,0 +1,378 @@
+import 'package:dogum_gunu/models/dogum_gunu.dart';
+import 'package:dogum_gunu/sayfalar/dogum_gunu_ekle.dart';
+import 'package:dogum_gunu/sayfalar/tavsiye.dart';
+import 'package:dogum_gunu/veriTabani/dogum_gunu_veri_tabani.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+
+class AnaSayfa extends StatefulWidget {
+  const AnaSayfa({super.key});
+
+  @override
+  State<AnaSayfa> createState() => _AnaSayfaState();
+}
+
+class _AnaSayfaState extends State<AnaSayfa> {
+  bool isLoading = true;
+  DogumGunuVeriYonetim dogumGunuVeriYonetim = Get.find<DogumGunuVeriYonetim>();
+
+  @override
+  void initState() {
+    super.initState();
+    _verileriCek();
+  }
+
+  Future<void> _verileriCek() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    dogumGunuVeriYonetim.dogumGunuListe.value = await DogumGunuVeriTabani.tumVerileriGetir();
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  // Alarm seçeneklerini gösteren fonksiyon
+
+  @override
+  Widget build(BuildContext context) {
+    const arkaPlan = Color(0xFFF6F7FB);
+    const baslikRenk = Color(0xFF121212);
+    const vurgu = Color(0xFF6C63FF);
+
+    return Scaffold(
+      backgroundColor: arkaPlan,
+      body: SafeArea(
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF6C63FF), Color(0xFF928DFF)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              stops: [0, 0.35],
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                child: Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Doğum Günleri",
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          "Sevdiklerini hatırlat, mutlu et",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white.withOpacity(0.85),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    IconButton.filled(
+                      onPressed: _verileriCek,
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.2),
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: const Icon(Icons.refresh_rounded),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 6),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  children: [
+                    _istatistikKart(
+                      baslik: "Toplam",
+                      deger: dogumGunuVeriYonetim.dogumGunuListe.length.toString(),
+                      renk: Colors.white,
+                      altYazi: "kayıt",
+                    ),
+                    const SizedBox(width: 12),
+                    _istatistikKart(
+                      baslik: "Yaklaşan",
+                      deger: _yaklasanSayisi().toString(),
+                      renk: Colors.white.withOpacity(0.9),
+                      altYazi: "önümüzdeki 7 gün",
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: RefreshIndicator(
+                      onRefresh: _verileriCek,
+                      child: isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : Obx(
+                              () {
+                                if (dogumGunuVeriYonetim.dogumGunuListe.isEmpty) {
+                                  return _bosDurum();
+                                }
+
+                                final liste = [...dogumGunuVeriYonetim.dogumGunuListe];
+                                liste.sort((a, b) => _kalanGun(a).compareTo(_kalanGun(b)));
+
+                                return ListView.separated(
+                                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                                  itemCount: liste.length,
+                                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                                  itemBuilder: (context, index) {
+                                    final dogum = liste[index];
+                                    return _dogumKart(dogum, vurgu, baslikRenk);
+                                  },
+                                );
+                              },
+                            ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Get.to(() => const DogumGunuEkle()),
+        backgroundColor: vurgu,
+        foregroundColor: Colors.white,
+        label: const Text("Yeni Kişi"),
+        icon: const Icon(Icons.add_rounded),
+      ),
+    );
+  }
+
+  Widget _istatistikKart({
+    required String baslik,
+    required String deger,
+    required Color renk,
+    required String altYazi,
+  }) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: renk.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: renk.withOpacity(0.4)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              baslik,
+              style: TextStyle(color: renk.withOpacity(0.8)),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              deger,
+              style: TextStyle(
+                color: renk,
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+              ),
+            ),
+            Text(
+              altYazi,
+              style: TextStyle(color: renk.withOpacity(0.7), fontSize: 12),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _bosDurum() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Icon(Icons.celebration, size: 72, color: Color(0xFFB9B6FF)),
+            SizedBox(height: 12),
+            Text(
+              "Henüz kayıt yok",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+            SizedBox(height: 6),
+            Text(
+              "Sevdiklerinin doğum günlerini ekleyip\nhatırlatmaları açabilirsin.",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.black54),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _dogumKart(DogumGunu dogum, Color vurgu, Color metinRenk) {
+    final kalanGun = _kalanGun(dogum);
+    final yas = DateTime.now().year - dogum.dogumTarihi.year;
+    final burc = DogumGunu.burcIsimGetir(dogum.dogumTarihi);
+
+    return GestureDetector(
+      onTap: () => Get.to(() => Tavsiye(dogumGunu: dogum)),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          children: [
+            Hero(
+              tag: dogum.id,
+              child: Container(
+                height: 60,
+                width: 60,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF6C63FF), Color(0xFF928DFF)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                padding: const EdgeInsets.all(10),
+                child: SvgPicture.asset(
+                  DogumGunu.burcIconGetir(dogum.dogumTarihi),
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    dogum.isim,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: metinRenk,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Icon(Icons.cake_rounded, size: 16, color: Colors.grey.shade600),
+                      const SizedBox(width: 6),
+                      Text(
+                        DogumGunu.tarihYazdir(dogum.dogumTarihi),
+                        style: TextStyle(color: Colors.grey.shade700),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      _etiket("$yas yaş"),
+                      _etiket(burc),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                color: kalanGun == 0 ? Colors.green.shade50 : vurgu.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    kalanGun == 0 ? "Bugün" : "$kalanGun gün",
+                    style: TextStyle(
+                      color: kalanGun == 0 ? Colors.green.shade700 : vurgu,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  Text(
+                    "kaldı",
+                    style: TextStyle(
+                      color: kalanGun == 0 ? Colors.green.shade700 : Colors.grey.shade600,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _etiket(String yazi) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F0FF),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        yazi,
+        style: const TextStyle(
+          color: Color(0xFF5B54E3),
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
+
+  int _kalanGun(DogumGunu dogum) {
+    final simdi = DateTime.now();
+    final bugun = DateTime(simdi.year, simdi.month, simdi.day);
+    var sonrakiDogum = DateTime(bugun.year, dogum.dogumTarihi.month, dogum.dogumTarihi.day);
+    if (sonrakiDogum.isBefore(bugun)) {
+      sonrakiDogum = DateTime(bugun.year + 1, dogum.dogumTarihi.month, dogum.dogumTarihi.day);
+    }
+    return sonrakiDogum.difference(bugun).inDays;
+  }
+
+  int _yaklasanSayisi() {
+    return dogumGunuVeriYonetim.dogumGunuListe.where((e) => _kalanGun(e) <= 7).length;
+  }
+}
