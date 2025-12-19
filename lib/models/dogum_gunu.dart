@@ -13,6 +13,39 @@ class DogumGunu {
     required this.isim,
   });
 
+  static String burcIdGetir(DateTime tarih) {
+    final gun = tarih.day;
+    final ay = tarih.month;
+
+    if ((ay == 1 && gun >= 20) || (ay == 2 && gun <= 18)) {
+      return 'aquarius';
+    } else if ((ay == 2 && gun >= 19) || (ay == 3 && gun <= 20)) {
+      return 'pisces';
+    } else if ((ay == 3 && gun >= 21) || (ay == 4 && gun <= 19)) {
+      return 'aries';
+    } else if ((ay == 4 && gun >= 20) || (ay == 5 && gun <= 20)) {
+      return 'taurus';
+    } else if ((ay == 5 && gun >= 21) || (ay == 6 && gun <= 20)) {
+      return 'gemini';
+    } else if ((ay == 6 && gun >= 21) || (ay == 7 && gun <= 22)) {
+      return 'cancer';
+    } else if ((ay == 7 && gun >= 23) || (ay == 8 && gun <= 22)) {
+      return 'leo';
+    } else if ((ay == 8 && gun >= 23) || (ay == 9 && gun <= 22)) {
+      return 'virgo';
+    } else if ((ay == 9 && gun >= 23) || (ay == 10 && gun <= 22)) {
+      return 'libra';
+    } else if ((ay == 10 && gun >= 23) || (ay == 11 && gun <= 21)) {
+      return 'scorpio';
+    } else if ((ay == 11 && gun >= 22) || (ay == 12 && gun <= 21)) {
+      return 'sagittarius';
+    } else if ((ay == 12 && gun >= 22) || (ay == 1 && gun <= 19)) {
+      return 'capricorn';
+    } else {
+      return 'unknown';
+    }
+  }
+
   static String burcIconGetir(DateTime tarih) {
     int gun = tarih.day;
     int ay = tarih.month;

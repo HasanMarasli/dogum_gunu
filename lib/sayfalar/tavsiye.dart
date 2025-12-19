@@ -1,8 +1,8 @@
 import 'package:dogum_gunu/models/dogum_gunu.dart';
+import 'package:dogum_gunu/tercumeler/tr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:get/get.dart';
 
 class Tavsiye extends StatefulWidget {
   final DogumGunu dogumGunu;
@@ -18,8 +18,12 @@ class Tavsiye extends StatefulWidget {
 class _TavsiyeState extends State<Tavsiye> {
   @override
   Widget build(BuildContext context) {
-    final burc = DogumGunu.burcIsimGetir(widget.dogumGunu.dogumTarihi);
     final tarih = DogumGunu.tarihYazdir(widget.dogumGunu.dogumTarihi);
+    final signId = DogumGunu.burcIdGetir(widget.dogumGunu.dogumTarihi);
+    final signName = tZodiac(signId, 'name', tr);
+    final shortText = tZodiac(signId, 'short', tr);
+    final giftItems = tZodiacList(signId, 'gifts', tr);
+    final surpriseItems = tZodiacList(signId, 'surprises', tr);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
@@ -88,7 +92,7 @@ class _TavsiyeState extends State<Tavsiye> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        burc,
+                        signName,
                         style: const TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w800,
@@ -120,14 +124,70 @@ class _TavsiyeState extends State<Tavsiye> {
                       ),
                       const Gap(14),
                       Text(
-                        "$burc Detay".tr,
+                        shortText,
                         style: const TextStyle(
-                          fontSize: 17,
+                          fontSize: 16,
                           fontWeight: FontWeight.w700,
                         ),
                         textAlign: TextAlign.justify,
                       ),
-                      const Gap(8),
+                      const Gap(12),
+                      if (giftItems.isNotEmpty) ...[
+                        const Text(
+                          'Hediye Önerileri',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const Gap(8),
+                        ...giftItems.map(
+                          (item) => Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('• '),
+                              Expanded(
+                                child: Text(
+                                  item,
+                                  style: TextStyle(
+                                    color: Colors.grey.shade800,
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Gap(12),
+                      ],
+                      if (surpriseItems.isNotEmpty) ...[
+                        const Text(
+                          'Sürpriz Önerileri',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const Gap(8),
+                        ...surpriseItems.map(
+                          (item) => Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('• '),
+                              Expanded(
+                                child: Text(
+                                  item,
+                                  style: TextStyle(
+                                    color: Colors.grey.shade800,
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Gap(12),
+                      ],
                       Text(
                         "Doğum günü yaklaştığında otomatik hatırlatma alacaksın. Bu kartı kişiye özel notlar ve hediye fikirleri için kullanabilirsin.",
                         style: TextStyle(
