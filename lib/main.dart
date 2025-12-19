@@ -1,6 +1,7 @@
 import 'package:dogum_gunu/models/dogum_gunu.dart';
 import 'package:dogum_gunu/sayfalar/ana_sayfa.dart';
 import 'package:dogum_gunu/tercumeler/tercumeler.dart';
+import 'package:dogum_gunu/tema/tema_yoneticisi.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -15,48 +16,39 @@ Future<void> main() async {
   final box = GetStorage();
   final dilController = Get.put(DilSecimiController(box));
   final storedLocale = dilController.readStoredLocale();
+  final themeController = Get.put(TemaYoneticisi(box));
 
   Get.put(DogumGunuVeriYonetim());
 
   runApp(MyApp(
     initialLocale: storedLocale ?? const Locale('tr'),
+    themeController: themeController,
   ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, required this.initialLocale});
+  const MyApp({super.key, required this.initialLocale, required this.themeController});
 
   final Locale initialLocale;
+  final TemaYoneticisi themeController;
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: GetMaterialApp(
-        debugShowCheckedModeBanner: false,
-        translations: Tercumeler(),
-        locale: initialLocale,
-        fallbackLocale: const Locale('en'),
-        title: 'app.title'.tr,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF6C63FF),
-            brightness: Brightness.light,
+    return GetBuilder<TemaYoneticisi>(
+      init: themeController,
+      builder: (tema) {
+        return SafeArea(
+          child: GetMaterialApp(
+            debugShowCheckedModeBanner: false,
+            translations: Tercumeler(),
+            locale: initialLocale,
+            fallbackLocale: const Locale('en'),
+            title: 'app.title'.tr,
+            theme: tema.themeData,
+            home: const AnaSayfa(),
           ),
-          scaffoldBackgroundColor: const Color(0xFFF6F7FB),
-          appBarTheme: const AppBarTheme(
-            centerTitle: false,
-            elevation: 0,
-            backgroundColor: Colors.transparent,
-            foregroundColor: Colors.black,
-          ),
-          snackBarTheme: const SnackBarThemeData(
-            behavior: SnackBarBehavior.floating,
-          ),
-          fontFamily: 'Kalam',
-          useMaterial3: true,
-        ),
-        home: const AnaSayfa(),
-      ),
+        );
+      },
     );
   }
 }

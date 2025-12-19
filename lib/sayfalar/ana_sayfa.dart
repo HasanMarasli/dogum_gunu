@@ -8,6 +8,7 @@ import 'package:dogum_gunu/sayfalar/tavsiye.dart';
 import 'package:dogum_gunu/sayfalar/ayarlar.dart';
 import 'package:dogum_gunu/tercumeler/tercumeler.dart';
 import 'package:dogum_gunu/tercumeler/tr.dart';
+import 'package:dogum_gunu/tema/tema_yoneticisi.dart';
 
 class AnaSayfa extends StatefulWidget {
   const AnaSayfa({super.key});
@@ -42,20 +43,25 @@ class _AnaSayfaState extends State<AnaSayfa> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final tema = Get.find<TemaYoneticisi>();
     const arkaPlan = Color(0xFFF6F7FB);
-    const baslikRenk = Color(0xFF121212);
-    const vurgu = Color(0xFF6C63FF);
+    final baslikRenk = const Color(0xFF121212);
+    final vurgu = scheme.primary;
 
     return Scaffold(
       backgroundColor: arkaPlan,
       body: SafeArea(
         child: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFF6C63FF), Color(0xFF928DFF)],
+              colors: [
+                tema.gradientStart,
+                tema.gradientEnd,
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              stops: [0, 0.35],
+              stops: const [0, 0.35],
             ),
           ),
           child: Column(
@@ -220,23 +226,42 @@ class _AnaSayfaState extends State<AnaSayfa> {
   }
 
   Widget _bosDurum() {
+    final scheme = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.celebration, size: 72, color: Color(0xFFB9B6FF)),
-            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: scheme.primary.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.celebration_rounded, size: 56, color: scheme.primary),
+            ),
+            const SizedBox(height: 20),
             Text(
               'home.empty.title'.tr,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Text(
               'home.empty.desc'.tr,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.black54),
+              style: TextStyle(color: Colors.grey.shade600, height: 1.5),
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: () => Get.to(() => const DogumGunuEkle()),
+              style: FilledButton.styleFrom(
+                backgroundColor: scheme.primary,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+              icon: const Icon(Icons.add_rounded),
+              label: Text('home.button.newPerson'.tr, style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
           ],
         ),
@@ -245,6 +270,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
   }
 
   Widget _dogumKart(DogumGunu dogum, Color vurgu, Color metinRenk) {
+    final tema = Get.find<TemaYoneticisi>();
     final kalanGun = _kalanGun(dogum);
     final yas = DateTime.now().year - dogum.dogumTarihi.year;
     final signId = DogumGunu.burcIdGetir(dogum.dogumTarihi);
@@ -277,8 +303,11 @@ class _AnaSayfaState extends State<AnaSayfa> {
                 height: 60,
                 width: 60,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF6C63FF), Color(0xFF928DFF)],
+                  gradient: LinearGradient(
+                    colors: [
+                      tema.gradientStart,
+                      tema.gradientEnd,
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -363,16 +392,17 @@ class _AnaSayfaState extends State<AnaSayfa> {
   }
 
   Widget _etiket(String yazi) {
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F0FF),
+        color: scheme.primary.withOpacity(0.08),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
         yazi,
-        style: const TextStyle(
-          color: Color(0xFF5B54E3),
+        style: TextStyle(
+          color: scheme.primary,
           fontWeight: FontWeight.w600,
           fontSize: 12,
         ),

@@ -4,6 +4,14 @@ Map<String, String> tr = {
   'settings.language': 'Dil',
   'settings.selectLanguage': 'Dil seç',
   'settings.current': 'Geçerli',
+  'settings.theme': 'Tema',
+  'settings.selectTheme': 'Tema rengi',
+  'theme.purple': 'Mor',
+  'theme.teal': 'Turkuaz',
+  'theme.orange': 'Turuncu',
+  'theme.blue': 'Mavi',
+  'theme.coral': 'Mercan',
+  'theme.lime': 'Limon Yeşili',
   // App
   'app.title': 'Doğum Günü',
   // Home

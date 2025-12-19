@@ -1,4 +1,5 @@
 import 'package:dogum_gunu/models/dogum_gunu.dart';
+import 'package:dogum_gunu/tema/tema_yoneticisi.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -15,12 +16,12 @@ class DogumGunuEkle extends StatefulWidget {
 class _KisiEkleState extends State<DogumGunuEkle> {
   final TextEditingController kisiAd = TextEditingController();
   DateTime? secilenTarih;
-  final Color _vurgu = const Color(0xFF6C63FF);
 
   // Veri yönetim nesnesi
   final DogumGunuVeriYonetim dogumGunuYonetim = Get.find();
 
   Future<void> _tarihSec(BuildContext context) async {
+    final scheme = Theme.of(context).colorScheme;
     final DateTime? secilen = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -30,11 +31,11 @@ class _KisiEkleState extends State<DogumGunuEkle> {
         return Theme(
           data: ThemeData.light().copyWith(
             colorScheme: ColorScheme.fromSeed(
-              seedColor: _vurgu,
+              seedColor: scheme.primary,
               brightness: Brightness.light,
             ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: _vurgu),
+              style: TextButton.styleFrom(foregroundColor: scheme.primary),
             ),
           ),
           child: child!,
@@ -109,19 +110,37 @@ class _KisiEkleState extends State<DogumGunuEkle> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final tema = Get.find<TemaYoneticisi>();
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
+        elevation: 0,
+        foregroundColor: Colors.white,
         backgroundColor: Colors.transparent,
-        title: Text('add.title'.tr),
+        title: Text(
+          'add.title'.tr,
+          style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
+        ),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [tema.gradientStart, tema.gradientEnd],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              stops: const [0, 1],
+            ),
+          ),
+        ),
       ),
       body: Container(
-        decoration: const BoxDecoration(
+        height: Get.height,
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF6C63FF), Color(0xFF928DFF)],
+            colors: [tema.gradientStart, tema.gradientEnd],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            stops: [0, 0.25],
+            stops: const [0, 1],
           ),
         ),
         child: SafeArea(
@@ -148,7 +167,7 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withOpacity(0.06),
                           blurRadius: 14,
                           offset: const Offset(0, 6),
                         ),
@@ -158,12 +177,25 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'add.section.info'.tr,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                          ),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: scheme.primary.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(Icons.person_add_rounded, color: scheme.primary, size: 20),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'add.section.info'.tr,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 14),
                         TextField(
@@ -191,15 +223,11 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                             ),
                             child: Row(
                               children: [
-                                Icon(Icons.date_range_rounded, color: Colors.grey.shade700),
+                                Icon(Icons.date_range_rounded, color: scheme.primary),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
-                                    secilenTarih == null
-                                      ? 'add.field.date.placeholder'.tr
-                                      : DateFormat(
-                                              'd MMMM y', Get.locale?.toLanguageTag() ?? 'tr')
-                                          .format(secilenTarih!),
+                                    secilenTarih == null ? 'add.field.date.placeholder'.tr : DateFormat('d MMMM y', Get.locale?.toLanguageTag() ?? 'tr').format(secilenTarih!),
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       color: secilenTarih == null ? Colors.grey.shade600 : Colors.black,
@@ -210,15 +238,13 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFEEF0FF),
+                                    color: scheme.primary.withOpacity(0.12),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Text(
-                                    secilenTarih == null
-                                        ? 'add.field.date.select'.tr
-                                        : 'add.field.date.change'.tr,
-                                    style: const TextStyle(
-                                      color: Color(0xFF5B54E3),
+                                    secilenTarih == null ? 'add.field.date.select'.tr : 'add.field.date.change'.tr,
+                                    style: TextStyle(
+                                      color: scheme.primary,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
@@ -233,7 +259,7 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                           child: FilledButton.icon(
                             onPressed: _tarihEkle,
                             style: FilledButton.styleFrom(
-                              backgroundColor: _vurgu,
+                              backgroundColor: scheme.primary,
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                             ),
@@ -255,5 +281,4 @@ class _KisiEkleState extends State<DogumGunuEkle> {
       ),
     );
   }
-
 }

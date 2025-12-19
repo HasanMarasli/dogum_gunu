@@ -4,6 +4,14 @@ final Map<String, String> en = {
 'settings.language': 'Language',
 'settings.selectLanguage': 'Select a language',
 'settings.current': 'Current',
+'settings.theme': 'Theme',
+'settings.selectTheme': 'Theme color',
+'theme.purple': 'Purple',
+'theme.teal': 'Teal',
+'theme.orange': 'Orange',
+'theme.blue': 'Blue',
+'theme.coral': 'Coral',
+'theme.lime': 'Lime Green',
 // App
 'app.title': 'Birthday Reminder',
 // Home

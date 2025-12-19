@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:dogum_gunu/models/dogum_gunu.dart';
 import 'package:dogum_gunu/tercumeler/tercumeler.dart';
 import 'package:dogum_gunu/tercumeler/tr.dart';
+import 'package:dogum_gunu/tema/tema_yoneticisi.dart';
 
 class Tavsiye extends StatefulWidget {
   final DogumGunu dogumGunu;
@@ -30,20 +31,59 @@ class _TavsiyeState extends State<Tavsiye> {
     final surpriseItems = tZodiacList(signId, 'surprises', translations);
     final dateRange = tZodiac(signId, 'range', translations);
 
+    final scheme = Theme.of(context).colorScheme;
+    final tema = Get.find<TemaYoneticisi>();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
+        elevation: 0,
+        foregroundColor: Colors.white,
         backgroundColor: Colors.transparent,
-        title: Text('advice.appbar'.trParams({'name': widget.dogumGunu.isim})),
+        titleSpacing: 0,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'advice.appbar'.trParams({'name': widget.dogumGunu.isim}),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              signName,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.85),
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                tema.gradientStart,
+                tema.gradientEnd,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              stops: const [0, 1],
+            ),
+          ),
+        ),
       ),
       body: Container(
         height: Get.height,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF6C63FF), Color(0xFF928DFF)],
+            colors: [
+              tema.gradientStart,
+              tema.gradientEnd,
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            stops: [0, 0.3],
+            stops: const [0, 1],
           ),
         ),
         child: SafeArea(
@@ -60,8 +100,11 @@ class _TavsiyeState extends State<Tavsiye> {
                     padding: const EdgeInsets.all(28),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF6C63FF), Color(0xFF928DFF)],
+                      gradient: LinearGradient(
+                        colors: [
+                          tema.gradientStart,
+                          tema.gradientEnd,
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -117,7 +160,7 @@ class _TavsiyeState extends State<Tavsiye> {
                       const Gap(16),
                       Row(
                         children: [
-                          const Icon(Icons.cake_rounded, color: Color(0xFF6C63FF)),
+                          Icon(Icons.cake_rounded, color: scheme.primary),
                           const SizedBox(width: 8),
                           Text(
                             tarih,
@@ -139,60 +182,98 @@ class _TavsiyeState extends State<Tavsiye> {
                       ),
                       const Gap(12),
                       if (giftItems.isNotEmpty) ...[
-                        Text(
-                          'advice.gifts.title'.tr,
-                          style: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                          ),
+                        Row(
+                          children: [
+                            Icon(Icons.card_giftcard_rounded, color: scheme.primary, size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              'advice.gifts.title'.tr,
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
                         ),
-                        const Gap(8),
+                        const Gap(10),
                         ...giftItems.map(
-                          (item) => Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('• '),
-                              Expanded(
-                                child: Text(
-                                  item,
-                                  style: TextStyle(
-                                    color: Colors.grey.shade800,
-                                    height: 1.4,
+                          (item) => Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  margin: const EdgeInsets.only(top: 6),
+                                  width: 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    color: scheme.primary,
+                                    shape: BoxShape.circle,
                                   ),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    item,
+                                    style: TextStyle(
+                                      color: Colors.grey.shade800,
+                                      height: 1.4,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        const Gap(12),
+                        const Gap(16),
                       ],
                       if (surpriseItems.isNotEmpty) ...[
-                        Text(
-                          'advice.surprises.title'.tr,
-                          style: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                          ),
+                        Row(
+                          children: [
+                            Icon(Icons.auto_awesome_rounded, color: scheme.primary, size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              'advice.surprises.title'.tr,
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
                         ),
-                        const Gap(8),
+                        const Gap(10),
                         ...surpriseItems.map(
-                          (item) => Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('• '),
-                              Expanded(
-                                child: Text(
-                                  item,
-                                  style: TextStyle(
-                                    color: Colors.grey.shade800,
-                                    height: 1.4,
+                          (item) => Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  margin: const EdgeInsets.only(top: 6),
+                                  width: 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    color: scheme.primary,
+                                    shape: BoxShape.circle,
                                   ),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    item,
+                                    style: TextStyle(
+                                      color: Colors.grey.shade800,
+                                      height: 1.4,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        const Gap(12),
+                        const Gap(16),
                       ],
                       Text(
                         'advice.info'.tr,
