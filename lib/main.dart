@@ -1,7 +1,7 @@
 import 'package:dogum_gunu/models/dogum_gunu.dart';
-import 'package:dogum_gunu/sayfalar/ana_sayfa.dart';
 import 'package:dogum_gunu/tercumeler/tercumeler.dart';
 import 'package:dogum_gunu/tema/tema_yoneticisi.dart';
+import 'package:dogum_gunu/sayfalar/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
             fallbackLocale: const Locale('en'),
             title: 'app.title'.tr,
             theme: tema.themeData,
-            home: const AnaSayfa(),
+            home: const Splash(),
           ),
         );
       },

@@ -28,6 +28,8 @@ Map<String, String> tr = {
   'home.countdown.today': 'Bugün',
   'home.countdown.days': '@days gün',
   'home.countdown.left': 'kaldı',
+  // Splash
+  'splash.subtitle': 'Sevdiklerini kutlamayı unutma',
   // Add person
   'add.title': 'Yeni Kişi Ekle',
   'add.hero': 'Sevdiklerini listene ekle,\nbildirimleri otomatik alsın.',
