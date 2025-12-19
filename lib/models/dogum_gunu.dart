@@ -147,16 +147,8 @@ class DogumGunu {
   }
 
   static String tarihYazdir(DateTime tarih) {
-    // Ay isimlerini Türkçe olarak tanımlıyoruz
-    List<String> aylar = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
-
-    // Gün, ay ve yılı alıyoruz
-    int gun = tarih.day;
-    String ay = aylar[tarih.month - 1]; // Ay isimlerini listeden alıyoruz
-    int yil = tarih.year;
-
-    // İstenen formatta sonucu döndürüyoruz
-    return "$gun $ay $yil";
+    final locale = Get.locale?.toLanguageTag() ?? 'tr';
+    return DateFormat('d MMMM y', locale).format(tarih);
   }
 
   static Future<DogumGunu?> getDogumGunuById(String id) async {

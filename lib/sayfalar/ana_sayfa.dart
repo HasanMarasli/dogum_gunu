@@ -1,10 +1,13 @@
 import 'package:dogum_gunu/models/dogum_gunu.dart';
-import 'package:dogum_gunu/sayfalar/dogum_gunu_ekle.dart';
-import 'package:dogum_gunu/sayfalar/tavsiye.dart';
 import 'package:dogum_gunu/veriTabani/dogum_gunu_veri_tabani.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:dogum_gunu/sayfalar/dogum_gunu_ekle.dart';
+import 'package:dogum_gunu/sayfalar/tavsiye.dart';
+import 'package:dogum_gunu/sayfalar/ayarlar.dart';
+import 'package:dogum_gunu/tercumeler/tercumeler.dart';
+import 'package:dogum_gunu/tercumeler/tr.dart';
 
 class AnaSayfa extends StatefulWidget {
   const AnaSayfa({super.key});
@@ -65,16 +68,16 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Doğum Günleri",
-                          style: TextStyle(
+                        Text(
+                          'home.title'.tr,
+                          style: const TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
                           ),
                         ),
                         Text(
-                          "Sevdiklerini hatırlat, mutlu et",
+                          'home.subtitle'.tr,
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.white.withOpacity(0.85),
@@ -91,6 +94,15 @@ class _AnaSayfaState extends State<AnaSayfa> {
                       ),
                       icon: const Icon(Icons.refresh_rounded),
                     ),
+                    const SizedBox(width: 8),
+                    IconButton.filled(
+                      onPressed: () => Get.to(() => const Ayarlar()),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.2),
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: const Icon(Icons.settings_rounded),
+                    ),
                   ],
                 ),
               ),
@@ -100,17 +112,17 @@ class _AnaSayfaState extends State<AnaSayfa> {
                 child: Row(
                   children: [
                     _istatistikKart(
-                      baslik: "Toplam",
+                      baslik: 'home.stats.total'.tr,
                       deger: dogumGunuVeriYonetim.dogumGunuListe.length.toString(),
                       renk: Colors.white,
-                      altYazi: "kayıt",
+                      altYazi: 'home.stats.total.suffix'.tr,
                     ),
                     const SizedBox(width: 12),
                     _istatistikKart(
-                      baslik: "Yaklaşan",
+                      baslik: 'home.stats.upcoming'.tr,
                       deger: _yaklasanSayisi().toString(),
                       renk: Colors.white.withOpacity(0.9),
-                      altYazi: "önümüzdeki 7 gün",
+                      altYazi: 'home.stats.upcoming.suffix'.tr,
                     ),
                   ],
                 ),
@@ -161,7 +173,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
         onPressed: () => Get.to(() => const DogumGunuEkle()),
         backgroundColor: vurgu,
         foregroundColor: Colors.white,
-        label: const Text("Yeni Kişi"),
+        label: Text('home.button.newPerson'.tr),
         icon: const Icon(Icons.add_rounded),
       ),
     );
@@ -213,18 +225,18 @@ class _AnaSayfaState extends State<AnaSayfa> {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: const [
-            Icon(Icons.celebration, size: 72, color: Color(0xFFB9B6FF)),
-            SizedBox(height: 12),
+          children: [
+            const Icon(Icons.celebration, size: 72, color: Color(0xFFB9B6FF)),
+            const SizedBox(height: 12),
             Text(
-              "Henüz kayıt yok",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              'home.empty.title'.tr,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Text(
-              "Sevdiklerinin doğum günlerini ekleyip\nhatırlatmaları açabilirsin.",
+              'home.empty.desc'.tr,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.black54),
+              style: const TextStyle(color: Colors.black54),
             ),
           ],
         ),
@@ -235,7 +247,11 @@ class _AnaSayfaState extends State<AnaSayfa> {
   Widget _dogumKart(DogumGunu dogum, Color vurgu, Color metinRenk) {
     final kalanGun = _kalanGun(dogum);
     final yas = DateTime.now().year - dogum.dogumTarihi.year;
-    final burc = DogumGunu.burcIsimGetir(dogum.dogumTarihi);
+    final signId = DogumGunu.burcIdGetir(dogum.dogumTarihi);
+    final localeCode = Get.locale?.languageCode ?? 'tr';
+    final translations =
+        Tercumeler().keys[localeCode] ?? tr; // fallback to tr for safety
+    final burc = tZodiac(signId, 'name', translations);
 
     return GestureDetector(
       onTap: () => Get.to(() => Tavsiye(dogumGunu: dogum)),
@@ -304,7 +320,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     spacing: 8,
                     runSpacing: 4,
                     children: [
-                      _etiket("$yas yaş"),
+                      _etiket('home.age'.trParams({'age': yas.toString()})),
                       _etiket(burc),
                     ],
                   ),
@@ -322,14 +338,16 @@ class _AnaSayfaState extends State<AnaSayfa> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    kalanGun == 0 ? "Bugün" : "$kalanGun gün",
+                    kalanGun == 0
+                        ? 'home.countdown.today'.tr
+                        : 'home.countdown.days'.trParams({'days': kalanGun.toString()}),
                     style: TextStyle(
                       color: kalanGun == 0 ? Colors.green.shade700 : vurgu,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   Text(
-                    "kaldı",
+                    'home.countdown.left'.tr,
                     style: TextStyle(
                       color: kalanGun == 0 ? Colors.green.shade700 : Colors.grey.shade600,
                       fontSize: 12,

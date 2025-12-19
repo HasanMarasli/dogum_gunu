@@ -1,11 +1,14 @@
-import 'package:dogum_gunu/tercumeler/tr.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:dogum_gunu/tercumeler/tr.dart';
+import 'package:dogum_gunu/tercumeler/en.dart';
 
 class Tercumeler extends Translations {
   // Desteklenen dillerin listesi
   static Map<String, Locale> diller = {
     "Türkçe": const Locale("tr"),
+    "English": const Locale("en"),
   };
 
   // Locale'den dil adını döner
@@ -21,6 +24,7 @@ class Tercumeler extends Translations {
   @override
   Map<String, Map<String, String>> get keys => {
         'tr': tr,
+        'en': en,
       };
 
   static void menuDiliSec() {
@@ -60,9 +64,23 @@ class Tercumeler extends Translations {
 }
 
 class DilSecimiController extends GetxController {
+  DilSecimiController(this._box);
+  final GetStorage _box;
+
+  static const _localeKey = 'selected_locale';
+
+  Locale? readStoredLocale() {
+    final saved = _box.read<String>(_localeKey);
+    if (saved == null || saved.isEmpty) return null;
+    final parts = saved.split('_');
+    return Locale(parts.first, parts.length > 1 ? parts.last : null);
+  }
+
   // Dil seçimi yapıldığında Locale güncelleyen bir metot
   void dilDegistir(String dilKodu) {
-    var locale = Locale(dilKodu.split('_').first, dilKodu.split('_').last);
+    var parcalar = dilKodu.split('_');
+    var locale = Locale(parcalar.first, parcalar.length > 1 ? parcalar.last : null);
+    _box.write(_localeKey, dilKodu);
     Get.updateLocale(locale);
   }
 }

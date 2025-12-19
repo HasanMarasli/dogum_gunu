@@ -1,6 +1,7 @@
 import 'package:dogum_gunu/models/dogum_gunu.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:dogum_gunu/veriTabani/dogum_gunu_veri_tabani.dart';
 import 'package:uuid/uuid.dart'; // Benzersiz ID oluşturmak için
 
@@ -51,8 +52,8 @@ class _KisiEkleState extends State<DogumGunuEkle> {
   Future<void> _tarihEkle() async {
     if (kisiAd.text.isEmpty || secilenTarih == null) {
       Get.snackbar(
-        "Hata",
-        "Lütfen isim ve tarih seçin!",
+        'add.error.title'.tr,
+        'add.error.missing'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
@@ -64,8 +65,8 @@ class _KisiEkleState extends State<DogumGunuEkle> {
     final isim = kisiAd.text.trim();
     if (await DogumGunuVeriTabani.isimZatenVar(isim)) {
       Get.snackbar(
-        "Hata",
-        "Bu isimle bir kayıt zaten var.",
+        'add.error.title'.tr,
+        'add.error.duplicate'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orange,
         colorText: Colors.white,
@@ -92,8 +93,8 @@ class _KisiEkleState extends State<DogumGunuEkle> {
 
     // Başarı mesajı
     Get.snackbar(
-      "Başarılı",
-      "Doğum günü başarıyla eklendi.",
+      'add.success.title'.tr,
+      'add.success.message'.tr,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.green,
       colorText: Colors.white,
@@ -112,7 +113,7 @@ class _KisiEkleState extends State<DogumGunuEkle> {
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text("Yeni Kişi Ekle"),
+        title: Text('add.title'.tr),
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -131,9 +132,9 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 6),
-                  const Text(
-                    "Sevdiklerini listene ekle,\nbildirimleri otomatik alsın.",
-                    style: TextStyle(
+                  Text(
+                    'add.hero'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
@@ -157,9 +158,9 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Kişi Bilgileri",
-                          style: TextStyle(
+                        Text(
+                          'add.section.info'.tr,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
                           ),
@@ -168,8 +169,8 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                         TextField(
                           controller: kisiAd,
                           decoration: InputDecoration(
-                            labelText: "Kişi adı",
-                            hintText: "Örn: Ayşe Yılmaz",
+                            labelText: 'add.field.name.label'.tr,
+                            hintText: 'add.field.name.hint'.tr,
                             filled: true,
                             fillColor: const Color(0xFFF6F7FB),
                             border: OutlineInputBorder(
@@ -195,8 +196,10 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                                 Expanded(
                                   child: Text(
                                     secilenTarih == null
-                                        ? "Doğum tarihini seçin"
-                                        : "${secilenTarih!.day} ${_ayAdi(secilenTarih!.month)} ${secilenTarih!.year}",
+                                      ? 'add.field.date.placeholder'.tr
+                                      : DateFormat(
+                                              'd MMMM y', Get.locale?.toLanguageTag() ?? 'tr')
+                                          .format(secilenTarih!),
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       color: secilenTarih == null ? Colors.grey.shade600 : Colors.black,
@@ -211,7 +214,9 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Text(
-                                    secilenTarih == null ? "Seç" : "Değiştir",
+                                    secilenTarih == null
+                                        ? 'add.field.date.select'.tr
+                                        : 'add.field.date.change'.tr,
                                     style: const TextStyle(
                                       color: Color(0xFF5B54E3),
                                       fontWeight: FontWeight.w700,
@@ -233,9 +238,9 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                             ),
                             icon: const Icon(Icons.notifications_active_rounded),
-                            label: const Text(
-                              "Kaydet ve Hatırlat",
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                            label: Text(
+                              'add.button.save'.tr,
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                             ),
                           ),
                         ),
@@ -251,22 +256,4 @@ class _KisiEkleState extends State<DogumGunuEkle> {
     );
   }
 
-  // Ay numarasını Türkçe isimle döndüren yardımcı metot
-  String _ayAdi(int ay) {
-    const List<String> aylar = [
-      "Ocak",
-      "Şubat",
-      "Mart",
-      "Nisan",
-      "Mayıs",
-      "Haziran",
-      "Temmuz",
-      "Ağustos",
-      "Eylül",
-      "Ekim",
-      "Kasım",
-      "Aralık",
-    ];
-    return aylar[ay - 1];
-  }
 }

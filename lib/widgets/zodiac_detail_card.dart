@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:get/get.dart';
+
+import '../tercumeler/tercumeler.dart';
 import '../tercumeler/tr.dart';
 
 class ZodiacDetailCard extends StatelessWidget {
@@ -9,10 +12,14 @@ class ZodiacDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = tZodiac(signId, 'name', tr);
-    final shortText = tZodiac(signId, 'short', tr);
-    final giftItems = tZodiacList(signId, 'gifts', tr);
-    final surpriseItems = tZodiacList(signId, 'surprises', tr);
+    final localeCode = Get.locale?.languageCode ?? 'tr';
+    final translations =
+        Tercumeler().keys[localeCode] ?? tr; // fallback to tr if not found
+
+    final name = tZodiac(signId, 'name', translations);
+    final shortText = tZodiac(signId, 'short', translations);
+    final giftItems = tZodiacList(signId, 'gifts', translations);
+    final surpriseItems = tZodiacList(signId, 'surprises', translations);
 
     return Card(
       child: Padding(

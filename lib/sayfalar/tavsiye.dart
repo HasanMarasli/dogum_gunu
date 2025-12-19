@@ -1,8 +1,10 @@
-import 'package:dogum_gunu/models/dogum_gunu.dart';
-import 'package:dogum_gunu/tercumeler/tr.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
+import 'package:dogum_gunu/models/dogum_gunu.dart';
+import 'package:dogum_gunu/tercumeler/tercumeler.dart';
+import 'package:dogum_gunu/tercumeler/tr.dart';
 
 class Tavsiye extends StatefulWidget {
   final DogumGunu dogumGunu;
@@ -20,18 +22,22 @@ class _TavsiyeState extends State<Tavsiye> {
   Widget build(BuildContext context) {
     final tarih = DogumGunu.tarihYazdir(widget.dogumGunu.dogumTarihi);
     final signId = DogumGunu.burcIdGetir(widget.dogumGunu.dogumTarihi);
-    final signName = tZodiac(signId, 'name', tr);
-    final shortText = tZodiac(signId, 'short', tr);
-    final giftItems = tZodiacList(signId, 'gifts', tr);
-    final surpriseItems = tZodiacList(signId, 'surprises', tr);
+    final localeCode = Get.locale?.languageCode ?? 'tr';
+    final translations = Tercumeler().keys[localeCode] ?? tr; // fallback to tr for safety
+    final signName = tZodiac(signId, 'name', translations);
+    final shortText = tZodiac(signId, 'short', translations);
+    final giftItems = tZodiacList(signId, 'gifts', translations);
+    final surpriseItems = tZodiacList(signId, 'surprises', translations);
+    final dateRange = tZodiac(signId, 'range', translations);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: Text("${widget.dogumGunu.isim} için"),
+        title: Text('advice.appbar'.trParams({'name': widget.dogumGunu.isim})),
       ),
       body: Container(
+        height: Get.height,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFF6C63FF), Color(0xFF928DFF)],
@@ -101,7 +107,7 @@ class _TavsiyeState extends State<Tavsiye> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        DogumGunu.burcTarihAraligiGetir(widget.dogumGunu.dogumTarihi),
+                        dateRange,
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -133,9 +139,9 @@ class _TavsiyeState extends State<Tavsiye> {
                       ),
                       const Gap(12),
                       if (giftItems.isNotEmpty) ...[
-                        const Text(
-                          'Hediye Önerileri',
-                          style: TextStyle(
+                        Text(
+                          'advice.gifts.title'.tr,
+                          style: const TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w700,
                           ),
@@ -161,9 +167,9 @@ class _TavsiyeState extends State<Tavsiye> {
                         const Gap(12),
                       ],
                       if (surpriseItems.isNotEmpty) ...[
-                        const Text(
-                          'Sürpriz Önerileri',
-                          style: TextStyle(
+                        Text(
+                          'advice.surprises.title'.tr,
+                          style: const TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w700,
                           ),
@@ -189,7 +195,7 @@ class _TavsiyeState extends State<Tavsiye> {
                         const Gap(12),
                       ],
                       Text(
-                        "Doğum günü yaklaştığında otomatik hatırlatma alacaksın. Bu kartı kişiye özel notlar ve hediye fikirleri için kullanabilirsin.",
+                        'advice.info'.tr,
                         style: TextStyle(
                           color: Colors.grey.shade700,
                           height: 1.4,

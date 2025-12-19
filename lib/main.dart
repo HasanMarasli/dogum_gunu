@@ -2,16 +2,31 @@ import 'package:dogum_gunu/models/dogum_gunu.dart';
 import 'package:dogum_gunu/sayfalar/ana_sayfa.dart';
 import 'package:dogum_gunu/tercumeler/tercumeler.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_instance/get_instance.dart';
-import 'package:get/route_manager.dart';
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('tr', null);
+  await initializeDateFormatting('en', null);
+  await GetStorage.init();
+
+  final box = GetStorage();
+  final dilController = Get.put(DilSecimiController(box));
+  final storedLocale = dilController.readStoredLocale();
+
   Get.put(DogumGunuVeriYonetim());
-  runApp(const MyApp());
+
+  runApp(MyApp(
+    initialLocale: storedLocale ?? const Locale('tr'),
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, required this.initialLocale});
+
+  final Locale initialLocale;
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +34,9 @@ class MyApp extends StatelessWidget {
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
         translations: Tercumeler(),
-        locale: const Locale("tr"),
+        locale: initialLocale,
         fallbackLocale: const Locale('en'),
-        title: 'Doğum Günü',
+        title: 'app.title'.tr,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
             seedColor: const Color(0xFF6C63FF),
