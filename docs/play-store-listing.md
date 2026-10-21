@@ -5,7 +5,7 @@
 - Uygulama türü: Uygulama · Kategori: **Yaşam Tarzı**
 - Ücret: Ücretsiz · Reklam yok · Uygulama içi satın alma yok
 - İletişim e-postası: m.hasan.marasli@gmail.com
-- Gizlilik politikası: https://hasanmarasli.github.io/dogum-gunu-gizlilik/
+- Gizlilik politikası: https://muhammethasanmarasli.com/gizlilik-politikasi/dogumGunu
 
 Metinler yalnızca uygulamada gerçekten olan özellikleri anlatır.
 
