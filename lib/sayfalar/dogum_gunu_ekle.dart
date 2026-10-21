@@ -53,6 +53,8 @@ class _KisiEkleState extends State<DogumGunuEkle> {
     setState(() => _tarihAcik = true);
     final secilen = await dogumTarihiSec(context, baslangic: secilenTarih);
     if (!mounted) return;
+    // Alt sayfa kapanınca odak isim alanına dönüp klavyeyi açmasın.
+    FocusManager.instance.primaryFocus?.unfocus();
     setState(() {
       _tarihAcik = false;
       if (secilen != null) secilenTarih = secilen;

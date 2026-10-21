@@ -34,7 +34,8 @@ class _TarihSeciciState extends State<_TarihSecici> {
   static const double _yilSatir = 52;
 
   late final DateTime _bugun;
-  late DateTime _secili;
+  // Yeni kişide seçim boş başlar; bir gün seçilmeden Tamam pasiftir.
+  DateTime? _secili;
   late int _gorunenYil;
   late int _gorunenAy;
   bool _yillar = false;
@@ -50,11 +51,12 @@ class _TarihSeciciState extends State<_TarihSecici> {
     super.initState();
     final simdi = DateTime.now();
     _bugun = DateTime(simdi.year, simdi.month, simdi.day);
-    final b = widget.baslangic ?? _bugun;
-    _secili = DateTime(b.year, b.month, b.day);
-    _gorunenYil = _secili.year;
-    _gorunenAy = _secili.month;
-    _onYil = _onYilOf(_secili.year);
+    final b = widget.baslangic;
+    _secili = b == null ? null : DateTime(b.year, b.month, b.day);
+    final acilis = _secili ?? _bugun;
+    _gorunenYil = acilis.year;
+    _gorunenAy = acilis.month;
+    _onYil = _onYilOf(acilis.year);
     _yilKaydirma.addListener(_yilKaydirildi);
   }
 
@@ -135,8 +137,11 @@ class _TarihSeciciState extends State<_TarihSecici> {
 
   void _yilKaydirildi() {
     final pos = _yilKaydirma.position;
-    final satir = ((pos.pixels + pos.viewportDimension / 2) ~/ _yilSatir);
-    final onYil = _onYilOf(_minYil + satir * 5).clamp(_minYil, _maxYil);
+    final satir = ((pos.pixels + pos.viewportDimension / 4) ~/ _yilSatir);
+    var onYil = _onYilOf(_minYil + satir * 5).clamp(_minYil, _maxYil);
+    // Liste uçlara dayandığında şerit ilk/son on yılı göstersin.
+    if (pos.pixels >= pos.maxScrollExtent - 1) onYil = _onYilOf(_maxYil);
+    if (pos.pixels <= 0) onYil = _minYil;
     if (onYil != _onYil) {
       setState(() => _onYil = onYil);
       _seridiOrtala(onYil);
@@ -165,10 +170,14 @@ class _TarihSeciciState extends State<_TarihSecici> {
     final r = context.renk;
     final scheme = Theme.of(context).colorScheme;
     final metin = Theme.of(context).textTheme;
-    final burcId = DogumGunu.burcIdGetir(_secili);
-    final burc = tZodiac(burcId, 'name', Tercumeler().keys[_dil] ?? tr);
-    final gunAdi =
-        toBeginningOfSentenceCase(DateFormat('EEEE', _dil).format(_secili));
+    final secili = _secili;
+    final burcId = secili == null ? null : DogumGunu.burcIdGetir(secili);
+    final burc = burcId == null
+        ? ''
+        : tZodiac(burcId, 'name', Tercumeler().keys[_dil] ?? tr);
+    final gunAdi = secili == null
+        ? ''
+        : toBeginningOfSentenceCase(DateFormat('EEEE', _dil).format(secili));
 
     final ilkAyda = _gorunenYil == _minYil && _gorunenAy == 1;
     final sonAyda = _gorunenYil == _bugun.year && _gorunenAy == _bugun.month;
@@ -216,19 +225,33 @@ class _TarihSeciciState extends State<_TarihSecici> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        DogumGunu.tarihYazdir(_secili),
-                        style: metin.headlineMedium,
+                        secili == null
+                            ? 'picker.empty'.tr
+                            : DogumGunu.tarihYazdir(secili),
+                        style: metin.headlineMedium?.copyWith(
+                          color: secili == null ? r.tx3 : null,
+                        ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '$gunAdi · $burc',
+                        secili == null ? 'picker.hint'.tr : '$gunAdi · $burc',
                         style: metin.bodyMedium?.copyWith(color: r.tx2),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 14),
-                BurcRozeti(burcId: burcId, boyut: 56),
+                burcId == null
+                    ? Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: r.s2,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Icon(Icons.cake_rounded, size: 28, color: r.tx3),
+                      )
+                    : BurcRozeti(burcId: burcId, boyut: 56),
               ],
             ),
           ),
@@ -313,7 +336,9 @@ class _TarihSeciciState extends State<_TarihSecici> {
               const SizedBox(width: 10),
               Expanded(
                 child: FilledButton.icon(
-                  onPressed: () => Navigator.of(context).pop(_secili),
+                  onPressed: secili == null
+                      ? null
+                      : () => Navigator.of(context).pop(secili),
                   style: FilledButton.styleFrom(
                     minimumSize: const Size(0, 48),
                   ),
@@ -484,7 +509,7 @@ class _TarihSeciciState extends State<_TarihSecici> {
             itemCount: yilSayisi,
             itemBuilder: (context, i) {
               final y = _minYil + i;
-              final secili = y == _secili.year;
+              final secili = y == _secili?.year;
               final gorunen = y == _gorunenYil && !secili;
               final buYil = y == _bugun.year;
               return Material(

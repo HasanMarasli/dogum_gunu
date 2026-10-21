@@ -114,6 +114,8 @@ final Map<String, String> en = {
   'picker.ok': 'OK',
   'picker.prevMonth': 'Previous month',
   'picker.nextMonth': 'Next month',
+  'picker.empty': 'No date yet',
+  'picker.hint': 'Pick a day on the calendar',
 // Advice/Tavsiye
   'advice.appbar': 'For @name',
   'advice.info':

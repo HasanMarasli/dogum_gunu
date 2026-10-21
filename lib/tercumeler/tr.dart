@@ -114,6 +114,8 @@ Map<String, String> tr = {
   'picker.ok': 'Tamam',
   'picker.prevMonth': 'Önceki ay',
   'picker.nextMonth': 'Sonraki ay',
+  'picker.empty': 'Tarih seçilmedi',
+  'picker.hint': 'Takvimden bir gün seç',
   // Advice/Tavsiye
   'advice.appbar': '@name için',
   'advice.info':
