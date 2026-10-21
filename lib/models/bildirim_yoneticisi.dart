@@ -97,17 +97,21 @@ class BildirimYoneticisi {
           iOS: const DarwinNotificationDetails(),
         );
 
-        await bildirimYoneticisi.zonedSchedule(
-          _bildirimIdUret(dogumGunu.id, gun, sira),
-          baslik,
-          govde,
-          tz.TZDateTime.from(hedef, tz.local),
-          detay,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
-          payload: dogumGunu.id, // Doğrudan GUID gönderiyoruz
-          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        );
+        try {
+          await bildirimYoneticisi.zonedSchedule(
+            _bildirimIdUret(dogumGunu.id, gun, sira),
+            baslik,
+            govde,
+            tz.TZDateTime.from(hedef, tz.local),
+            detay,
+            uiLocalNotificationDateInterpretation:
+                UILocalNotificationDateInterpretation.absoluteTime,
+            payload: dogumGunu.id, // Doğrudan GUID gönderiyoruz
+            androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          );
+        } catch (_) {
+          // Bir bildirimin kurulamaması kaydı engellemesin.
+        }
       }
     }
   }
