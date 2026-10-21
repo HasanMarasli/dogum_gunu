@@ -46,6 +46,10 @@ Map<String, String> tr = {
   'home.countdown.left': 'kaldı',
   // Splash
   'splash.subtitle': 'Sevdiklerini kutlamayı unutma',
+  'splash.pill.add': 'Sevdiklerini ekle',
+  'splash.pill.reminder': 'Akıllı hatırlatma',
+  'splash.pill.privacy': 'Gizlilik odaklı',
+  'splash.loading': 'Hazırlanıyor…',
   // Add person
   'add.title': 'Yeni Kişi Ekle',
   'add.hero': 'Sevdiklerini listene ekle,\nbildirimleri otomatik alsın.',

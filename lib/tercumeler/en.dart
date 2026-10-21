@@ -45,6 +45,10 @@ final Map<String, String> en = {
   'home.countdown.left': 'left',
 // Splash
   'splash.subtitle': 'Never miss celebrating your loved ones',
+  'splash.pill.add': 'Add loved ones',
+  'splash.pill.reminder': 'Smart reminders',
+  'splash.pill.privacy': 'Privacy first',
+  'splash.loading': 'Getting ready…',
 // Add person
   'add.title': 'Add New Person',
   'add.hero': 'Add your loved ones to your list\nand get automatic reminders.',
