@@ -14,6 +14,8 @@ import 'package:dogum_gunu/tercumeler/tr.dart';
 import '../tema/renkler.dart';
 import '../widgets/bildirim_uyarisi.dart';
 import '../widgets/burc_rozeti.dart';
+import '../widgets/ozel_snackbar.dart';
+import '../widgets/silme_dialogu.dart';
 
 class AnaSayfa extends StatefulWidget {
   const AnaSayfa({super.key});
@@ -491,7 +493,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         padding: EdgeInsets.zero,
         icon: Icon(Icons.more_vert_rounded, size: 22, color: r.tx2),
         position: PopupMenuPosition.under,
-        constraints: const BoxConstraints(minWidth: 184),
+        constraints: const BoxConstraints(minWidth: 196),
         onSelected: (value) {
           if (value == 'delete') _kisiSil(dogum);
         },
@@ -506,7 +508,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                 Text(
                   'home.menu.delete'.tr,
                   style: TextStyle(
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     fontSize: 15,
                     color: r.err,
                   ),
@@ -569,38 +571,14 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   }
 
   Future<void> _kisiSil(DogumGunu dogum) async {
-    final scheme = Theme.of(context).colorScheme;
-    final onay = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('home.delete.title'.tr),
-        content: Text('home.delete.confirm'.trParams({'name': dogum.isim})),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child: Text('home.delete.cancel'.tr),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: scheme.error),
-            onPressed: () => Get.back(result: true),
-            child: Text('home.delete.confirmButton'.tr),
-          ),
-        ],
-      ),
-    );
-
-    if (onay != true) return;
+    final onay = await silmeOnayiIste(context, dogum.isim);
+    if (!onay) return;
 
     await DogumGunuVeriTabani.veriSil(dogum.id);
     await _verileriCek();
-    Get.snackbar(
-      'home.delete.done.title'.tr,
-      'home.delete.done.msg'.trParams({'name': dogum.isim}),
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.green.shade600,
-      colorText: Colors.white,
-      margin: const EdgeInsets.all(12),
-      duration: const Duration(seconds: 2),
+    OzelSnackbar.basari(
+      baslik: 'home.delete.done.title'.tr,
+      mesaj: 'home.delete.done.msg'.trParams({'name': dogum.isim}),
     );
   }
 }
