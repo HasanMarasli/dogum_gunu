@@ -26,42 +26,6 @@ class Tercumeler extends Translations {
         'tr': tr,
         'en': en,
       };
-
-  static void menuDiliSec() {
-    Get.dialog(
-      AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0), // Köşe yuvarlama değeri
-        ),
-        content: Container(
-          constraints: const BoxConstraints(maxHeight: 250),
-          child: Scrollbar(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: diller.entries.map((entry) {
-                  var dilAdi = entry.key;
-                  var locale = entry.value;
-                  return Column(
-                    children: [
-                      ListTile(
-                        title: Text(dilAdi),
-                        onTap: () {
-                          Get.find<DilSecimiController>()
-                              .dilDegistir(locale.toString());
-                          Get.back(); // Dialogu kapatır
-                        },
-                      ),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class DilSecimiController extends GetxController {
