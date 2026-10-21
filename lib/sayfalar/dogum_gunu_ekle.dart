@@ -1,14 +1,19 @@
 import 'package:dogum_gunu/models/dogum_gunu.dart';
-import 'package:dogum_gunu/tema/tema_yoneticisi.dart';
 import 'package:dogum_gunu/widgets/ozel_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:dogum_gunu/veriTabani/dogum_gunu_veri_tabani.dart';
 import 'package:uuid/uuid.dart';
 
+import '../tema/renkler.dart';
+import '../widgets/tarih_secici.dart';
+
+/// Yeni kişi ekleme ekranı. [duzenlenecek] verilirse aynı ekran
+/// "Kişiyi Düzenle" olarak açılır.
 class DogumGunuEkle extends StatefulWidget {
-  const DogumGunuEkle({super.key});
+  const DogumGunuEkle({super.key, this.duzenlenecek});
+
+  final DogumGunu? duzenlenecek;
 
   @override
   State<DogumGunuEkle> createState() => _KisiEkleState();
@@ -16,42 +21,48 @@ class DogumGunuEkle extends StatefulWidget {
 
 class _KisiEkleState extends State<DogumGunuEkle> {
   final TextEditingController kisiAd = TextEditingController();
+  final FocusNode _adOdak = FocusNode();
   DateTime? secilenTarih;
+  bool _tarihAcik = false;
+  bool _kaydediliyor = false;
 
   final DogumGunuVeriYonetim dogumGunuYonetim = Get.find();
 
-  Future<void> _tarihSec(BuildContext context) async {
-    final scheme = Theme.of(context).colorScheme;
-    final DateTime? secilen = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2100),
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: scheme.primary,
-              brightness: Brightness.light,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: scheme.primary),
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
+  bool get _duzenleme => widget.duzenlenecek != null;
 
-    if (secilen != null) {
-      setState(() {
-        secilenTarih = secilen;
-      });
+  @override
+  void initState() {
+    super.initState();
+    final d = widget.duzenlenecek;
+    if (d != null) {
+      kisiAd.text = d.isim;
+      secilenTarih = d.dogumTarihi;
     }
+    _adOdak.addListener(() => setState(() {}));
   }
 
-  Future<void> _tarihEkle() async {
-    if (kisiAd.text.isEmpty || secilenTarih == null) {
+  @override
+  void dispose() {
+    kisiAd.dispose();
+    _adOdak.dispose();
+    super.dispose();
+  }
+
+  Future<void> _tarihSec(BuildContext context) async {
+    FocusScope.of(context).unfocus();
+    setState(() => _tarihAcik = true);
+    final secilen = await dogumTarihiSec(context, baslangic: secilenTarih);
+    if (!mounted) return;
+    setState(() {
+      _tarihAcik = false;
+      if (secilen != null) secilenTarih = secilen;
+    });
+  }
+
+  Future<void> _kaydet() async {
+    if (_kaydediliyor) return;
+    final isim = kisiAd.text.trim().replaceAll(RegExp(r'\s+'), ' ');
+    if (isim.isEmpty || secilenTarih == null) {
       OzelSnackbar.hata(
         baslik: 'add.error.title'.tr,
         mesaj: 'add.error.missing'.tr,
@@ -59,8 +70,8 @@ class _KisiEkleState extends State<DogumGunuEkle> {
       return;
     }
 
-    final isim = kisiAd.text.trim();
-    if (await DogumGunuVeriTabani.isimZatenVar(isim)) {
+    if (await DogumGunuVeriTabani.isimZatenVar(isim,
+        haricId: widget.duzenlenecek?.id)) {
       OzelSnackbar.uyari(
         baslik: 'add.error.title'.tr,
         mesaj: 'add.error.duplicate'.tr,
@@ -68,184 +79,194 @@ class _KisiEkleState extends State<DogumGunuEkle> {
       return;
     }
 
-    final String id = const Uuid().v4();
-
-    final DogumGunu yeniDogum = DogumGunu(
-      id: id,
-      isim: isim,
-      dogumTarihi: secilenTarih!,
-    );
-
-    await DogumGunuVeriTabani.veriEkle(yeniDogum);
-
-    dogumGunuYonetim.dogumGunuListe.add(yeniDogum);
-    Get.back();
-
-    OzelSnackbar.basari(
-      baslik: 'add.success.title'.tr,
-      mesaj: 'add.success.message'.tr,
-    );
-
-    setState(() {
-      kisiAd.clear();
-      secilenTarih = null;
-    });
+    setState(() => _kaydediliyor = true);
+    try {
+      if (_duzenleme) {
+        final guncel = DogumGunu(
+          id: widget.duzenlenecek!.id,
+          isim: isim,
+          dogumTarihi: secilenTarih!,
+        );
+        await DogumGunuVeriTabani.veriGuncelle(guncel);
+        final liste = dogumGunuYonetim.dogumGunuListe;
+        final i = liste.indexWhere((e) => e.id == guncel.id);
+        if (i >= 0) liste[i] = guncel;
+        if (mounted) Navigator.of(context).pop(guncel);
+        OzelSnackbar.basari(
+          baslik: 'add.success.title'.tr,
+          mesaj: 'edit.success.message'.tr,
+        );
+      } else {
+        final yeniDogum = DogumGunu(
+          id: const Uuid().v4(),
+          isim: isim,
+          dogumTarihi: secilenTarih!,
+        );
+        await DogumGunuVeriTabani.veriEkle(yeniDogum);
+        dogumGunuYonetim.dogumGunuListe.add(yeniDogum);
+        if (mounted) Navigator.of(context).pop(yeniDogum);
+        OzelSnackbar.basari(
+          baslik: 'add.success.title'.tr,
+          mesaj: 'add.success.message'.tr,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _kaydediliyor = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final r = context.renk;
     final scheme = Theme.of(context).colorScheme;
-    final tema = Get.find<TemaYoneticisi>();
+    final metin = Theme.of(context).textTheme;
+    final klavyeAcik = MediaQuery.of(context).viewInsets.bottom > 0;
+    final odakli = _adOdak.hasFocus;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7FB),
+      backgroundColor: r.bg,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        elevation: 0,
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.transparent,
-        title: Text(
-          'add.title'.tr,
-          style:
-              const TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
+        backgroundColor: r.bg,
+        titleSpacing: 0,
+        leading: IconButton(
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          onPressed: () => Navigator.of(context).maybePop(),
+          icon: const Icon(Icons.arrow_back_rounded),
         ),
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [tema.gradientStart, tema.gradientEnd],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              stops: const [0, 1],
-            ),
-          ),
-        ),
+        title: Text(_duzenleme ? 'edit.title'.tr : 'add.title'.tr),
       ),
-      body: Container(
-        height: Get.height,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [tema.gradientStart, tema.gradientEnd],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: const [0, 1],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 6),
                   Text(
-                    'add.hero'.tr,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
+                    _duzenleme ? 'edit.hero'.tr : 'add.hero'.tr,
+                    style: metin.bodyLarge?.copyWith(color: r.tx2),
+                  ),
+                  const SizedBox(height: 28),
+                  Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: scheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(11),
+                        ),
+                        child: Icon(Icons.person_rounded,
+                            size: 20, color: scheme.onPrimaryContainer),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'add.section.info'.tr,
+                        style: metin.titleLarge?.copyWith(fontSize: 20),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'add.field.name.label'.tr,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                      color: odakli ? scheme.primary : r.tx2,
                     ),
                   ),
-                  const SizedBox(height: 18),
-                  Container(
-                    width: double.infinity,
+                  const SizedBox(height: 6),
+                  DecoratedBox(
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.06),
-                          blurRadius: 14,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: odakli
+                          ? [
+                              BoxShadow(
+                                color: scheme.primary.withValues(alpha: 0.2),
+                                spreadRadius: 3,
+                              )
+                            ]
+                          : null,
                     ),
-                    padding: const EdgeInsets.all(18),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: scheme.primary.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Icon(Icons.person_add_rounded,
-                                  color: scheme.primary, size: 20),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              'add.section.info'.tr,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
+                    child: TextField(
+                      controller: kisiAd,
+                      focusNode: _adOdak,
+                      textCapitalization: TextCapitalization.words,
+                      textInputAction: TextInputAction.done,
+                      maxLength: 60,
+                      buildCounter: (_,
+                              {required currentLength,
+                              required isFocused,
+                              maxLength}) =>
+                          null,
+                      cursorColor: scheme.primary,
+                      style: metin.bodyLarge,
+                      decoration: InputDecoration(
+                        hintText: 'add.field.name.hint'.tr,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 14),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Semantics(
+                    button: true,
+                    label: 'add.field.date.placeholder'.tr,
+                    child: Material(
+                      color: r.s1,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        side: BorderSide(
+                          color: _tarihAcik ? scheme.primary : r.bd2,
+                          width: 1.5,
                         ),
-                        const SizedBox(height: 14),
-                        TextField(
-                          controller: kisiAd,
-                          decoration: InputDecoration(
-                            labelText: 'add.field.name.label'.tr,
-                            hintText: 'add.field.name.hint'.tr,
-                            filled: true,
-                            fillColor: const Color(0xFFF6F7FB),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        GestureDetector(
-                          onTap: () => _tarihSec(context),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 14),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF6F7FB),
-                              borderRadius: BorderRadius.circular(14),
-                              border:
-                                  Border.all(color: const Color(0xFFE3E3EE)),
-                            ),
+                      ),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(14),
+                        onTap: () => _tarihSec(context),
+                        child: SizedBox(
+                          height: 52,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 14, right: 10),
                             child: Row(
                               children: [
-                                Icon(Icons.date_range_rounded,
-                                    color: scheme.primary),
+                                Icon(Icons.calendar_month_rounded,
+                                    size: 22, color: scheme.primary),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
                                     secilenTarih == null
                                         ? 'add.field.date.placeholder'.tr
-                                        : DateFormat(
-                                                'd MMMM y',
-                                                Get.locale?.toLanguageTag() ??
-                                                    'tr')
-                                            .format(secilenTarih!),
-                                    style: TextStyle(
-                                      fontSize: 16.0,
-                                      color: secilenTarih == null
-                                          ? Colors.grey.shade600
-                                          : Colors.black,
-                                      fontWeight: FontWeight.w600,
+                                        : DogumGunu.tarihYazdir(secilenTarih!),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: metin.bodyLarge?.copyWith(
+                                      color:
+                                          secilenTarih == null ? r.tx3 : r.tx,
                                     ),
                                   ),
                                 ),
                                 Container(
+                                  height: 32,
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 6),
+                                      horizontal: 14),
                                   decoration: BoxDecoration(
-                                    color: scheme.primary.withOpacity(0.12),
-                                    borderRadius: BorderRadius.circular(10),
+                                    color: scheme.primaryContainer,
+                                    borderRadius: BorderRadius.circular(999),
                                   ),
-                                  child: Text(
-                                    secilenTarih == null
-                                        ? 'add.field.date.select'.tr
-                                        : 'add.field.date.change'.tr,
-                                    style: TextStyle(
-                                      color: scheme.primary,
-                                      fontWeight: FontWeight.w700,
+                                  child: Center(
+                                    widthFactor: 1,
+                                    child: Text(
+                                      secilenTarih == null
+                                          ? 'add.field.date.select'.tr
+                                          : 'add.field.date.change'.tr,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                        color: scheme.onPrimaryContainer,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -253,34 +274,49 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            onPressed: _tarihEkle,
-                            style: FilledButton.styleFrom(
-                              backgroundColor: scheme.primary,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14)),
-                            ),
-                            icon:
-                                const Icon(Icons.notifications_active_rounded),
-                            label: Text(
-                              'add.button.save'.tr,
-                              style: const TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.w700),
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
           ),
-        ),
+          Container(
+            padding: EdgeInsets.fromLTRB(
+              20,
+              12,
+              20,
+              klavyeAcik ? 12 : 20 + MediaQuery.of(context).padding.bottom,
+            ),
+            decoration: BoxDecoration(
+              color: r.bg,
+              border: Border(
+                top: BorderSide(
+                  color: klavyeAcik ? r.bd : Colors.transparent,
+                ),
+              ),
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: FilledButton.icon(
+                onPressed: _kaydediliyor ? null : _kaydet,
+                style: FilledButton.styleFrom(
+                  textStyle: metin.labelLarge?.copyWith(fontSize: 16),
+                ),
+                icon: Icon(
+                  _duzenleme
+                      ? Icons.check_rounded
+                      : Icons.notifications_active_rounded,
+                  size: 20,
+                ),
+                label: Text(
+                  _duzenleme ? 'edit.button.save'.tr : 'add.button.save'.tr,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

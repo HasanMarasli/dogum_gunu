@@ -84,7 +84,8 @@ final Map<String, String> en = {
   'notification.body.before': '@name turns @age in @days days!',
 // Add person
   'add.title': 'Add New Person',
-  'add.hero': 'Add your loved ones to your list\nand get automatic reminders.',
+  'add.hero':
+      'Add your loved ones to your list and get reminders automatically.',
   'add.section.info': 'Person Info',
   'add.field.name.label': 'Name',
   'add.field.name.hint': 'e.g. Jane Doe',
@@ -97,6 +98,15 @@ final Map<String, String> en = {
   'add.error.duplicate': 'A record with this name already exists.',
   'add.success.title': 'Success',
   'add.success.message': 'Birthday added successfully.',
+  'edit.title': 'Edit Person',
+  'edit.hero': 'Update the details; reminders will follow the new date.',
+  'edit.button.save': 'Save Changes',
+  'edit.success.message': 'Your changes were saved.',
+  'picker.title': 'Birth date',
+  'picker.cancel': 'Cancel',
+  'picker.ok': 'OK',
+  'picker.prevMonth': 'Previous month',
+  'picker.nextMonth': 'Next month',
 // Advice/Tavsiye
   'advice.appbar': 'For @name',
   'advice.info':

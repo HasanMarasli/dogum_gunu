@@ -85,7 +85,7 @@ Map<String, String> tr = {
   'notification.body.before': '@name @days gün sonra @age yaşına girecek!',
   // Add person
   'add.title': 'Yeni Kişi Ekle',
-  'add.hero': 'Sevdiklerini listene ekle,\nbildirimleri otomatik alsın.',
+  'add.hero': 'Sevdiklerini listene ekle, bildirimleri otomatik alsın.',
   'add.section.info': 'Kişi Bilgileri',
   'add.field.name.label': 'Kişi adı',
   'add.field.name.hint': 'Örn: Ayşe Yılmaz',
@@ -98,6 +98,15 @@ Map<String, String> tr = {
   'add.error.duplicate': 'Bu isimle bir kayıt zaten var.',
   'add.success.title': 'Başarılı',
   'add.success.message': 'Doğum günü başarıyla eklendi.',
+  'edit.title': 'Kişiyi Düzenle',
+  'edit.hero': 'Bilgileri güncelle, hatırlatmalar yeni tarihe göre ayarlansın.',
+  'edit.button.save': 'Değişiklikleri Kaydet',
+  'edit.success.message': 'Değişiklikler kaydedildi.',
+  'picker.title': 'Doğum tarihi',
+  'picker.cancel': 'Vazgeç',
+  'picker.ok': 'Tamam',
+  'picker.prevMonth': 'Önceki ay',
+  'picker.nextMonth': 'Sonraki ay',
   // Advice/Tavsiye
   'advice.appbar': '@name için',
   'advice.info':
