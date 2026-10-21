@@ -173,6 +173,7 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
     required this.e2,
     required this.e3,
     required this.suc,
+    required this.onSuc,
     required this.succ,
     required this.onSucc,
     required this.err,
@@ -205,6 +206,7 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
   final List<BoxShadow> e2;
   final List<BoxShadow> e3;
   final Color suc;
+  final Color onSuc;
   final Color succ;
   final Color onSucc;
   final Color err;
@@ -258,6 +260,7 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
               color: Color(0x59000000), blurRadius: 8, offset: Offset(0, 3)),
         ],
         suc: const Color(0xFF6FD39B),
+        onSuc: const Color(0xFF0B2E1C),
         succ: const Color(0xFF12382A),
         onSucc: const Color(0xFFC9F2D9),
         err: const Color(0xFFFF8F86),
@@ -306,6 +309,7 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
             color: Color(0x14301E12), blurRadius: 8, offset: Offset(0, 3)),
       ],
       suc: const Color(0xFF1E7A45),
+      onSuc: const Color(0xFFFFFFFF),
       succ: const Color(0xFFDDF3E5),
       onSucc: const Color(0xFF0B3B20),
       err: const Color(0xFFC62828),
@@ -347,6 +351,7 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
       e2: t < 0.5 ? e2 : other.e2,
       e3: t < 0.5 ? e3 : other.e3,
       suc: c(suc, other.suc),
+      onSuc: c(onSuc, other.onSuc),
       succ: c(succ, other.succ),
       onSucc: c(onSucc, other.onSucc),
       err: c(err, other.err),

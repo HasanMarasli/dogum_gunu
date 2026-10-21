@@ -1,14 +1,19 @@
+import 'dart:async';
+
+import 'package:dogum_gunu/models/bildirim_yoneticisi.dart';
 import 'package:dogum_gunu/models/dogum_gunu.dart';
 import 'package:dogum_gunu/veriTabani/dogum_gunu_veri_tabani.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:dogum_gunu/sayfalar/dogum_gunu_ekle.dart';
 import 'package:dogum_gunu/sayfalar/tavsiye.dart';
 import 'package:dogum_gunu/sayfalar/ayarlar.dart';
 import 'package:dogum_gunu/tercumeler/tercumeler.dart';
 import 'package:dogum_gunu/tercumeler/tr.dart';
-import 'package:dogum_gunu/tema/tema_yoneticisi.dart';
+
+import '../tema/renkler.dart';
+import '../widgets/bildirim_uyarisi.dart';
+import '../widgets/burc_rozeti.dart';
 
 class AnaSayfa extends StatefulWidget {
   const AnaSayfa({super.key});
@@ -17,251 +22,347 @@ class AnaSayfa extends StatefulWidget {
   State<AnaSayfa> createState() => _AnaSayfaState();
 }
 
-class _AnaSayfaState extends State<AnaSayfa> {
+class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   bool isLoading = true;
+  bool _iskeletGoster = false;
+  bool _izinVar = true;
+  Timer? _iskeletZamanlayici;
   DogumGunuVeriYonetim dogumGunuVeriYonetim = Get.find<DogumGunuVeriYonetim>();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    // Hızlı yüklemelerde iskelet hiç görünmesin diye 300 ms gecikme.
+    _iskeletZamanlayici = Timer(const Duration(milliseconds: 300), () {
+      if (mounted && isLoading) setState(() => _iskeletGoster = true);
+    });
     _verileriCek();
+    _izinKontrol();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _iskeletZamanlayici?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _izinKontrol();
+  }
+
+  Future<void> _izinKontrol() async {
+    final izin = await BildirimYoneticisi().izinVarMi();
+    if (mounted && izin != _izinVar) setState(() => _izinVar = izin);
   }
 
   Future<void> _verileriCek() async {
-    setState(() {
-      isLoading = true;
-    });
-
     dogumGunuVeriYonetim.dogumGunuListe.value =
         await DogumGunuVeriTabani.tumVerileriGetir();
 
+    if (!mounted) return;
     setState(() {
       isLoading = false;
     });
   }
 
-  // Alarm seçeneklerini gösteren fonksiyon
-
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final tema = Get.find<TemaYoneticisi>();
-    const arkaPlan = Color(0xFFF6F7FB);
-    const baslikRenk = Color(0xFF121212);
-    final vurgu = scheme.primary;
+    final r = context.renk;
+    final metin = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: arkaPlan,
+      backgroundColor: r.bg,
       body: SafeArea(
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                tema.gradientStart,
-                tema.gradientEnd,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              stops: const [0, 0.35],
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-                child: Row(
-                  children: [
-                    Column(
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 12, 0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'home.title'.tr,
-                          style: const TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
+                        Text('home.title'.tr, style: metin.headlineMedium),
+                        const SizedBox(height: 4),
                         Text(
                           'home.subtitle'.tr,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white.withOpacity(0.85),
-                          ),
+                          style: metin.bodyMedium?.copyWith(color: r.tx2),
                         ),
                       ],
                     ),
-                    const Spacer(),
-                    IconButton.filled(
-                      onPressed: () => Get.to(() => const Ayarlar()),
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.white.withOpacity(0.2),
-                        foregroundColor: Colors.white,
-                      ),
-                      icon: const Icon(Icons.settings_rounded),
+                  ),
+                  IconButton(
+                    tooltip: 'settings.title'.tr,
+                    onPressed: () async {
+                      await Get.to(() => const Ayarlar());
+                      _izinKontrol();
+                    },
+                    iconSize: 24,
+                    color: r.tx2,
+                    style: IconButton.styleFrom(
+                      minimumSize: const Size(48, 48),
                     ),
-                  ],
-                ),
+                    icon: const Icon(Icons.settings_rounded),
+                  ),
+                ],
               ),
-              const SizedBox(height: 6),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 4),
+              child: Obx(() {
+                final liste = dogumGunuVeriYonetim.dogumGunuListe;
+                final yaklasan = _yaklasanSayisi();
+                return Row(
                   children: [
-                    _istatistikKart(
-                      baslik: 'home.stats.total'.tr,
-                      deger:
-                          dogumGunuVeriYonetim.dogumGunuListe.length.toString(),
-                      renk: Colors.white,
-                      altYazi: 'home.stats.total.suffix'.tr,
+                    Expanded(
+                      child: _istatistikKart(
+                        baslik: 'home.stats.total'.tr,
+                        deger: liste.length,
+                        altYazi: 'home.stats.total.suffix'.tr,
+                        vurgulu: false,
+                      ),
                     ),
-                    const SizedBox(width: 12),
-                    _istatistikKart(
-                      baslik: 'home.stats.upcoming'.tr,
-                      deger: _yaklasanSayisi().toString(),
-                      renk: Colors.white.withOpacity(0.9),
-                      altYazi: 'home.stats.upcoming.suffix'.tr,
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _istatistikKart(
+                        baslik: 'home.stats.upcoming'.tr,
+                        deger: yaklasan,
+                        altYazi: 'home.stats.upcoming.suffix'.tr,
+                        vurgulu: yaklasan > 0,
+                      ),
                     ),
                   ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(28)),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: RefreshIndicator(
-                      onRefresh: _verileriCek,
-                      child: isLoading
-                          ? const Center(child: CircularProgressIndicator())
-                          : Obx(
-                              () {
-                                if (dogumGunuVeriYonetim
-                                    .dogumGunuListe.isEmpty) {
-                                  return _bosDurum();
-                                }
+                );
+              }),
+            ),
+            Expanded(
+              child: isLoading
+                  ? (_iskeletGoster ? _iskelet() : const SizedBox.shrink())
+                  : RefreshIndicator(
+                      onRefresh: () async {
+                        await _verileriCek();
+                        await _izinKontrol();
+                      },
+                      child: Obx(
+                        () {
+                          final liste = [
+                            ...dogumGunuVeriYonetim.dogumGunuListe
+                          ];
+                          liste.sort(
+                              (a, b) => _kalanGun(a).compareTo(_kalanGun(b)));
 
-                                final liste = [
-                                  ...dogumGunuVeriYonetim.dogumGunuListe
-                                ];
-                                liste.sort((a, b) =>
-                                    _kalanGun(a).compareTo(_kalanGun(b)));
+                          final banner = !_izinVar;
+                          if (liste.isEmpty && !banner) return _bosDurum();
 
-                                return ListView.separated(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(20, 12, 20, 24),
-                                  itemCount: liste.length,
-                                  separatorBuilder: (_, __) =>
-                                      const SizedBox(height: 12),
-                                  itemBuilder: (context, index) {
-                                    final dogum = liste[index];
-                                    return _dogumKart(dogum, vurgu, baslikRenk);
-                                  },
+                          return ListView.separated(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: EdgeInsets.fromLTRB(20, 12, 20,
+                                104 + MediaQuery.of(context).padding.bottom),
+                            itemCount: liste.length + (banner ? 1 : 0),
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 10),
+                            itemBuilder: (context, index) {
+                              if (banner && index == 0) {
+                                return BildirimUyarisi(
+                                  baslik: 'home.notifOff.title'.tr,
+                                  mesaj: 'home.notifOff.desc'.tr,
+                                  eylem: 'home.notifOff.action'.tr,
                                 );
-                              },
-                            ),
+                              }
+                              return _dogumKart(
+                                  liste[index - (banner ? 1 : 0)]);
+                            },
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: _YeniKisiButonu(
         onPressed: () => Get.to(() => const DogumGunuEkle()),
-        backgroundColor: vurgu,
-        foregroundColor: Colors.white,
-        label: Text('home.button.newPerson'.tr),
-        icon: const Icon(Icons.add_rounded),
       ),
     );
   }
 
   Widget _istatistikKart({
     required String baslik,
-    required String deger,
-    required Color renk,
+    required int deger,
     required String altYazi,
+    required bool vurgulu,
   }) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: renk.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: renk.withOpacity(0.4)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              baslik,
-              style: TextStyle(color: renk.withOpacity(0.8)),
+    final r = context.renk;
+    final scheme = Theme.of(context).colorScheme;
+    final renk = vurgulu ? scheme.onPrimaryContainer : r.tx;
+    final ikincil =
+        vurgulu ? scheme.onPrimaryContainer.withValues(alpha: 0.85) : r.tx2;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+      decoration: BoxDecoration(
+        color: vurgulu ? scheme.primaryContainer : r.s2,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            baslik,
+            style: TextStyle(
+                fontWeight: FontWeight.w600, fontSize: 13, color: ikincil),
+          ),
+          const SizedBox(height: 2),
+          isLoading
+              ? Container(
+                  height: 26,
+                  width: 36,
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  decoration: BoxDecoration(
+                    color: r.s3,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                )
+              : Text(
+                  '$deger',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontSize: 30,
+                        height: 34 / 30,
+                        color: renk,
+                      ),
+                ),
+          const SizedBox(height: 2),
+          Text(
+            altYazi,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+                fontWeight: FontWeight.w500, fontSize: 13, color: ikincil),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _iskelet() {
+    final r = context.renk;
+    Widget blok(double w, double h, double yaricap) => Container(
+          width: w,
+          height: h,
+          decoration: BoxDecoration(
+            color: r.s3,
+            borderRadius: BorderRadius.circular(yaricap),
+          ),
+        );
+    const genislikler = [
+      [0.68, 0.44],
+      [0.56, 0.40],
+      [0.72, 0.36],
+      [0.50, 0.42],
+      [0.62, 0.38],
+    ];
+    return Semantics(
+      label: 'home.loading'.tr,
+      child: ListView.separated(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+        itemCount: genislikler.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 10),
+        itemBuilder: (context, i) => _Nabiz(
+          gecikme: Duration(milliseconds: 150 * i),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: r.s1,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: r.e1,
             ),
-            const SizedBox(height: 4),
-            Text(
-              deger,
-              style: TextStyle(
-                color: renk,
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-              ),
+            child: Row(
+              children: [
+                blok(48, 48, 14),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, c) => Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        blok(c.maxWidth * genislikler[i][0], 14, 7),
+                        const SizedBox(height: 8),
+                        blok(c.maxWidth * genislikler[i][1], 12, 6),
+                        const SizedBox(height: 8),
+                        Row(children: [
+                          blok(44, 20, 8),
+                          const SizedBox(width: 6),
+                          blok(44, 20, 8),
+                        ]),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                blok(60, 46, 16),
+              ],
             ),
-            Text(
-              altYazi,
-              style: TextStyle(color: renk.withOpacity(0.7), fontSize: 12),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
   Widget _bosDurum() {
+    final r = context.renk;
     final scheme = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: scheme.primary.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.celebration_rounded,
-                  size: 56, color: scheme.primary),
+    return LayoutBuilder(
+      builder: (context, c) => SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: c.maxHeight),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(32, 24, 32, 120),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 88,
+                  height: 88,
+                  decoration: BoxDecoration(
+                    color: scheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  child: Icon(Icons.cake_rounded,
+                      size: 44, color: scheme.onPrimaryContainer),
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  'home.empty.title'.tr,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'home.empty.desc'.tr,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 15, height: 1.5, color: r.tx2),
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            Text(
-              'home.empty.title'.tr,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'home.empty.desc'.tr,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade600, height: 1.5),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _dogumKart(DogumGunu dogum, Color vurgu, Color metinRenk) {
-    final tema = Get.find<TemaYoneticisi>();
+  Widget _dogumKart(DogumGunu dogum) {
+    final r = context.renk;
+    final scheme = Theme.of(context).colorScheme;
     final kalanGun = _kalanGun(dogum);
+    final bugun = kalanGun == 0;
     final yas = DateTime.now().year - dogum.dogumTarihi.year;
     final signId = DogumGunu.burcIdGetir(dogum.dogumTarihi);
     final localeCode = Get.locale?.languageCode ?? 'tr';
@@ -269,179 +370,196 @@ class _AnaSayfaState extends State<AnaSayfa> {
         Tercumeler().keys[localeCode] ?? tr; // fallback to tr for safety
     final burc = tZodiac(signId, 'name', translations);
 
-    return GestureDetector(
-      onTap: () => Get.to(() => Tavsiye(dogumGunu: dogum)),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
+    return Material(
+      color: r.s1,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () => Get.to(() => Tavsiye(dogumGunu: dogum)),
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: r.e1,
+            color: r.s1,
+            border: Border.all(
+              color: bugun ? r.suc.withValues(alpha: 0.55) : Colors.transparent,
+              width: 1.5,
             ),
-          ],
-          border: Border.all(color: Colors.grey.shade200),
-        ),
-        padding: const EdgeInsets.all(14),
-        child: Row(
-          children: [
-            Hero(
-              tag: dogum.id,
-              child: Container(
-                height: 60,
-                width: 60,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      tema.gradientStart,
-                      tema.gradientEnd,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                padding: const EdgeInsets.all(10),
-                child: SvgPicture.asset(
-                  DogumGunu.burcIconGetir(dogum.dogumTarihi),
-                  color: Colors.white,
-                ),
+          ),
+          padding: const EdgeInsets.fromLTRB(14, 12, 2, 12),
+          child: Row(
+            children: [
+              Hero(
+                tag: 'zodiac-${dogum.id}',
+                child: BurcRozeti(burcId: signId, boyut: 48),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    dogum.isim,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: metinRenk,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Icon(Icons.cake_rounded,
-                          size: 16, color: Colors.grey.shade600),
-                      const SizedBox(width: 6),
-                      Text(
-                        DogumGunu.tarihYazdir(dogum.dogumTarihi),
-                        style: TextStyle(color: Colors.grey.shade700),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
-                    children: [
-                      _etiket('home.age'.trParams({'age': yas.toString()})),
-                      _etiket(burc),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'delete') _kisiSil(dogum);
-                  },
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 'delete',
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete_outline_rounded,
-                              color: Colors.red.shade600),
-                          const SizedBox(width: 8),
-                          Text('home.menu.delete'.tr,
-                              style: TextStyle(color: Colors.red.shade600)),
-                        ],
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      dogum.isim,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        height: 22 / 16,
+                        color: r.tx,
                       ),
                     ),
-                  ],
-                  icon: Icon(Icons.more_vert_rounded,
-                      color: Colors.grey.shade600),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: kalanGun == 0
-                        ? Colors.green.shade50
-                        : vurgu.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        kalanGun == 0
-                            ? 'home.countdown.today'.tr
-                            : 'home.countdown.days'
-                                .trParams({'days': kalanGun.toString()}),
-                        style: TextStyle(
-                          color: kalanGun == 0 ? Colors.green.shade700 : vurgu,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      if (kalanGun != 0)
-                        Text(
-                          'home.countdown.left'.tr,
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 12,
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Icons.cake_rounded, size: 16, color: r.tx3),
+                        const SizedBox(width: 5),
+                        Flexible(
+                          child: Text(
+                            DogumGunu.tarihYazdir(dogum.dogumTarihi),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontSize: 13, height: 18 / 13, color: r.tx2),
                           ),
                         ),
-                    ],
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: [
+                        _etiket('home.age'.trParams({'age': yas.toString()})),
+                        _etiket(burc),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                constraints: const BoxConstraints(minWidth: 60),
+                height: 46,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  color: bugun ? r.suc : scheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      bugun
+                          ? 'home.countdown.today'.tr
+                          : 'home.countdown.days'
+                              .trParams({'days': kalanGun.toString()}),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontSize: 15,
+                            height: 1.15,
+                            color: bugun ? r.onSuc : scheme.onPrimaryContainer,
+                          ),
+                    ),
+                    if (!bugun)
+                      Text(
+                        'home.countdown.left'.tr,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                          height: 1.2,
+                          color: scheme.onPrimaryContainer,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              _menuButonu(dogum),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _menuButonu(DogumGunu dogum) {
+    final r = context.renk;
+    return SizedBox(
+      width: 36,
+      height: 44,
+      child: PopupMenuButton<String>(
+        tooltip: 'home.menu.more'.tr,
+        padding: EdgeInsets.zero,
+        icon: Icon(Icons.more_vert_rounded, size: 22, color: r.tx2),
+        position: PopupMenuPosition.under,
+        constraints: const BoxConstraints(minWidth: 184),
+        onSelected: (value) {
+          if (value == 'delete') _kisiSil(dogum);
+        },
+        itemBuilder: (context) => [
+          PopupMenuItem(
+            value: 'delete',
+            height: 48,
+            child: Row(
+              children: [
+                Icon(Icons.delete_rounded, size: 22, color: r.err),
+                const SizedBox(width: 14),
+                Text(
+                  'home.menu.delete'.tr,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 15,
+                    color: r.err,
                   ),
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _etiket(String yazi) {
-    final scheme = Theme.of(context).colorScheme;
+    final r = context.renk;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      height: 22,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        color: scheme.primary.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(10),
+        color: r.s2,
+        borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(
-        yazi,
-        style: TextStyle(
-          color: scheme.primary,
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
+      child: Center(
+        widthFactor: 1,
+        child: Text(
+          yazi,
+          style: TextStyle(
+            color: r.tx2,
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+          ),
         ),
       ),
     );
   }
 
+  /// 29 Şubat doğumlular artık olmayan yıllarda 28 Şubat'ta kutlanır.
+  DateTime _buYilkiDogumGunu(DateTime dogum, int yil) {
+    if (dogum.month == 2 && dogum.day == 29) {
+      final artik = (yil % 4 == 0 && yil % 100 != 0) || yil % 400 == 0;
+      return DateTime(yil, 2, artik ? 29 : 28);
+    }
+    return DateTime(yil, dogum.month, dogum.day);
+  }
+
   int _kalanGun(DogumGunu dogum) {
     final simdi = DateTime.now();
     final bugun = DateTime(simdi.year, simdi.month, simdi.day);
-    var sonrakiDogum =
-        DateTime(bugun.year, dogum.dogumTarihi.month, dogum.dogumTarihi.day);
+    var sonrakiDogum = _buYilkiDogumGunu(dogum.dogumTarihi, bugun.year);
     if (sonrakiDogum.isBefore(bugun)) {
-      sonrakiDogum = DateTime(
-          bugun.year + 1, dogum.dogumTarihi.month, dogum.dogumTarihi.day);
+      sonrakiDogum = _buYilkiDogumGunu(dogum.dogumTarihi, bugun.year + 1);
     }
-    return sonrakiDogum.difference(bugun).inDays;
+    // Yaz saati geçişlerinde saat farkı gün hesabını bozmasın.
+    return (sonrakiDogum.difference(bugun).inHours / 24).round();
   }
 
   int _yaklasanSayisi() {
@@ -457,7 +575,6 @@ class _AnaSayfaState extends State<AnaSayfa> {
       builder: (context) => AlertDialog(
         title: Text('home.delete.title'.tr),
         content: Text('home.delete.confirm'.trParams({'name': dogum.isim})),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
@@ -484,6 +601,93 @@ class _AnaSayfaState extends State<AnaSayfa> {
       colorText: Colors.white,
       margin: const EdgeInsets.all(12),
       duration: const Duration(seconds: 2),
+    );
+  }
+}
+
+class _YeniKisiButonu extends StatelessWidget {
+  const _YeniKisiButonu({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final r = context.renk;
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [r.g1, r.g2]),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: r.e3,
+      ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: onPressed,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 18, right: 22),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.add_rounded, size: 24, color: Colors.white),
+                const SizedBox(width: 10),
+                Text(
+                  'home.button.newPerson'.tr,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// İskelet kartlar için yumuşak opaklık nabzı.
+class _Nabiz extends StatefulWidget {
+  const _Nabiz({required this.child, required this.gecikme});
+
+  final Widget child;
+  final Duration gecikme;
+
+  @override
+  State<_Nabiz> createState() => _NabizState();
+}
+
+class _NabizState extends State<_Nabiz> with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 700),
+  );
+  Timer? _baslat;
+
+  @override
+  void initState() {
+    super.initState();
+    _baslat = Timer(widget.gecikme, () {
+      if (mounted) _ctrl.repeat(reverse: true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _baslat?.cancel();
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: Tween(begin: 1.0, end: 0.45)
+          .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut)),
+      child: widget.child,
     );
   }
 }

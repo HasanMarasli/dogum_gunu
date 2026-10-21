@@ -39,11 +39,16 @@ Map<String, String> tr = {
   'home.delete.done.msg': '@name kaldırıldı ve bildirimleri iptal edildi.',
   'home.empty.title': 'Henüz kayıt yok',
   'home.empty.desc':
-      'Sevdiklerinin doğum günlerini ekleyip\nhatırlatmaları açabilirsin.',
+      'Sevdiklerinin doğum günlerini ekleyip hatırlatmaları açabilirsin.',
   'home.age': '@age yaş',
   'home.countdown.today': 'Bugün',
   'home.countdown.days': '@days gün',
   'home.countdown.left': 'kaldı',
+  'home.notifOff.title': 'Bildirimler kapalı',
+  'home.notifOff.desc': 'İzin verilmediği için hatırlatmalar sana ulaşmayacak.',
+  'home.notifOff.action': 'Ayarları aç',
+  'home.loading': 'Yükleniyor',
+  'home.menu.more': 'Diğer',
   // Splash
   'splash.subtitle': 'Sevdiklerini kutlamayı unutma',
   'splash.pill.add': 'Sevdiklerini ekle',

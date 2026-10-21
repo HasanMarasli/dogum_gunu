@@ -95,7 +95,7 @@ class _TavsiyeState extends State<Tavsiye> {
               children: [
                 const SizedBox(height: 8),
                 Hero(
-                  tag: widget.dogumGunu.id,
+                  tag: 'zodiac-${widget.dogumGunu.id}',
                   child: Container(
                     height: 180,
                     width: 180,
