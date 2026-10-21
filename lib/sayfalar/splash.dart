@@ -2,9 +2,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 import '../tema/renkler.dart';
 import 'ana_sayfa.dart';
+import 'onboarding.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -49,8 +51,9 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
 
   void _devamEt() {
     if (!mounted) return;
+    final onboardingBitti = Onboarding.tamamlandiMi(GetStorage());
     Get.off(
-      () => const AnaSayfa(),
+      () => onboardingBitti ? const AnaSayfa() : const Onboarding(),
       transition: Transition.fade,
       duration: const Duration(milliseconds: 250),
     );

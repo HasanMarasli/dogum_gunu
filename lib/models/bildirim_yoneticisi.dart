@@ -19,7 +19,12 @@ class BildirimYoneticisi {
 
     var androidAyari =
         const AndroidInitializationSettings('@mipmap/ic_launcher');
-    var iosAyari = const DarwinInitializationSettings();
+    // İzin, onboarding'in son adımında açıkça istenir.
+    var iosAyari = const DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
 
     var kurulumAyari = InitializationSettings(
       android: androidAyari,
@@ -91,6 +96,39 @@ class BildirimYoneticisi {
         androidScheduleMode: AndroidScheduleMode.inexact,
       );
     }
+  }
+
+  /// İşletim sisteminin bildirim izni penceresini gösterir.
+  Future<bool> izinIste() async {
+    final android = bildirimYoneticisi.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    if (android != null) {
+      return await android.requestNotificationsPermission() ?? false;
+    }
+    final ios = bildirimYoneticisi.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>();
+    if (ios != null) {
+      return await ios.requestPermissions(
+              alert: true, badge: true, sound: true) ??
+          false;
+    }
+    return true;
+  }
+
+  /// Bildirimlerin sistem düzeyinde açık olup olmadığını döner.
+  Future<bool> izinVarMi() async {
+    final android = bildirimYoneticisi.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    if (android != null) {
+      return await android.areNotificationsEnabled() ?? true;
+    }
+    final ios = bildirimYoneticisi.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>();
+    if (ios != null) {
+      final durum = await ios.checkPermissions();
+      return durum?.isEnabled ?? true;
+    }
+    return true;
   }
 
   Future<void> bildirimIptalEt(DogumGunu dogumGunu) async {
