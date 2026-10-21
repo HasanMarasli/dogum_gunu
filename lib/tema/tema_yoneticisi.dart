@@ -71,8 +71,10 @@ class TemaYoneticisi extends GetxController {
     );
   }
 
-  Color get gradientStart => _shade(palettes[currentKey] ?? palettes['purple']!, -0.08);
-  Color get gradientEnd => _shade(palettes[currentKey] ?? palettes['purple']!, 0.14);
+  Color get gradientStart =>
+      _shade(palettes[currentKey] ?? palettes['purple']!, -0.08);
+  Color get gradientEnd =>
+      _shade(palettes[currentKey] ?? palettes['purple']!, 0.14);
 
   Color _shade(Color color, double amount) {
     final hsl = HSLColor.fromColor(color);

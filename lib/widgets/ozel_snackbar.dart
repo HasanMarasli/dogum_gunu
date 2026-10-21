@@ -133,4 +133,3 @@ class _SnackbarConfig {
 
   _SnackbarConfig({required this.renk, required this.icon});
 }
-

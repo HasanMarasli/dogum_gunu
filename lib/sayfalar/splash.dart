@@ -86,9 +86,14 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
                   runSpacing: 10,
                   alignment: WrapAlignment.center,
                   children: [
-                    _MiniInfoPill(icon: Icons.favorite_rounded, text: 'Sevdiklerini ekle'),
-                    _MiniInfoPill(icon: Icons.notifications_active_rounded, text: 'Akıllı hatırlatma'),
-                    _MiniInfoPill(icon: Icons.lock_rounded, text: 'Gizlilik odaklı'),
+                    _MiniInfoPill(
+                        icon: Icons.favorite_rounded,
+                        text: 'Sevdiklerini ekle'),
+                    _MiniInfoPill(
+                        icon: Icons.notifications_active_rounded,
+                        text: 'Akıllı hatırlatma'),
+                    _MiniInfoPill(
+                        icon: Icons.lock_rounded, text: 'Gizlilik odaklı'),
                   ],
                 ),
               ),
@@ -160,7 +165,8 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
                                     Icon(
                                       Icons.calendar_month_rounded,
                                       size: 58,
-                                      color: const Color(0xFF2F2F2F).withOpacity(0.85),
+                                      color: const Color(0xFF2F2F2F)
+                                          .withOpacity(0.85),
                                     ),
 
                                     // önde küçük kalp
@@ -171,10 +177,12 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
                                         padding: const EdgeInsets.all(7),
                                         decoration: BoxDecoration(
                                           color: const Color(0xFFFF4D6D),
-                                          borderRadius: BorderRadius.circular(999),
+                                          borderRadius:
+                                              BorderRadius.circular(999),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: const Color(0xFFFF4D6D).withOpacity(0.35),
+                                              color: const Color(0xFFFF4D6D)
+                                                  .withOpacity(0.35),
                                               blurRadius: 16,
                                               offset: const Offset(0, 8),
                                             ),
@@ -231,11 +239,13 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
                     Opacity(
                       opacity: 0.85,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 10),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.10),
                           borderRadius: BorderRadius.circular(999),
-                          border: Border.all(color: Colors.white.withOpacity(0.14)),
+                          border:
+                              Border.all(color: Colors.white.withOpacity(0.14)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -434,12 +444,14 @@ class _RingPainter extends CustomPainter {
     // 2 nokta orbit
     for (final phase in [0.0, 0.5]) {
       final a = 2 * math.pi * (t + phase);
-      final p = Offset(center.dx + math.cos(a) * r, center.dy + math.sin(a) * r);
+      final p =
+          Offset(center.dx + math.cos(a) * r, center.dy + math.sin(a) * r);
       canvas.drawCircle(p, 10, glowPaint);
       canvas.drawCircle(p, 4, dotPaint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant _RingPainter oldDelegate) => oldDelegate.t != t || oldDelegate.color != color;
+  bool shouldRepaint(covariant _RingPainter oldDelegate) =>
+      oldDelegate.t != t || oldDelegate.color != color;
 }

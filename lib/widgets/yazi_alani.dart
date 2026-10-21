@@ -27,7 +27,8 @@ class YaziAlani extends StatelessWidget {
           border: const OutlineInputBorder(),
           hintText: hintText,
           hintStyle: const TextStyle(),
-          contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15), // Yüksekliği artırmak için padding
+          contentPadding: const EdgeInsets.symmetric(
+              vertical: 20, horizontal: 15), // Yüksekliği artırmak için padding
         ),
       ),
     );

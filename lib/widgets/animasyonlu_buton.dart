@@ -17,7 +17,8 @@ class AnimasyonluButon extends StatefulWidget {
   State<AnimasyonluButon> createState() => AnimasyonluButonState();
 }
 
-class AnimasyonluButonState extends State<AnimasyonluButon> with SingleTickerProviderStateMixin {
+class AnimasyonluButonState extends State<AnimasyonluButon>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 

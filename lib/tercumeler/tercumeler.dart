@@ -47,7 +47,8 @@ class Tercumeler extends Translations {
                       ListTile(
                         title: Text(dilAdi),
                         onTap: () {
-                          Get.find<DilSecimiController>().dilDegistir(locale.toString());
+                          Get.find<DilSecimiController>()
+                              .dilDegistir(locale.toString());
                           Get.back(); // Dialogu kapatır
                         },
                       ),
@@ -79,7 +80,8 @@ class DilSecimiController extends GetxController {
   // Dil seçimi yapıldığında Locale güncelleyen bir metot
   void dilDegistir(String dilKodu) {
     var parcalar = dilKodu.split('_');
-    var locale = Locale(parcalar.first, parcalar.length > 1 ? parcalar.last : null);
+    var locale =
+        Locale(parcalar.first, parcalar.length > 1 ? parcalar.last : null);
     _box.write(_localeKey, dilKodu);
     Get.updateLocale(locale);
   }

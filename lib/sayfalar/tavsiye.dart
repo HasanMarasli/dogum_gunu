@@ -24,7 +24,8 @@ class _TavsiyeState extends State<Tavsiye> {
     final tarih = DogumGunu.tarihYazdir(widget.dogumGunu.dogumTarihi);
     final signId = DogumGunu.burcIdGetir(widget.dogumGunu.dogumTarihi);
     final localeCode = Get.locale?.languageCode ?? 'tr';
-    final translations = Tercumeler().keys[localeCode] ?? tr; // fallback to tr for safety
+    final translations =
+        Tercumeler().keys[localeCode] ?? tr; // fallback to tr for safety
     final signName = tZodiac(signId, 'name', translations);
     final shortText = tZodiac(signId, 'short', translations);
     final giftItems = tZodiacList(signId, 'gifts', translations);
@@ -46,7 +47,8 @@ class _TavsiyeState extends State<Tavsiye> {
           children: [
             Text(
               'advice.appbar'.trParams({'name': widget.dogumGunu.isim}),
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 2),
             Text(
@@ -184,7 +186,8 @@ class _TavsiyeState extends State<Tavsiye> {
                       if (giftItems.isNotEmpty) ...[
                         Row(
                           children: [
-                            Icon(Icons.card_giftcard_rounded, color: scheme.primary, size: 20),
+                            Icon(Icons.card_giftcard_rounded,
+                                color: scheme.primary, size: 20),
                             const SizedBox(width: 8),
                             Text(
                               'advice.gifts.title'.tr,
@@ -231,7 +234,8 @@ class _TavsiyeState extends State<Tavsiye> {
                       if (surpriseItems.isNotEmpty) ...[
                         Row(
                           children: [
-                            Icon(Icons.auto_awesome_rounded, color: scheme.primary, size: 20),
+                            Icon(Icons.auto_awesome_rounded,
+                                color: scheme.primary, size: 20),
                             const SizedBox(width: 8),
                             Text(
                               'advice.surprises.title'.tr,

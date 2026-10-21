@@ -104,7 +104,8 @@ class _KisiEkleState extends State<DogumGunuEkle> {
         backgroundColor: Colors.transparent,
         title: Text(
           'add.title'.tr,
-          style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
+          style:
+              const TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
         ),
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -169,7 +170,8 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                                 color: scheme.primary.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: Icon(Icons.person_add_rounded, color: scheme.primary, size: 20),
+                              child: Icon(Icons.person_add_rounded,
+                                  color: scheme.primary, size: 20),
                             ),
                             const SizedBox(width: 12),
                             Text(
@@ -199,36 +201,48 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                         GestureDetector(
                           onTap: () => _tarihSec(context),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 14),
                             decoration: BoxDecoration(
                               color: const Color(0xFFF6F7FB),
                               borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: const Color(0xFFE3E3EE)),
+                              border:
+                                  Border.all(color: const Color(0xFFE3E3EE)),
                             ),
                             child: Row(
                               children: [
-                                Icon(Icons.date_range_rounded, color: scheme.primary),
+                                Icon(Icons.date_range_rounded,
+                                    color: scheme.primary),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
                                     secilenTarih == null
                                         ? 'add.field.date.placeholder'.tr
-                                        : DateFormat('d MMMM y', Get.locale?.toLanguageTag() ?? 'tr').format(secilenTarih!),
+                                        : DateFormat(
+                                                'd MMMM y',
+                                                Get.locale?.toLanguageTag() ??
+                                                    'tr')
+                                            .format(secilenTarih!),
                                     style: TextStyle(
                                       fontSize: 16.0,
-                                      color: secilenTarih == null ? Colors.grey.shade600 : Colors.black,
+                                      color: secilenTarih == null
+                                          ? Colors.grey.shade600
+                                          : Colors.black,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 6),
                                   decoration: BoxDecoration(
                                     color: scheme.primary.withOpacity(0.12),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Text(
-                                    secilenTarih == null ? 'add.field.date.select'.tr : 'add.field.date.change'.tr,
+                                    secilenTarih == null
+                                        ? 'add.field.date.select'.tr
+                                        : 'add.field.date.change'.tr,
                                     style: TextStyle(
                                       color: scheme.primary,
                                       fontWeight: FontWeight.w700,
@@ -247,12 +261,15 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                             style: FilledButton.styleFrom(
                               backgroundColor: scheme.primary,
                               padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14)),
                             ),
-                            icon: const Icon(Icons.notifications_active_rounded),
+                            icon:
+                                const Icon(Icons.notifications_active_rounded),
                             label: Text(
                               'add.button.save'.tr,
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w700),
                             ),
                           ),
                         ),
