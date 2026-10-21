@@ -51,6 +51,7 @@ class _TavsiyeState extends State<Tavsiye> {
       appBar: AppBar(
         backgroundColor: r.bg,
         titleSpacing: 0,
+        toolbarHeight: 64,
         leading: IconButton(
           tooltip: MaterialLocalizations.of(context).backButtonTooltip,
           onPressed: () => Navigator.of(context).maybePop(),
