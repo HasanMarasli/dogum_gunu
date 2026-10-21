@@ -31,6 +31,7 @@ Map<String, String> tr = {
   'home.stats.upcoming.suffix': 'önümüzdeki 7 gün',
   'home.button.newPerson': 'Yeni Kişi',
   'home.menu.delete': 'Sil',
+  'home.menu.edit': 'Düzenle',
   'home.delete.title': 'Kaydı sil',
   'home.delete.confirm': '@name kaydını silmek istediğine emin misin?',
   'home.delete.cancel': 'Vazgeç',

@@ -495,9 +495,31 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         position: PopupMenuPosition.under,
         constraints: const BoxConstraints(minWidth: 196),
         onSelected: (value) {
+          if (value == 'edit') {
+            Get.to(() => DogumGunuEkle(duzenlenecek: dogum));
+          }
           if (value == 'delete') _kisiSil(dogum);
         },
         itemBuilder: (context) => [
+          PopupMenuItem(
+            value: 'edit',
+            height: 48,
+            child: Row(
+              children: [
+                Icon(Icons.edit_rounded, size: 22, color: r.tx2),
+                const SizedBox(width: 14),
+                Text(
+                  'home.menu.edit'.tr,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 15,
+                    color: r.tx,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const PopupMenuDivider(height: 9),
           PopupMenuItem(
             value: 'delete',
             height: 48,

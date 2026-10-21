@@ -31,6 +31,7 @@ final Map<String, String> en = {
   'home.stats.upcoming.suffix': 'next 7 days',
   'home.button.newPerson': 'New Person',
   'home.menu.delete': 'Delete',
+  'home.menu.edit': 'Edit',
   'home.delete.title': 'Delete record',
   'home.delete.confirm': 'Are you sure you want to delete @name?',
   'home.delete.cancel': 'Cancel',
