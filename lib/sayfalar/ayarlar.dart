@@ -1,409 +1,468 @@
 import 'package:dogum_gunu/models/bildirim_ayarlar_yoneticisi.dart';
+import 'package:dogum_gunu/models/bildirim_yoneticisi.dart';
 import 'package:dogum_gunu/veriTabani/dogum_gunu_veri_tabani.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../tema/renkler.dart';
 import '../tercumeler/tercumeler.dart';
 import '../tema/tema_yoneticisi.dart';
+import '../widgets/bildirim_uyarisi.dart';
 
-class Ayarlar extends StatelessWidget {
+class Ayarlar extends StatefulWidget {
   const Ayarlar({super.key});
 
   @override
+  State<Ayarlar> createState() => _AyarlarState();
+}
+
+class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
+  bool _izinVar = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _izinKontrol();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _izinKontrol();
+  }
+
+  Future<void> _izinKontrol() async {
+    final izin = await BildirimYoneticisi().izinVarMi();
+    if (mounted && izin != _izinVar) setState(() => _izinVar = izin);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final r = context.renk;
     final current = Get.locale ?? Get.deviceLocale ?? const Locale('tr');
     final tema = Get.find<TemaYoneticisi>();
     final bildirimAyar = Get.find<BildirimAyarlarYoneticisi>();
-    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7FB),
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 120,
-            floating: false,
-            pinned: true,
-            elevation: 0,
-            backgroundColor: tema.gradientStart,
-            foregroundColor: Colors.white,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'settings.title'.tr,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [tema.gradientStart, tema.gradientEnd],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+      backgroundColor: r.bg,
+      appBar: AppBar(
+        backgroundColor: r.bg,
+        titleSpacing: 0,
+        leading: IconButton(
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          onPressed: () => Navigator.of(context).maybePop(),
+          icon: const Icon(Icons.arrow_back_rounded),
+        ),
+        title: Text('settings.title'.tr),
+      ),
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+          children: [
+            _grup(
+              baslik: 'settings.selectLanguage'.tr,
+              children: [
+                for (final entry in Tercumeler.diller.entries)
+                  _dilSatiri(
+                    kod: entry.value.languageCode.toUpperCase(),
+                    ad: entry.key,
+                    secili: entry.value.languageCode == current.languageCode,
+                    onTap: () => _dilDegistir(entry.value),
                   ),
-                ),
-              ),
+              ],
             ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Dil Seçimi Bölümü
-                  _buildSectionHeader(
-                    context,
-                    icon: Icons.language_rounded,
-                    title: 'settings.selectLanguage'.tr,
-                    scheme: scheme,
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: Tercumeler.diller.entries.map((entry) {
-                        final locale = entry.value;
-                        final isSelected =
-                            locale.languageCode == current.languageCode;
-                        final isFirst =
-                            entry.key == Tercumeler.diller.keys.first;
-                        final isLast = entry.key == Tercumeler.diller.keys.last;
-
-                        return Column(
-                          children: [
-                            ListTile(
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 4),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(
-                                  top: isFirst
-                                      ? const Radius.circular(16)
-                                      : Radius.zero,
-                                  bottom: isLast
-                                      ? const Radius.circular(16)
-                                      : Radius.zero,
-                                ),
-                              ),
-                              leading: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: scheme.primary.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  locale.languageCode.toUpperCase(),
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: scheme.primary,
-                                  ),
-                                ),
-                              ),
-                              title: Text(
-                                entry.key,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600),
-                              ),
-                              trailing: isSelected
-                                  ? Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: Colors.green.shade50,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(Icons.check_circle_rounded,
-                                              size: 16,
-                                              color: Colors.green.shade600),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            'settings.current'.tr,
-                                            style: TextStyle(
-                                              color: Colors.green.shade600,
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  : Icon(Icons.arrow_forward_ios_rounded,
-                                      size: 16, color: Colors.grey.shade400),
-                              onTap: () {
-                                Get.find<DilSecimiController>()
-                                    .dilDegistir(locale.toString());
-                              },
-                            ),
-                            if (!isLast)
-                              Divider(
-                                  height: 1,
-                                  indent: 16,
-                                  endIndent: 16,
-                                  color: Colors.grey.shade200),
-                          ],
-                        );
-                      }).toList(),
-                    ),
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  // Tema Seçimi Bölümü
-                  _buildSectionHeader(
-                    context,
-                    icon: Icons.palette_rounded,
-                    title: 'settings.selectTheme'.tr,
-                    scheme: scheme,
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: tema.palettes.entries.map((entry) {
-                        final key = entry.key;
-                        final color = entry.value;
-                        final isSelected = tema.currentKey == key;
-                        final keys = tema.palettes.keys.toList();
-                        final isFirst = key == keys.first;
-                        final isLast = key == keys.last;
-
-                        return Column(
-                          children: [
-                            ListTile(
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 4),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(
-                                  top: isFirst
-                                      ? const Radius.circular(16)
-                                      : Radius.zero,
-                                  bottom: isLast
-                                      ? const Radius.circular(16)
-                                      : Radius.zero,
-                                ),
-                              ),
-                              leading: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      color,
-                                      HSLColor.fromColor(color)
-                                          .withLightness(0.65)
-                                          .toColor()
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: color.withOpacity(0.3),
-                                      blurRadius: 6,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              title: Text(
-                                'theme.$key'.tr,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600),
-                              ),
-                              trailing: isSelected
-                                  ? Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: Colors.green.shade50,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(Icons.check_circle_rounded,
-                                              size: 16,
-                                              color: Colors.green.shade600),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            'settings.current'.tr,
-                                            style: TextStyle(
-                                              color: Colors.green.shade600,
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  : Icon(Icons.arrow_forward_ios_rounded,
-                                      size: 16, color: Colors.grey.shade400),
-                              onTap: () => tema.setTheme(key),
-                            ),
-                            if (!isLast)
-                              Divider(
-                                  height: 1,
-                                  indent: 16,
-                                  endIndent: 16,
-                                  color: Colors.grey.shade200),
-                          ],
-                        );
-                      }).toList(),
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  _buildSectionHeader(
-                    context,
-                    icon: Icons.notifications_active_rounded,
-                    title: 'settings.notifications.title'.tr,
-                    scheme: scheme,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'settings.notifications.subtitle'.tr,
-                    style: TextStyle(
-                      color: Colors.grey.shade700,
-                      height: 1.4,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Obx(
-                    () {
-                      final secili = bildirimAyar.seciliGunler;
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: BildirimAyarlarYoneticisi.tumSecenekler
-                              .map((gun) {
-                            final isFirst = gun ==
-                                BildirimAyarlarYoneticisi.tumSecenekler.first;
-                            final isLast = gun ==
-                                BildirimAyarlarYoneticisi.tumSecenekler.last;
-                            final isSelected = secili.contains(gun);
-
-                            return Column(
-                              children: [
-                                ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 4),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.vertical(
-                                      top: isFirst
-                                          ? const Radius.circular(16)
-                                          : Radius.zero,
-                                      bottom: isLast
-                                          ? const Radius.circular(16)
-                                          : Radius.zero,
-                                    ),
-                                  ),
-                                  leading: Icon(
-                                    Icons.schedule_rounded,
-                                    color: scheme.primary,
-                                  ),
-                                  title: Text(
-                                    _gunMetni(gun),
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                  trailing: Checkbox(
-                                    value: isSelected,
-                                    onChanged: (_) =>
-                                        _gunSecimiDegistir(bildirimAyar, gun),
-                                    activeColor: scheme.primary,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(6)),
-                                  ),
-                                  onTap: () =>
-                                      _gunSecimiDegistir(bildirimAyar, gun),
-                                ),
-                                if (!isLast)
-                                  Divider(
-                                    height: 1,
-                                    indent: 16,
-                                    endIndent: 16,
-                                    color: Colors.grey.shade200,
-                                  ),
+            const SizedBox(height: 20),
+            _grup(
+              baslik: 'settings.appearance'.tr,
+              children: [
+                _koyuModSatiri(tema),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _grup(
+              baslik: 'settings.selectTheme'.tr,
+              altBosluk: 12,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Column(
+                    children: [
+                      for (final satir in [
+                        tema.palettes.keys.take(3).toList(),
+                        tema.palettes.keys.skip(3).toList(),
+                      ]) ...[
+                        IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              for (var i = 0; i < satir.length; i++) ...[
+                                if (i > 0) const SizedBox(width: 8),
+                                Expanded(child: _paletKarosu(tema, satir[i])),
                               ],
-                            );
-                          }).toList(),
+                            ],
+                          ),
                         ),
-                      );
-                    },
+                        if (satir.first == tema.palettes.keys.first)
+                          const SizedBox(height: 8),
+                      ],
+                    ],
                   ),
-
-                  const SizedBox(height: 32),
-                ],
-              ),
+                ),
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            _grup(
+              baslik: 'settings.notifications.title'.tr,
+              children: [
+                if (!_izinVar)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
+                    child: BildirimUyarisi(
+                      baslik: 'home.notifOff.title'.tr,
+                      mesaj: 'settings.notifOff.desc'.tr,
+                      eylem: 'home.notifOff.action'.tr,
+                    ),
+                  ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 2, 16, 8),
+                  child: Text(
+                    'settings.notifications.subtitle'.tr,
+                    style:
+                        TextStyle(fontSize: 14, height: 20 / 14, color: r.tx2),
+                  ),
+                ),
+                AnimatedOpacity(
+                  opacity: _izinVar ? 1 : 0.5,
+                  duration: const Duration(milliseconds: 200),
+                  child: Obx(() {
+                    final secili = bildirimAyar.seciliGunler;
+                    return Column(
+                      children: [
+                        for (final gun
+                            in BildirimAyarlarYoneticisi.tumSecenekler)
+                          _secimSatiri(
+                            yazi: _gunMetni(gun),
+                            secili: secili.contains(gun),
+                            onTap: () => _gunSecimiDegistir(bildirimAyar, gun),
+                          ),
+                      ],
+                    );
+                  }),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildSectionHeader(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required ColorScheme scheme,
+  Widget _grup({
+    required String baslik,
+    required List<Widget> children,
+    double altBosluk = 6,
   }) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: scheme.primary.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, color: scheme.primary, size: 20),
+    final r = context.renk;
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      padding: EdgeInsets.only(bottom: altBosluk),
+      decoration: BoxDecoration(
+        color: r.s1,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: r.e1,
+      ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+              child: Text(
+                baslik,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                  color: r.tx2,
+                ),
+              ),
+            ),
+            ...children,
+          ],
         ),
-        const SizedBox(width: 12),
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
+      ),
     );
+  }
+
+  Widget _geccerliRozeti() {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      height: 24,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: scheme.primaryContainer,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Center(
+        widthFactor: 1,
+        child: Text(
+          'settings.current'.tr,
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+            color: scheme.onPrimaryContainer,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _dilSatiri({
+    required String kod,
+    required String ad,
+    required bool secili,
+    required VoidCallback onTap,
+  }) {
+    final r = context.renk;
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      selected: secili,
+      button: true,
+      child: InkWell(
+        onTap: onTap,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 56),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: r.s2,
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  child: Center(
+                    child: Text(
+                      kod,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                        color: r.tx2,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    ad,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                      color: r.tx,
+                    ),
+                  ),
+                ),
+                if (secili) ...[
+                  _geccerliRozeti(),
+                  const SizedBox(width: 14),
+                  Icon(Icons.check_circle_rounded,
+                      size: 22, color: scheme.primary),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _koyuModSatiri(TemaYoneticisi tema) {
+    final r = context.renk;
+    return InkWell(
+      onTap: () => tema.setKoyuMod(!tema.koyuMod),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 56),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              Icon(Icons.dark_mode_rounded, size: 24, color: r.tx2),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  'settings.darkMode'.tr,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                    color: r.tx,
+                  ),
+                ),
+              ),
+              Switch(
+                value: tema.koyuMod,
+                onChanged: tema.setKoyuMod,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _paletKarosu(TemaYoneticisi tema, String key) {
+    final r = context.renk;
+    final scheme = Theme.of(context).colorScheme;
+    final palet = paletler[key]!;
+    final tonlar = palet.tonlar(Theme.of(context).brightness);
+    final secili = tema.currentKey == key;
+
+    return Semantics(
+      selected: secili,
+      button: true,
+      label: 'theme.$key'.tr,
+      child: Material(
+        color: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: secili ? scheme.primary : r.bd,
+            width: secili ? 2 : 1,
+          ),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => tema.setTheme(key),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+            child: Column(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [tonlar.g1, tonlar.g2],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: secili
+                      ? const Icon(Icons.check_rounded,
+                          size: 22, color: Colors.white)
+                      : null,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'theme.$key'.tr,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    height: 16 / 13,
+                    color: r.tx,
+                  ),
+                ),
+                if (secili) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    height: 22,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: scheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Center(
+                      widthFactor: 1,
+                      child: Text(
+                        'settings.current'.tr,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 11,
+                          color: scheme.onPrimaryContainer,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _secimSatiri({
+    required String yazi,
+    required bool secili,
+    required VoidCallback onTap,
+  }) {
+    final r = context.renk;
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      checked: secili,
+      child: InkWell(
+        onTap: onTap,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 56),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  width: 22,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    color: secili ? scheme.primary : Colors.transparent,
+                    borderRadius: BorderRadius.circular(7),
+                    border: Border.all(
+                      color: secili ? scheme.primary : r.bd2,
+                      width: 2,
+                    ),
+                  ),
+                  child: secili
+                      ? Icon(Icons.check_rounded,
+                          size: 16, color: scheme.onPrimary)
+                      : null,
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    yazi,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                      height: 22 / 16,
+                      color: r.tx,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _dilDegistir(Locale locale) async {
+    Get.find<DilSecimiController>().dilDegistir(locale.toString());
+    // Planlı bildirim metinleri yeni dilde yeniden oluşturulsun.
+    await DogumGunuVeriTabani.tumBildirimleriYenidenPlanla();
   }
 
   String _gunMetni(int gun) {

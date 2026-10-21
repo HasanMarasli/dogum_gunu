@@ -6,6 +6,10 @@ final Map<String, String> en = {
   'settings.current': 'Current',
   'settings.theme': 'Theme',
   'settings.selectTheme': 'Theme color',
+  'settings.appearance': 'Appearance',
+  'settings.darkMode': 'Dark mode',
+  'settings.notifOff.desc':
+      'Notification permission is off in your phone settings. You won’t get reminders until you turn it on.',
   'settings.notifications.title': 'Notification timing',
   'settings.notifications.subtitle':
       'When should reminders arrive before the birthday? Your choices apply to everyone.',

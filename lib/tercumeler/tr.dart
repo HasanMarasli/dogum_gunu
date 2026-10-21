@@ -6,6 +6,10 @@ Map<String, String> tr = {
   'settings.current': 'Geçerli',
   'settings.theme': 'Tema',
   'settings.selectTheme': 'Tema rengi',
+  'settings.appearance': 'Görünüm',
+  'settings.darkMode': 'Karanlık mod',
+  'settings.notifOff.desc':
+      'Telefonunun ayarlarında bildirim izni kapalı. Açmadan hatırlatma alamazsın.',
   'settings.notifications.title': 'Bildirim zamanı',
   'settings.notifications.subtitle':
       'Doğum gününden kaç gün önce hatırlatma gelsin? Seçtiklerin tüm kişiler için geçerli.',
