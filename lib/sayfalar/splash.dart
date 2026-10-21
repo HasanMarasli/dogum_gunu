@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
+import '../models/bildirim_yoneticisi.dart';
+import '../models/dogum_gunu.dart';
 import '../tema/renkler.dart';
 import 'ana_sayfa.dart';
 import 'onboarding.dart';
+import 'tavsiye.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -49,14 +52,22 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
     Future.delayed(const Duration(milliseconds: 2000), _devamEt);
   }
 
-  void _devamEt() {
+  Future<void> _devamEt() async {
     if (!mounted) return;
     final onboardingBitti = Onboarding.tamamlandiMi(GetStorage());
+    final yuk =
+        onboardingBitti ? await BildirimYoneticisi().acilisYuku() : null;
+    if (!mounted) return;
     Get.off(
       () => onboardingBitti ? const AnaSayfa() : const Onboarding(),
       transition: Transition.fade,
       duration: const Duration(milliseconds: 250),
     );
+    // Bildirime dokunularak açıldıysa ilgili kişinin sayfası Home'un üstüne açılır.
+    if (yuk != null) {
+      final kisi = await DogumGunu.getDogumGunuById(yuk);
+      if (kisi != null) Get.to(() => Tavsiye(dogumGunu: kisi));
+    }
   }
 
   @override

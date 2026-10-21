@@ -88,6 +88,8 @@ Map<String, String> tr = {
   'notification.title': 'Doğum Günü Hatırlatıcı',
   'notification.body.today': '@name Bugün @age Yaşında!',
   'notification.body.before': '@name @days gün sonra @age yaşına girecek!',
+  'notification.channel.name': 'Doğum Günü Bildirimleri',
+  'notification.channel.desc': 'Doğum günü hatırlatıcıları için kanal',
   // Add person
   'add.title': 'Yeni Kişi Ekle',
   'add.hero': 'Sevdiklerini listene ekle, bildirimleri otomatik alsın.',

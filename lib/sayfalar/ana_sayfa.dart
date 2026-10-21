@@ -39,7 +39,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     _iskeletZamanlayici = Timer(const Duration(milliseconds: 300), () {
       if (mounted && isLoading) setState(() => _iskeletGoster = true);
     });
-    _verileriCek();
+    _verileriCek().then((_) {
+      // Bildirimlerdeki yaş ve dil güncel kalsın diye açılışta yeniden planlanır.
+      DogumGunuVeriTabani.tumBildirimleriYenidenPlanla();
+    });
     _izinKontrol();
   }
 

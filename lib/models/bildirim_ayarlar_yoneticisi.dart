@@ -20,9 +20,11 @@ class BildirimAyarlarYoneticisi extends GetxController {
             .where((gun) => tumSecenekler.contains(gun))
             .toSet() ??
         <int>{};
+    // Hiç kayıt yoksa varsayılan olarak hepsi açık; kullanıcı hepsini
+    // kapattıysa boş liste korunur.
     seciliGunler
       ..clear()
-      ..addAll(gecerliGunler.isNotEmpty ? gecerliGunler : tumSecenekler);
+      ..addAll(kayitli == null ? tumSecenekler : gecerliGunler);
   }
 
   List<int> aktifGunler() {

@@ -87,6 +87,8 @@ final Map<String, String> en = {
   'notification.title': 'Birthday Reminder',
   'notification.body.today': '@name turns @age today!',
   'notification.body.before': '@name turns @age in @days days!',
+  'notification.channel.name': 'Birthday Notifications',
+  'notification.channel.desc': 'Channel for birthday reminders',
 // Add person
   'add.title': 'Add New Person',
   'add.hero':
