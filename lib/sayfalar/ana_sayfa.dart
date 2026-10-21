@@ -32,7 +32,8 @@ class _AnaSayfaState extends State<AnaSayfa> {
       isLoading = true;
     });
 
-    dogumGunuVeriYonetim.dogumGunuListe.value = await DogumGunuVeriTabani.tumVerileriGetir();
+    dogumGunuVeriYonetim.dogumGunuListe.value =
+        await DogumGunuVeriTabani.tumVerileriGetir();
 
     setState(() {
       isLoading = false;
@@ -46,7 +47,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
     final scheme = Theme.of(context).colorScheme;
     final tema = Get.find<TemaYoneticisi>();
     const arkaPlan = Color(0xFFF6F7FB);
-    final baslikRenk = const Color(0xFF121212);
+    const baslikRenk = Color(0xFF121212);
     final vurgu = scheme.primary;
 
     return Scaffold(
@@ -93,15 +94,6 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     ),
                     const Spacer(),
                     IconButton.filled(
-                      onPressed: _verileriCek,
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.white.withOpacity(0.2),
-                        foregroundColor: Colors.white,
-                      ),
-                      icon: const Icon(Icons.refresh_rounded),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton.filled(
                       onPressed: () => Get.to(() => const Ayarlar()),
                       style: IconButton.styleFrom(
                         backgroundColor: Colors.white.withOpacity(0.2),
@@ -119,7 +111,8 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   children: [
                     _istatistikKart(
                       baslik: 'home.stats.total'.tr,
-                      deger: dogumGunuVeriYonetim.dogumGunuListe.length.toString(),
+                      deger:
+                          dogumGunuVeriYonetim.dogumGunuListe.length.toString(),
                       renk: Colors.white,
                       altYazi: 'home.stats.total.suffix'.tr,
                     ),
@@ -139,7 +132,8 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(28)),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(top: 12),
@@ -149,17 +143,23 @@ class _AnaSayfaState extends State<AnaSayfa> {
                           ? const Center(child: CircularProgressIndicator())
                           : Obx(
                               () {
-                                if (dogumGunuVeriYonetim.dogumGunuListe.isEmpty) {
+                                if (dogumGunuVeriYonetim
+                                    .dogumGunuListe.isEmpty) {
                                   return _bosDurum();
                                 }
 
-                                final liste = [...dogumGunuVeriYonetim.dogumGunuListe];
-                                liste.sort((a, b) => _kalanGun(a).compareTo(_kalanGun(b)));
+                                final liste = [
+                                  ...dogumGunuVeriYonetim.dogumGunuListe
+                                ];
+                                liste.sort((a, b) =>
+                                    _kalanGun(a).compareTo(_kalanGun(b)));
 
                                 return ListView.separated(
-                                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(20, 12, 20, 24),
                                   itemCount: liste.length,
-                                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                                  separatorBuilder: (_, __) =>
+                                      const SizedBox(height: 12),
                                   itemBuilder: (context, index) {
                                     final dogum = liste[index];
                                     return _dogumKart(dogum, vurgu, baslikRenk);
@@ -239,7 +239,8 @@ class _AnaSayfaState extends State<AnaSayfa> {
                 color: scheme.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.celebration_rounded, size: 56, color: scheme.primary),
+              child: Icon(Icons.celebration_rounded,
+                  size: 56, color: scheme.primary),
             ),
             const SizedBox(height: 20),
             Text(
@@ -251,17 +252,6 @@ class _AnaSayfaState extends State<AnaSayfa> {
               'home.empty.desc'.tr,
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey.shade600, height: 1.5),
-            ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: () => Get.to(() => const DogumGunuEkle()),
-              style: FilledButton.styleFrom(
-                backgroundColor: scheme.primary,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-              icon: const Icon(Icons.add_rounded),
-              label: Text('home.button.newPerson'.tr, style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
           ],
         ),
@@ -336,7 +326,8 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      Icon(Icons.cake_rounded, size: 16, color: Colors.grey.shade600),
+                      Icon(Icons.cake_rounded,
+                          size: 16, color: Colors.grey.shade600),
                       const SizedBox(width: 6),
                       Text(
                         DogumGunu.tarihYazdir(dogum.dogumTarihi),
@@ -356,34 +347,65 @@ class _AnaSayfaState extends State<AnaSayfa> {
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              decoration: BoxDecoration(
-                color: kalanGun == 0 ? Colors.green.shade50 : vurgu.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    kalanGun == 0
-                        ? 'home.countdown.today'.tr
-                        : 'home.countdown.days'.trParams({'days': kalanGun.toString()}),
-                    style: TextStyle(
-                      color: kalanGun == 0 ? Colors.green.shade700 : vurgu,
-                      fontWeight: FontWeight.w700,
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'delete') _kisiSil(dogum);
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete_outline_rounded,
+                              color: Colors.red.shade600),
+                          const SizedBox(width: 8),
+                          Text('home.menu.delete'.tr,
+                              style: TextStyle(color: Colors.red.shade600)),
+                        ],
+                      ),
                     ),
+                  ],
+                  icon: Icon(Icons.more_vert_rounded,
+                      color: Colors.grey.shade600),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: kalanGun == 0
+                        ? Colors.green.shade50
+                        : vurgu.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  Text(
-                    'home.countdown.left'.tr,
-                    style: TextStyle(
-                      color: kalanGun == 0 ? Colors.green.shade700 : Colors.grey.shade600,
-                      fontSize: 12,
-                    ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        kalanGun == 0
+                            ? 'home.countdown.today'.tr
+                            : 'home.countdown.days'
+                                .trParams({'days': kalanGun.toString()}),
+                        style: TextStyle(
+                          color: kalanGun == 0 ? Colors.green.shade700 : vurgu,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      if (kalanGun != 0)
+                        Text(
+                          'home.countdown.left'.tr,
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 12,
+                          ),
+                        ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),
@@ -413,14 +435,55 @@ class _AnaSayfaState extends State<AnaSayfa> {
   int _kalanGun(DogumGunu dogum) {
     final simdi = DateTime.now();
     final bugun = DateTime(simdi.year, simdi.month, simdi.day);
-    var sonrakiDogum = DateTime(bugun.year, dogum.dogumTarihi.month, dogum.dogumTarihi.day);
+    var sonrakiDogum =
+        DateTime(bugun.year, dogum.dogumTarihi.month, dogum.dogumTarihi.day);
     if (sonrakiDogum.isBefore(bugun)) {
-      sonrakiDogum = DateTime(bugun.year + 1, dogum.dogumTarihi.month, dogum.dogumTarihi.day);
+      sonrakiDogum = DateTime(
+          bugun.year + 1, dogum.dogumTarihi.month, dogum.dogumTarihi.day);
     }
     return sonrakiDogum.difference(bugun).inDays;
   }
 
   int _yaklasanSayisi() {
-    return dogumGunuVeriYonetim.dogumGunuListe.where((e) => _kalanGun(e) <= 7).length;
+    return dogumGunuVeriYonetim.dogumGunuListe
+        .where((e) => _kalanGun(e) <= 7)
+        .length;
+  }
+
+  Future<void> _kisiSil(DogumGunu dogum) async {
+    final scheme = Theme.of(context).colorScheme;
+    final onay = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('home.delete.title'.tr),
+        content: Text('home.delete.confirm'.trParams({'name': dogum.isim})),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('home.delete.cancel'.tr),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: scheme.error),
+            onPressed: () => Get.back(result: true),
+            child: Text('home.delete.confirmButton'.tr),
+          ),
+        ],
+      ),
+    );
+
+    if (onay != true) return;
+
+    await DogumGunuVeriTabani.veriSil(dogum.id);
+    await _verileriCek();
+    Get.snackbar(
+      'home.delete.done.title'.tr,
+      'home.delete.done.msg'.trParams({'name': dogum.isim}),
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green.shade600,
+      colorText: Colors.white,
+      margin: const EdgeInsets.all(12),
+      duration: const Duration(seconds: 2),
+    );
   }
 }

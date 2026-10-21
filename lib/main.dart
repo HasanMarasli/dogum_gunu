@@ -1,3 +1,4 @@
+import 'package:dogum_gunu/models/bildirim_ayarlar_yoneticisi.dart';
 import 'package:dogum_gunu/models/dogum_gunu.dart';
 import 'package:dogum_gunu/tercumeler/tercumeler.dart';
 import 'package:dogum_gunu/tema/tema_yoneticisi.dart';
@@ -17,6 +18,7 @@ Future<void> main() async {
   final dilController = Get.put(DilSecimiController(box));
   final storedLocale = dilController.readStoredLocale();
   final themeController = Get.put(TemaYoneticisi(box));
+  Get.put(BildirimAyarlarYoneticisi(box));
 
   Get.put(DogumGunuVeriYonetim());
 
@@ -27,7 +29,8 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, required this.initialLocale, required this.themeController});
+  const MyApp(
+      {super.key, required this.initialLocale, required this.themeController});
 
   final Locale initialLocale;
   final TemaYoneticisi themeController;

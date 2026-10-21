@@ -58,7 +58,8 @@ class DogumGunuVeriTabani {
       final isim = (satir['isim'] as String?) ?? '';
       final anahtar = isim.trim().toLowerCase();
       if (gorulen.contains(anahtar)) {
-        await db.delete('dogumlar', where: 'rowid = ?', whereArgs: [satir['rowid']]);
+        await db.delete('dogumlar',
+            where: 'rowid = ?', whereArgs: [satir['rowid']]);
       } else {
         gorulen.add(anahtar);
       }
@@ -111,6 +112,16 @@ class DogumGunuVeriTabani {
         dogumTarihi: dogumTarihi,
       );
     });
+  }
+
+  static Future<void> tumBildirimleriYenidenPlanla() async {
+    final liste = await tumVerileriGetir();
+    final bildirimYoneticisi = BildirimYoneticisi();
+
+    for (final dogum in liste) {
+      await bildirimYoneticisi.bildirimIptalEt(dogum);
+      await bildirimYoneticisi.bildirimZamanlamasiYap(dogum);
+    }
   }
 
   // Veri güncelleme

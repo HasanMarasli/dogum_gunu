@@ -1,3 +1,4 @@
+import 'package:dogum_gunu/models/bildirim_ayarlar_yoneticisi.dart';
 import 'package:dogum_gunu/sayfalar/tavsiye.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
@@ -6,7 +7,8 @@ import 'package:timezone/timezone.dart' as tz;
 import 'dogum_gunu.dart';
 
 class BildirimYoneticisi {
-  final FlutterLocalNotificationsPlugin bildirimYoneticisi = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin bildirimYoneticisi =
+      FlutterLocalNotificationsPlugin();
 
   BildirimYoneticisi() {
     bildirimKurulum();
@@ -15,7 +17,8 @@ class BildirimYoneticisi {
   void bildirimKurulum() async {
     tz.initializeTimeZones();
 
-    var androidAyari = const AndroidInitializationSettings('@mipmap/ic_launcher');
+    var androidAyari =
+        const AndroidInitializationSettings('@mipmap/ic_launcher');
     var iosAyari = const DarwinInitializationSettings();
 
     var kurulumAyari = InitializationSettings(
@@ -23,10 +26,13 @@ class BildirimYoneticisi {
       iOS: iosAyari,
     );
 
-    await bildirimYoneticisi.initialize(kurulumAyari, onDidReceiveBackgroundNotificationResponse: BildirimYoneticisi.bildirimSecilme);
+    await bildirimYoneticisi.initialize(kurulumAyari,
+        onDidReceiveBackgroundNotificationResponse:
+            BildirimYoneticisi.bildirimSecilme);
   }
 
-  static Future<void> bildirimSecilme(NotificationResponse notificationResponse) async {
+  static Future<void> bildirimSecilme(
+      NotificationResponse notificationResponse) async {
     var payload = notificationResponse.payload;
     if (payload != null) {
       // Payload doğrudan doğum günü ID'si
@@ -39,6 +45,9 @@ class BildirimYoneticisi {
   }
 
   Future<void> bildirimZamanlamasiYap(DogumGunu dogumGunu) async {
+    final oncedenGunler = _aktifGunler();
+    if (oncedenGunler.isEmpty) return;
+
     var androidBildirimDetay = AndroidNotificationDetails(
       'dogum_gunu_kanali',
       'Doğum Günü Bildirimleri',
@@ -46,7 +55,8 @@ class BildirimYoneticisi {
       importance: Importance.max,
       priority: Priority.high,
       icon: '@mipmap/ic_launcher',
-      styleInformation: BigTextStyleInformation("Bugün ${dogumGunu.isim}'in doğum günü!"),
+      styleInformation:
+          BigTextStyleInformation("Bugün ${dogumGunu.isim}'in doğum günü!"),
     );
     var iosBildirimDetay = const DarwinNotificationDetails();
 
@@ -58,7 +68,6 @@ class BildirimYoneticisi {
     tz.initializeTimeZones();
 
     // Doğum günü tarihine göre bildirim tarihlerini hesapla
-    List<int> oncedenGunler = [7, 2, 1, 0]; // 7 gün, 2 gün, 1 gün ve doğum günü
     for (var gun in oncedenGunler) {
       final scheduledDate = tz.TZDateTime.from(
         _hedefTarih(dogumGunu.dogumTarihi, gun),
@@ -75,7 +84,8 @@ class BildirimYoneticisi {
             : '${dogumGunu.isim} $gun Sonra ${DateTime.now().year - dogumGunu.dogumTarihi.year} Yaşına Girecek!',
         scheduledDate,
         bildirimDetay,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.dateAndTime,
         payload: dogumGunu.id, // Doğrudan GUID gönderiyoruz
         androidScheduleMode: AndroidScheduleMode.inexact,
@@ -84,10 +94,7 @@ class BildirimYoneticisi {
   }
 
   Future<void> bildirimIptalEt(DogumGunu dogumGunu) async {
-    // Bildirim ID'leri için önceden tanımladığımız günler
-    List<int> oncedenGunler = [7, 2, 1, 0];
-
-    for (var gun in oncedenGunler) {
+    for (var gun in BildirimAyarlarYoneticisi.tumSecenekler) {
       final int bildirimID = _bildirimIdUret(dogumGunu.id, gun);
       await bildirimYoneticisi.cancel(bildirimID);
     }
@@ -96,7 +103,9 @@ class BildirimYoneticisi {
   /// Aynı algoritma hem bildirim oluşturma hem de iptalde kullanılmalı.
   int _bildirimIdUret(String guid, int gun) {
     final temizGuid = guid.replaceAll('-', '');
-    final sonSekiz = temizGuid.length > 8 ? temizGuid.substring(temizGuid.length - 8) : temizGuid;
+    final sonSekiz = temizGuid.length > 8
+        ? temizGuid.substring(temizGuid.length - 8)
+        : temizGuid;
     final base = int.parse(sonSekiz, radix: 16);
     return (base + gun) & 0x7fffffff; // pozitif int sınırı içinde tut
   }
@@ -109,11 +118,20 @@ class BildirimYoneticisi {
 
     // Eğer hedef tarih geçmişteyse bir sonraki yıla kaydır
     if (!hedef.isAfter(simdi)) {
-      final gelecekYil = DateTime(simdi.year + 1, dogumTarihi.month, dogumTarihi.day);
+      final gelecekYil =
+          DateTime(simdi.year + 1, dogumTarihi.month, dogumTarihi.day);
       hedef = gelecekYil.subtract(Duration(days: gunOnce));
     }
 
     // Bildirimleri sabah 09:00'a sabitle
     return DateTime(hedef.year, hedef.month, hedef.day, 9);
+  }
+
+  List<int> _aktifGunler() {
+    if (Get.isRegistered<BildirimAyarlarYoneticisi>()) {
+      final liste = Get.find<BildirimAyarlarYoneticisi>().aktifGunler();
+      if (liste.isNotEmpty) return liste;
+    }
+    return BildirimAyarlarYoneticisi.tumSecenekler;
   }
 }
