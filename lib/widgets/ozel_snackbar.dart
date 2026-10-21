@@ -1,75 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../tema/renkler.dart';
+
 enum SnackbarTipi { basari, hata, uyari, bilgi }
 
 class OzelSnackbar {
+  static const Duration _sure = Duration(seconds: 3);
+
   static void goster({
     required String baslik,
     required String mesaj,
     required SnackbarTipi tip,
-    Duration sure = const Duration(seconds: 3),
+    Duration sure = _sure,
   }) {
-    final config = _getConfig(tip);
+    final context = Get.context;
+    if (context == null) return;
+    final r = Theme.of(context).extension<AppRenkler>();
+    if (r == null) return;
+    final config =
+        _getConfig(tip, r, Theme.of(context).brightness == Brightness.dark);
+    final azHareket = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
 
-    Get.snackbar(
-      '',
-      '',
-      titleText: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(config.icon, color: Colors.white, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              baslik,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ],
-      ),
-      messageText: Padding(
-        padding: const EdgeInsets.only(left: 44),
-        child: Text(
-          mesaj,
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.9),
-            fontSize: 14,
-          ),
+    // Aynı anda tek mesaj: yenisi gelince mevcut olan kapanır.
+    if (Get.isSnackbarOpen) Get.closeCurrentSnackbar();
+
+    Get.showSnackbar(
+      GetSnackBar(
+        messageText: _SnackIcerik(
+          baslik: baslik,
+          mesaj: mesaj,
+          config: config,
+          sure: sure,
         ),
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.transparent,
+        padding: EdgeInsets.zero,
+        margin: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+        borderRadius: 18,
+        maxWidth: 560,
+        boxShadows: r.e3,
+        duration: sure,
+        isDismissible: true,
+        dismissDirection: DismissDirection.horizontal,
+        animationDuration: Duration(milliseconds: azHareket ? 150 : 350),
+        forwardAnimationCurve: const Cubic(0.05, 0.7, 0.1, 1),
+        reverseAnimationCurve: const Cubic(0.3, 0, 0.8, 0.15),
+        snackStyle: SnackStyle.FLOATING,
       ),
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: config.renk,
-      borderRadius: 16,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      duration: sure,
-      isDismissible: true,
-      dismissDirection: DismissDirection.horizontal,
-      forwardAnimationCurve: Curves.easeOutBack,
-      reverseAnimationCurve: Curves.easeInBack,
-      animationDuration: const Duration(milliseconds: 400),
-      boxShadows: [
-        BoxShadow(
-          color: config.renk.withOpacity(0.3),
-          blurRadius: 12,
-          offset: const Offset(0, 4),
-        ),
-      ],
-      icon: null,
-      shouldIconPulse: false,
-      leftBarIndicatorColor: Colors.white.withOpacity(0.3),
-      snackStyle: SnackStyle.FLOATING,
     );
   }
 
@@ -101,35 +79,179 @@ class OzelSnackbar {
     goster(baslik: baslik, mesaj: mesaj, tip: SnackbarTipi.bilgi);
   }
 
-  static _SnackbarConfig _getConfig(SnackbarTipi tip) {
+  static _SnackbarConfig _getConfig(SnackbarTipi tip, AppRenkler r, bool koyu) {
     switch (tip) {
       case SnackbarTipi.basari:
         return _SnackbarConfig(
-          renk: const Color(0xFF2ECC71),
+          vurgu: r.suc,
+          vurguUstu: r.onSuc,
+          zemin: r.succ,
+          yazi: r.onSucc,
           icon: Icons.check_circle_rounded,
         );
       case SnackbarTipi.hata:
         return _SnackbarConfig(
-          renk: const Color(0xFFE74C3C),
+          vurgu: r.err,
+          vurguUstu: r.onErr,
+          zemin: r.errc,
+          yazi: r.onErrc,
           icon: Icons.error_rounded,
         );
       case SnackbarTipi.uyari:
         return _SnackbarConfig(
-          renk: const Color(0xFFF39C12),
+          vurgu: r.warn,
+          vurguUstu: r.onWarn,
+          zemin: r.warnc,
+          yazi: r.onWarnc,
           icon: Icons.warning_rounded,
         );
       case SnackbarTipi.bilgi:
         return _SnackbarConfig(
-          renk: const Color(0xFF3498DB),
+          vurgu: r.info,
+          vurguUstu: koyu ? const Color(0xFF0A2C5C) : Colors.white,
+          zemin: r.infoc,
+          yazi: r.onInfoc,
           icon: Icons.info_rounded,
         );
     }
   }
 }
 
-class _SnackbarConfig {
+class _SnackIcerik extends StatelessWidget {
+  const _SnackIcerik({
+    required this.baslik,
+    required this.mesaj,
+    required this.config,
+    required this.sure,
+  });
+
+  final String baslik;
+  final String mesaj;
+  final _SnackbarConfig config;
+  final Duration sure;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      liveRegion: true,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          color: config.zemin,
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 16, 14),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: config.vurgu,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child:
+                          Icon(config.icon, size: 22, color: config.vurguUstu),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            baslik,
+                            style: TextStyle(
+                              fontFamily: 'Figtree',
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                              height: 20 / 15,
+                              color: config.yazi,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            mesaj,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: 'Figtree',
+                              fontWeight: FontWeight.w400,
+                              fontSize: 14,
+                              height: 20 / 14,
+                              color: config.yazi,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: 3,
+                child: _SureCubugu(sure: sure, renk: config.vurgu),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Otomatik kapanmaya kalan süreyi gösteren ince çubuk.
+class _SureCubugu extends StatefulWidget {
+  const _SureCubugu({required this.sure, required this.renk});
+
+  final Duration sure;
   final Color renk;
+
+  @override
+  State<_SureCubugu> createState() => _SureCubuguState();
+}
+
+class _SureCubuguState extends State<_SureCubugu>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl =
+      AnimationController(vsync: this, duration: widget.sure)..forward();
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (context, _) => FractionallySizedBox(
+        alignment: Alignment.centerLeft,
+        widthFactor: _ctrl.value,
+        heightFactor: 1,
+        child: ColoredBox(color: widget.renk),
+      ),
+    );
+  }
+}
+
+class _SnackbarConfig {
+  final Color vurgu;
+  final Color vurguUstu;
+  final Color zemin;
+  final Color yazi;
   final IconData icon;
 
-  _SnackbarConfig({required this.renk, required this.icon});
+  _SnackbarConfig({
+    required this.vurgu,
+    required this.vurguUstu,
+    required this.zemin,
+    required this.yazi,
+    required this.icon,
+  });
 }
