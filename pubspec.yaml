@@ -87,12 +87,21 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-    - family: Kalam
+    - family: Figtree
       fonts:
-        - asset: assets/fonts/Kalam/Kalam-Bold.ttf
-          weight: 900
-        - asset: assets/fonts/Kalam/Kalam-Regular.ttf
-        - asset: assets/fonts/Kalam/Kalam-Light.ttf
+        - asset: assets/fonts/Figtree/Figtree-Regular.ttf
+        - asset: assets/fonts/Figtree/Figtree-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Figtree/Figtree-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Figtree/Figtree-Bold.ttf
+          weight: 700
+    - family: BricolageGrotesque
+      fonts:
+        - asset: assets/fonts/BricolageGrotesque/BricolageGrotesque-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/BricolageGrotesque/BricolageGrotesque-Bold.ttf
+          weight: 700
           
   #   - family: Trajan Pro
   #     fonts:

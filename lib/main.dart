@@ -40,16 +40,16 @@ class MyApp extends StatelessWidget {
     return GetBuilder<TemaYoneticisi>(
       init: themeController,
       builder: (tema) {
-        return SafeArea(
-          child: GetMaterialApp(
-            debugShowCheckedModeBanner: false,
-            translations: Tercumeler(),
-            locale: initialLocale,
-            fallbackLocale: const Locale('en'),
-            title: 'app.title'.tr,
-            theme: tema.themeData,
-            home: const Splash(),
-          ),
+        return GetMaterialApp(
+          debugShowCheckedModeBanner: false,
+          translations: Tercumeler(),
+          locale: initialLocale,
+          fallbackLocale: const Locale('en'),
+          title: 'app.title'.tr,
+          theme: tema.themeData,
+          darkTheme: tema.darkThemeData,
+          themeMode: tema.themeMode,
+          home: const Splash(),
         );
       },
     );
