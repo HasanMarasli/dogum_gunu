@@ -48,7 +48,7 @@ const List<Oneri> hediyeHavuzu = [
       butce: Butce.ozel, burclar: {'aries', 'sagittarius'}),
   Oneri('gift.dengeBisikleti', 3, 6,
       butce: Butce.ozel, burclar: {'aries', 'sagittarius', 'leo'}),
-  Oneri('gift.kartOyunu', 7, 17,
+  Oneri('gift.kutuOyunu', 7, 17,
       butce: Butce.uygun, burclar: {'gemini', 'libra', 'aries'}),
   Oneri('gift.cizimSeti', 7, 17,
       butce: Butce.uygun, burclar: {'pisces', 'libra', 'leo'}),

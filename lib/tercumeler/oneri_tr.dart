@@ -23,7 +23,7 @@ const Map<String, String> oneriTr = {
   'gift.oyunMutfagi': 'Oyuncak mutfak',
   'gift.scooter': 'Üç tekerlekli scooter',
   'gift.dengeBisikleti': 'Denge bisikleti',
-  'gift.kartOyunu': 'Kutu ya da kart oyunu',
+  'gift.kutuOyunu': 'Kutu oyunu',
   'gift.cizimSeti': 'Çizim defteri ve kalem seti',
   'gift.romanSerisi': 'Sevdiği türde roman serisinin ilk kitabı',
   'gift.origami': 'Origami seti',

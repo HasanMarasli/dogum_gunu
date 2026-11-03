@@ -23,7 +23,7 @@ const Map<String, String> oneriEn = {
   'gift.oyunMutfagi': 'Toy kitchen',
   'gift.scooter': 'Three-wheel scooter',
   'gift.dengeBisikleti': 'Balance bike',
-  'gift.kartOyunu': 'Board or card game',
+  'gift.kutuOyunu': 'Board game',
   'gift.cizimSeti': 'Sketchbook and pen set',
   'gift.romanSerisi': 'First book of a series in a favorite genre',
   'gift.origami': 'Origami kit',
