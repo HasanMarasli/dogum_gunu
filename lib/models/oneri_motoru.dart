@@ -78,8 +78,8 @@ class OneriMotoru {
 
   /// Kişiye uygun tüm öneriler, en uygundan başlayarak.
   static List<Oneri> sirala(DogumGunu kisi, OneriTipi tip, {Butce? butce}) {
-    // Havuzun üst sınırı 99; daha büyük yaşlarda liste boş kalmasın.
-    final yas = min<int>(girecegiYas(kisi.dogumTarihi), 99);
+    // Bugün doğana da 1 yaş önerileri çıkar; 99 da havuzun üst sınırı.
+    final yas = girecegiYas(kisi.dogumTarihi).clamp(1, 99);
     final burc = DogumGunu.burcIdGetir(kisi.dogumTarihi);
     final donem = donemBurcu(kisi.dogumTarihi);
     final havuz = tip == OneriTipi.hediye ? hediyeHavuzu : surprizHavuzu;
