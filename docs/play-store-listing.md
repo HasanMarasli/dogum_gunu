@@ -45,7 +45,7 @@ Kişiye özel öneriler
 
 Kişiselleştirme
 • Karanlık mod
-• 6 tema rengi: Mor, Turkuaz, Turuncu, Mavi, Mercan, Limon Yeşili
+• 9 tema rengi: Mor, Turkuaz, Turuncu, Mavi, Mercan, Limon Yeşili, Gök Mavisi, Orkide, Altın
 • Türkçe ve İngilizce dil desteği
 
 Gizlilik
@@ -81,7 +81,7 @@ Ideas made for each person
 
 Make it yours
 • Dark mode
-• 6 theme colors: Purple, Teal, Orange, Blue, Coral, Lime Green
+• 9 theme colors: Purple, Teal, Orange, Blue, Coral, Lime Green, Sky Blue, Orchid, Gold
 • Turkish and English
 
 Privacy
