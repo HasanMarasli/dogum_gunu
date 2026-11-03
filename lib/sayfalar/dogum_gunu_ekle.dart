@@ -23,10 +23,13 @@ class _KisiEkleState extends State<DogumGunuEkle> {
   final TextEditingController kisiAd = TextEditingController();
   final FocusNode _adOdak = FocusNode();
   DateTime? secilenTarih;
+  Cinsiyet? _cinsiyet;
+  Yakinlik? _yakinlik;
   bool _tarihAcik = false;
   bool _kaydediliyor = false;
   bool _adHatasi = false;
   bool _tarihHatasi = false;
+  bool _cinsiyetHatasi = false;
 
   final DogumGunuVeriYonetim dogumGunuYonetim = Get.find();
 
@@ -36,8 +39,16 @@ class _KisiEkleState extends State<DogumGunuEkle> {
   bool get _degisti {
     final d = widget.duzenlenecek;
     final isim = kisiAd.text.trim();
-    if (d == null) return isim.isNotEmpty || secilenTarih != null;
-    return isim != d.isim || secilenTarih != d.dogumTarihi;
+    if (d == null) {
+      return isim.isNotEmpty ||
+          secilenTarih != null ||
+          _cinsiyet != null ||
+          _yakinlik != null;
+    }
+    return isim != d.isim ||
+        secilenTarih != d.dogumTarihi ||
+        _cinsiyet != d.cinsiyet ||
+        _yakinlik != d.yakinlik;
   }
 
   @override
@@ -47,6 +58,8 @@ class _KisiEkleState extends State<DogumGunuEkle> {
     if (d != null) {
       kisiAd.text = d.isim;
       secilenTarih = d.dogumTarihi;
+      _cinsiyet = d.cinsiyet;
+      _yakinlik = d.yakinlik;
     }
     _adOdak.addListener(() => setState(() {}));
     kisiAd.addListener(() {
@@ -85,9 +98,10 @@ class _KisiEkleState extends State<DogumGunuEkle> {
     setState(() {
       _adHatasi = isim.isEmpty;
       _tarihHatasi = secilenTarih == null;
+      _cinsiyetHatasi = _cinsiyet == null;
     });
     if (_adHatasi) _adOdak.requestFocus();
-    if (_adHatasi || _tarihHatasi) return;
+    if (_adHatasi || _tarihHatasi || _cinsiyetHatasi) return;
 
     setState(() => _kaydediliyor = true);
     try {
@@ -96,6 +110,8 @@ class _KisiEkleState extends State<DogumGunuEkle> {
           id: widget.duzenlenecek!.id,
           isim: isim,
           dogumTarihi: secilenTarih!,
+          cinsiyet: _cinsiyet,
+          yakinlik: _yakinlik,
         );
         await DogumGunuVeriTabani.veriGuncelle(guncel);
         final liste = dogumGunuYonetim.dogumGunuListe;
@@ -111,6 +127,8 @@ class _KisiEkleState extends State<DogumGunuEkle> {
           id: const Uuid().v4(),
           isim: isim,
           dogumTarihi: secilenTarih!,
+          cinsiyet: _cinsiyet,
+          yakinlik: _yakinlik,
         );
         await DogumGunuVeriTabani.veriEkle(yeniDogum);
         dogumGunuYonetim.dogumGunuListe.add(yeniDogum);
@@ -342,6 +360,68 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                           style: TextStyle(fontSize: 12, color: r.err),
                         ),
                       ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'add.field.gender.label'.tr,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                        color: r.tx2,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        for (final c in Cinsiyet.values) ...[
+                          if (c != Cinsiyet.values.first)
+                            const SizedBox(width: 8),
+                          Expanded(
+                            child: _SecimKutusu(
+                              etiket: 'gender.${c.name}'.tr,
+                              secili: _cinsiyet == c,
+                              hatali: _cinsiyetHatasi,
+                              onTap: () => setState(() {
+                                _cinsiyet = c;
+                                _cinsiyetHatasi = false;
+                              }),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    if (_cinsiyetHatasi)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16, top: 6),
+                        child: Text(
+                          'add.error.gender'.tr,
+                          style: TextStyle(fontSize: 12, color: r.err),
+                        ),
+                      ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'add.field.relation.label'.tr,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                        color: r.tx2,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final y in Yakinlik.values)
+                          _SecimKutusu(
+                            etiket: 'relation.${y.name}'.tr,
+                            secili: _yakinlik == y,
+                            // İsteğe bağlı alan: seçili olana dokununca kalkar.
+                            onTap: () => setState(() {
+                              _yakinlik = _yakinlik == y ? null : y;
+                            }),
+                          ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -377,6 +457,73 @@ class _KisiEkleState extends State<DogumGunuEkle> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SecimKutusu extends StatelessWidget {
+  const _SecimKutusu({
+    required this.etiket,
+    required this.secili,
+    required this.onTap,
+    this.hatali = false,
+  });
+
+  final String etiket;
+  final bool secili;
+  final bool hatali;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final r = context.renk;
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      button: true,
+      selected: secili,
+      child: Material(
+        color: secili ? scheme.primaryContainer : r.s1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+          side: BorderSide(
+            color: hatali
+                ? r.err
+                : secili
+                    ? scheme.primary
+                    : r.bd2,
+            width: 1.5,
+          ),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () {
+            FocusManager.instance.primaryFocus?.unfocus();
+            onTap();
+          },
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Text(
+                      etiket,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: secili ? scheme.onPrimaryContainer : r.tx,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

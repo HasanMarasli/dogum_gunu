@@ -2,15 +2,34 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:dogum_gunu/veriTabani/dogum_gunu_veri_tabani.dart';
 
+enum Cinsiyet { kadin, erkek }
+
+enum Yakinlik {
+  ebeveyn,
+  kardes,
+  cocuk,
+  esSevgili,
+  arkadas,
+  isArkadasi,
+  akraba,
+  diger,
+}
+
 class DogumGunu {
   String id;
   String isim;
   DateTime dogumTarihi;
 
+  /// Formda zorunludur; yalnızca bu alan eklenmeden önceki kayıtlarda boştur.
+  Cinsiyet? cinsiyet;
+  Yakinlik? yakinlik;
+
   DogumGunu({
     required this.id,
     required this.dogumTarihi,
     required this.isim,
+    this.cinsiyet,
+    this.yakinlik,
   });
 
   /// 29 Şubat doğumlular artık olmayan yıllarda 28 Şubat'ta kutlanır.
@@ -198,6 +217,8 @@ class DogumGunu {
       id: veri['id'] as String,
       isim: veri['isim'] as String,
       dogumTarihi: tarih,
+      cinsiyet: Cinsiyet.values.asNameMap()[veri['cinsiyet']],
+      yakinlik: Yakinlik.values.asNameMap()[veri['yakinlik']],
     );
   }
 }

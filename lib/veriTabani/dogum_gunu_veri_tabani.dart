@@ -22,12 +22,16 @@ class DogumGunuVeriTabani {
     String yol = join(await getDatabasesPath(), 'dogum_gunu.db');
     return await openDatabase(
       yol,
-      version: 3,
+      version: 4,
       onCreate: _ilkTabloOlustur,
       onUpgrade: (db, eski, yeni) async {
         // Aynı isimde birden fazla kişi olabilir; eski benzersiz indeks kalkar.
         if (eski < 3) {
           await db.execute('DROP INDEX IF EXISTS idx_dogumlar_isim_nocase');
+        }
+        if (eski < 4) {
+          await db.execute('ALTER TABLE dogumlar ADD COLUMN cinsiyet TEXT');
+          await db.execute('ALTER TABLE dogumlar ADD COLUMN yakinlik TEXT');
         }
       },
     );
@@ -38,7 +42,9 @@ class DogumGunuVeriTabani {
       CREATE TABLE dogumlar (
         id TEXT PRIMARY KEY,
         isim TEXT NOT NULL,
-        dogumTarihi TEXT NOT NULL
+        dogumTarihi TEXT NOT NULL,
+        cinsiyet TEXT,
+        yakinlik TEXT
       )
     ''');
   }
@@ -57,6 +63,8 @@ class DogumGunuVeriTabani {
         'id': dogum.id,
         'isim': dogum.isim,
         'dogumTarihi': formattedDate,
+        'cinsiyet': dogum.cinsiyet?.name,
+        'yakinlik': dogum.yakinlik?.name,
       },
     );
 
@@ -78,6 +86,8 @@ class DogumGunuVeriTabani {
         id: sonuc[i]['id'],
         isim: sonuc[i]['isim'],
         dogumTarihi: dogumTarihi,
+        cinsiyet: Cinsiyet.values.asNameMap()[sonuc[i]['cinsiyet']],
+        yakinlik: Yakinlik.values.asNameMap()[sonuc[i]['yakinlik']],
       );
     });
   }
@@ -106,6 +116,8 @@ class DogumGunuVeriTabani {
       {
         'isim': dogum.isim,
         'dogumTarihi': DateFormat('yyyy-MM-dd').format(dogum.dogumTarihi),
+        'cinsiyet': dogum.cinsiyet?.name,
+        'yakinlik': dogum.yakinlik?.name,
       },
       where: 'id = ?',
       whereArgs: [dogum.id],
