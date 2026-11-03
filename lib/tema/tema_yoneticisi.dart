@@ -53,7 +53,7 @@ class TemaYoneticisi extends GetxController {
 
   ThemeData _tema(Brightness parlaklik) {
     final p = _palet.tonlar(parlaklik);
-    final r = AppRenkler.olustur(p, parlaklik);
+    final r = AppRenkler.olustur(_palet, parlaklik);
     final scheme = ColorScheme(
       brightness: parlaklik,
       primary: p.pr,

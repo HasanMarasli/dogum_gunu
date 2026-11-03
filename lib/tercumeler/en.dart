@@ -33,6 +33,9 @@ final Map<String, String> en = {
   'theme.blue': 'Blue',
   'theme.coral': 'Coral',
   'theme.lime': 'Lime Green',
+  'theme.sky': 'Sky Blue',
+  'theme.orchid': 'Orchid',
+  'theme.gold': 'Gold',
 // App
   'app.title': 'Birthday Reminder',
 // Home

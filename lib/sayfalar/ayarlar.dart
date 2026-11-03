@@ -148,23 +148,22 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Column(
                     children: [
-                      for (final satir in [
-                        tema.palettes.keys.take(3).toList(),
-                        tema.palettes.keys.skip(3).toList(),
-                      ]) ...[
+                      for (var s = 0; s < tema.palettes.length; s += 3) ...[
+                        if (s > 0) const SizedBox(height: 8),
                         IntrinsicHeight(
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              for (var i = 0; i < satir.length; i++) ...[
+                              for (final (i, key) in tema.palettes.keys
+                                  .skip(s)
+                                  .take(3)
+                                  .indexed) ...[
                                 if (i > 0) const SizedBox(width: 8),
-                                Expanded(child: _paletKarosu(tema, satir[i])),
+                                Expanded(child: _paletKarosu(tema, key)),
                               ],
                             ],
                           ),
                         ),
-                        if (satir.first == tema.palettes.keys.first)
-                          const SizedBox(height: 8),
                       ],
                     ],
                   ),

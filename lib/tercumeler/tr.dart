@@ -33,6 +33,9 @@ Map<String, String> tr = {
   'theme.blue': 'Mavi',
   'theme.coral': 'Mercan',
   'theme.lime': 'Limon Yeşili',
+  'theme.sky': 'Gök Mavisi',
+  'theme.orchid': 'Orkide',
+  'theme.gold': 'Altın',
   // App
   'app.title': 'Doğum Günü',
   // Home

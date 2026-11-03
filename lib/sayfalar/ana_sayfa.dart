@@ -416,7 +416,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             boxShadow: r.e1,
             color: r.s1,
             border: Border.all(
-              color: bugun ? r.suc.withValues(alpha: 0.55) : Colors.transparent,
+              color: bugun
+                  ? scheme.primary.withValues(alpha: 0.55)
+                  : Colors.transparent,
               width: 1.5,
             ),
           ),
@@ -479,7 +481,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: bugun ? r.suc : scheme.primaryContainer,
+                  color: bugun ? scheme.primary : scheme.primaryContainer,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Column(
@@ -493,7 +495,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontSize: 15,
                             height: 1.15,
-                            color: bugun ? r.onSuc : scheme.onPrimaryContainer,
+                            color: bugun
+                                ? scheme.onPrimary
+                                : scheme.onPrimaryContainer,
                           ),
                     ),
                     if (!bugun)

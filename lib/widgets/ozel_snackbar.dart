@@ -18,8 +18,7 @@ class OzelSnackbar {
     if (context == null) return;
     final r = Theme.of(context).extension<AppRenkler>();
     if (r == null) return;
-    final config =
-        _getConfig(tip, r, Theme.of(context).brightness == Brightness.dark);
+    final config = _getConfig(tip, r);
     final azHareket = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
 
     // Aynı anda tek mesaj: yenisi gelince mevcut olan kapanır.
@@ -79,7 +78,7 @@ class OzelSnackbar {
     goster(baslik: baslik, mesaj: mesaj, tip: SnackbarTipi.bilgi);
   }
 
-  static _SnackbarConfig _getConfig(SnackbarTipi tip, AppRenkler r, bool koyu) {
+  static _SnackbarConfig _getConfig(SnackbarTipi tip, AppRenkler r) {
     switch (tip) {
       case SnackbarTipi.basari:
         return _SnackbarConfig(
@@ -108,7 +107,7 @@ class OzelSnackbar {
       case SnackbarTipi.bilgi:
         return _SnackbarConfig(
           vurgu: r.info,
-          vurguUstu: koyu ? const Color(0xFF0A2C5C) : Colors.white,
+          vurguUstu: r.onInfo,
           zemin: r.infoc,
           yazi: r.onInfoc,
           icon: Icons.info_rounded,

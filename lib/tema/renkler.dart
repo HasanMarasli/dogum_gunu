@@ -34,7 +34,7 @@ class Palet {
       parlaklik == Brightness.dark ? koyu : acik;
 }
 
-/// Ayarlar'da seçilebilen 6 palet. Anahtarlar kayıtlı tercihlerle uyumludur.
+/// Ayarlar'da seçilebilen paletler. Anahtarlar kayıtlı tercihlerle uyumludur.
 const Map<String, Palet> paletler = {
   'purple': Palet(
     seed: Color(0xFF5B55F6),
@@ -150,9 +150,67 @@ const Map<String, Palet> paletler = {
       g2: Color(0xFF4A7E2C),
     ),
   ),
+  'sky': Palet(
+    seed: Color(0xFF0288D1),
+    acik: PaletTonlari(
+      pr: Color(0xFF0272B3),
+      onPr: Color(0xFFFFFFFF),
+      pc: Color(0xFFCDE9FA),
+      onPc: Color(0xFF002F4A),
+      g1: Color(0xFF0272B3),
+      g2: Color(0xFF0B7FA8),
+    ),
+    koyu: PaletTonlari(
+      pr: Color(0xFF7FCBF5),
+      onPr: Color(0xFF00344F),
+      pc: Color(0xFF004F75),
+      onPc: Color(0xFFCDE9FA),
+      g1: Color(0xFF036A9E),
+      g2: Color(0xFF0A7396),
+    ),
+  ),
+  'orchid': Palet(
+    seed: Color(0xFFA63FC9),
+    acik: PaletTonlari(
+      pr: Color(0xFF9333B5),
+      onPr: Color(0xFFFFFFFF),
+      pc: Color(0xFFF5DDFC),
+      onPc: Color(0xFF36064A),
+      g1: Color(0xFF9333B5),
+      g2: Color(0xFFB5338F),
+    ),
+    koyu: PaletTonlari(
+      pr: Color(0xFFE5B0F7),
+      onPr: Color(0xFF4C0F63),
+      pc: Color(0xFF6F2190),
+      onPc: Color(0xFFF5DDFC),
+      g1: Color(0xFF8A2FAB),
+      g2: Color(0xFFA52F84),
+    ),
+  ),
+  'gold': Palet(
+    seed: Color(0xFFD9A400),
+    acik: PaletTonlari(
+      pr: Color(0xFF7F6000),
+      onPr: Color(0xFFFFFFFF),
+      pc: Color(0xFFFFE9A6),
+      onPc: Color(0xFF2B2000),
+      g1: Color(0xFF886700),
+      g2: Color(0xFF8A6E00),
+    ),
+    koyu: PaletTonlari(
+      pr: Color(0xFFF0CB57),
+      onPr: Color(0xFF3B2D00),
+      pc: Color(0xFF574200),
+      onPc: Color(0xFFFFE9A6),
+      g1: Color(0xFF8A6800),
+      g2: Color(0xFF7E6F00),
+    ),
+  ),
 };
 
-/// Palete göre değişmeyen nötr ve semantik renkler ile palet gradyanı.
+/// Paletin tonundan türeyen zemin, yazı ve kenarlık renkleri ile palet gradyanı.
+/// Başarı, hata ve uyarı anlam taşıdığı için her palette aynı kalır.
 /// `context.renk` ile erişilir.
 class AppRenkler extends ThemeExtension<AppRenkler> {
   const AppRenkler({
@@ -185,6 +243,7 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
     required this.warnc,
     required this.onWarnc,
     required this.info,
+    required this.onInfo,
     required this.infoc,
     required this.onInfoc,
   });
@@ -218,6 +277,7 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
   final Color warnc;
   final Color onWarnc;
   final Color info;
+  final Color onInfo;
   final Color infoc;
   final Color onInfoc;
 
@@ -227,21 +287,26 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
         end: Alignment.bottomRight,
       );
 
-  static AppRenkler olustur(PaletTonlari p, Brightness parlaklik) {
+  static AppRenkler olustur(Palet palet, Brightness parlaklik) {
+    final p = palet.tonlar(parlaklik);
+    final ton = HSLColor.fromColor(palet.seed).hue;
+    Color notr(double doygunluk, double aydinlik) =>
+        HSLColor.fromAHSL(1, ton, doygunluk, aydinlik).toColor();
+
     if (parlaklik == Brightness.dark) {
       return AppRenkler(
         g1: p.g1,
         g2: p.g2,
-        bg: const Color(0xFF131010),
-        s1: const Color(0xFF1C1817),
-        s2: const Color(0xFF252120),
-        s3: const Color(0xFF302A28),
-        raised: const Color(0xFF2A2523),
-        tx: const Color(0xFFF3EEE9),
-        tx2: const Color(0xFFB8AEA6),
-        tx3: const Color(0xFF968C84),
-        bd: const Color(0xFF35302D),
-        bd2: const Color(0xFF4D4541),
+        bg: notr(0.28, 0.07),
+        s1: notr(0.24, 0.11),
+        s2: notr(0.22, 0.15),
+        s3: notr(0.20, 0.19),
+        raised: notr(0.22, 0.17),
+        tx: notr(0.30, 0.94),
+        tx2: notr(0.16, 0.74),
+        tx3: notr(0.13, 0.63),
+        bd: notr(0.16, 0.22),
+        bd2: notr(0.14, 0.32),
         scrim: const Color(0x99000000),
         e1: const [
           BoxShadow(
@@ -271,42 +336,55 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
         onWarn: const Color(0xFF3F2B07),
         warnc: const Color(0xFF3F2B07),
         onWarnc: const Color(0xFFFFE8C2),
-        info: const Color(0xFF93C1FF),
-        infoc: const Color(0xFF12294A),
-        onInfoc: const Color(0xFFD6E6FF),
+        info: p.pr,
+        onInfo: p.onPr,
+        infoc: p.pc,
+        onInfoc: p.onPc,
       );
     }
     return AppRenkler(
       g1: p.g1,
       g2: p.g2,
-      bg: const Color(0xFFFAF7F4),
-      s1: const Color(0xFFFFFFFF),
-      s2: const Color(0xFFF4EFEA),
-      s3: const Color(0xFFEAE3DC),
-      raised: const Color(0xFFFFFFFF),
-      tx: const Color(0xFF1E1916),
-      tx2: const Color(0xFF5F5650),
-      tx3: const Color(0xFF796E65),
-      bd: const Color(0xFFE8E1DA),
-      bd2: const Color(0xFFCFC5BC),
-      scrim: const Color(0x6B140E0A),
-      e1: const [
+      bg: notr(0.50, 0.96),
+      s1: notr(0.60, 0.99),
+      s2: notr(0.45, 0.93),
+      s3: notr(0.40, 0.89),
+      raised: notr(0.60, 0.99),
+      tx: notr(0.35, 0.10),
+      tx2: notr(0.18, 0.33),
+      tx3: notr(0.14, 0.36),
+      bd: notr(0.32, 0.88),
+      bd2: notr(0.22, 0.76),
+      scrim: notr(0.35, 0.06).withAlpha(0x6B),
+      e1: [
         BoxShadow(
-            color: Color(0x0F301E12), blurRadius: 2, offset: Offset(0, 1)),
+            color: notr(0.45, 0.13).withAlpha(0x0F),
+            blurRadius: 2,
+            offset: const Offset(0, 1)),
         BoxShadow(
-            color: Color(0x0D301E12), blurRadius: 3, offset: Offset(0, 1)),
+            color: notr(0.45, 0.13).withAlpha(0x0D),
+            blurRadius: 3,
+            offset: const Offset(0, 1)),
       ],
-      e2: const [
+      e2: [
         BoxShadow(
-            color: Color(0x17301E12), blurRadius: 16, offset: Offset(0, 6)),
+            color: notr(0.45, 0.13).withAlpha(0x17),
+            blurRadius: 16,
+            offset: const Offset(0, 6)),
         BoxShadow(
-            color: Color(0x0F301E12), blurRadius: 3, offset: Offset(0, 1)),
+            color: notr(0.45, 0.13).withAlpha(0x0F),
+            blurRadius: 3,
+            offset: const Offset(0, 1)),
       ],
-      e3: const [
+      e3: [
         BoxShadow(
-            color: Color(0x29301E12), blurRadius: 40, offset: Offset(0, 16)),
+            color: notr(0.45, 0.13).withAlpha(0x29),
+            blurRadius: 40,
+            offset: const Offset(0, 16)),
         BoxShadow(
-            color: Color(0x14301E12), blurRadius: 8, offset: Offset(0, 3)),
+            color: notr(0.45, 0.13).withAlpha(0x14),
+            blurRadius: 8,
+            offset: const Offset(0, 3)),
       ],
       suc: const Color(0xFF1E7A45),
       onSuc: const Color(0xFFFFFFFF),
@@ -320,9 +398,10 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
       onWarn: const Color(0xFFFFFFFF),
       warnc: const Color(0xFFFFEFD0),
       onWarnc: const Color(0xFF4A2C00),
-      info: const Color(0xFF1660C4),
-      infoc: const Color(0xFFDEEBFC),
-      onInfoc: const Color(0xFF0A2C5C),
+      info: p.pr,
+      onInfo: p.onPr,
+      infoc: p.pc,
+      onInfoc: p.onPc,
     );
   }
 
@@ -363,6 +442,7 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
       warnc: c(warnc, other.warnc),
       onWarnc: c(onWarnc, other.onWarnc),
       info: c(info, other.info),
+      onInfo: c(onInfo, other.onInfo),
       infoc: c(infoc, other.infoc),
       onInfoc: c(onInfoc, other.onInfoc),
     );
