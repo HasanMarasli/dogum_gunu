@@ -45,6 +45,14 @@ class _TavsiyeState extends State<Tavsiye> {
     final giftItems = tZodiacList(signId, 'gifts', translations);
     final surpriseItems = tZodiacList(signId, 'surprises', translations);
     final dateRange = tZodiac(signId, 'range', translations);
+    final kalan = DogumGunu.kalanGun(_kisi.dogumTarihi);
+    final yas = DogumGunu.yasGetir(_kisi.dogumTarihi);
+    final kalanYazi = kalan == 0
+        ? 'home.countdown.today'.tr
+        : trSayi('advice.countdown', kalan, {'days': '$kalan'});
+    final durum = yas > 0
+        ? '$kalanYazi · ${trSayi('home.age', yas, {'age': '$yas'})}'
+        : kalanYazi;
 
     return Scaffold(
       backgroundColor: r.bg,
@@ -67,7 +75,9 @@ class _TavsiyeState extends State<Tavsiye> {
               style: metin.titleLarge?.copyWith(fontSize: 20, height: 1.3),
             ),
             Text(
-              signName,
+              durum,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontWeight: FontWeight.w500,
                 fontSize: 13,

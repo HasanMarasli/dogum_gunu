@@ -18,19 +18,29 @@ class TemaYoneticisi extends GetxController {
       paletler.map((key, palet) => MapEntry(key, palet.seed));
 
   late String currentKey;
-  late bool koyuMod;
+  bool? _koyuTercih;
+
+  /// Kullanıcı seçmediyse telefonun açık/koyu ayarı izlenir.
+  bool get koyuMod =>
+      _koyuTercih ??
+      WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+          Brightness.dark;
 
   @override
   void onInit() {
     currentKey = _box.read<String>(_key) ?? 'purple';
     if (!paletler.containsKey(currentKey)) currentKey = 'purple';
-    koyuMod = _box.read<bool>(_koyuModKey) ?? false;
+    _koyuTercih = _box.read<bool>(_koyuModKey);
     super.onInit();
   }
 
   Palet get _palet => paletler[currentKey]!;
 
-  ThemeMode get themeMode => koyuMod ? ThemeMode.dark : ThemeMode.light;
+  ThemeMode get themeMode {
+    final tercih = _koyuTercih;
+    if (tercih == null) return ThemeMode.system;
+    return tercih ? ThemeMode.dark : ThemeMode.light;
+  }
 
   ThemeData get themeData => _tema(Brightness.light);
 
@@ -230,7 +240,7 @@ class TemaYoneticisi extends GetxController {
   }
 
   void setKoyuMod(bool deger) {
-    koyuMod = deger;
+    _koyuTercih = deger;
     _box.write(_koyuModKey, deger);
     update();
   }

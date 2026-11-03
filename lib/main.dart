@@ -5,6 +5,7 @@ import 'package:dogum_gunu/tema/tema_yoneticisi.dart';
 import 'package:dogum_gunu/sayfalar/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -14,6 +15,7 @@ Future<void> main() async {
   await initializeDateFormatting('tr', null);
   await initializeDateFormatting('en', null);
   await GetStorage.init();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   final box = GetStorage();
   final dilController = Get.put(DilSecimiController(box));
@@ -24,7 +26,11 @@ Future<void> main() async {
   Get.put(DogumGunuVeriYonetim());
 
   runApp(MyApp(
-    initialLocale: storedLocale ?? const Locale('tr'),
+    // Seçim yoksa telefonun dili; Türkçe dışındaki her dilde İngilizce.
+    initialLocale: storedLocale ??
+        (Get.deviceLocale?.languageCode == 'tr'
+            ? const Locale('tr')
+            : const Locale('en')),
     themeController: themeController,
   ));
 }
@@ -46,6 +52,12 @@ class MyApp extends StatelessWidget {
           translations: Tercumeler(),
           locale: initialLocale,
           fallbackLocale: const Locale('en'),
+          supportedLocales: Tercumeler.diller.values,
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
           title: 'app.title'.tr,
           theme: tema.themeData,
           darkTheme: tema.darkThemeData,
@@ -53,18 +65,21 @@ class MyApp extends StatelessWidget {
           // AppBar'ı olmayan ekranlarda da durum çubuğu ikonları temaya uysun.
           builder: (context, child) {
             final koyu = Theme.of(context).brightness == Brightness.dark;
-            return AnnotatedRegion<SystemUiOverlayStyle>(
-              value: (koyu
-                      ? SystemUiOverlayStyle.light
-                      : SystemUiOverlayStyle.dark)
-                  .copyWith(
-                statusBarColor: Colors.transparent,
-                systemNavigationBarColor:
-                    Theme.of(context).scaffoldBackgroundColor,
-                systemNavigationBarIconBrightness:
-                    koyu ? Brightness.light : Brightness.dark,
+            return MediaQuery.withClampedTextScaling(
+              maxScaleFactor: 1.6,
+              child: AnnotatedRegion<SystemUiOverlayStyle>(
+                value: (koyu
+                        ? SystemUiOverlayStyle.light
+                        : SystemUiOverlayStyle.dark)
+                    .copyWith(
+                  statusBarColor: Colors.transparent,
+                  systemNavigationBarColor:
+                      Theme.of(context).scaffoldBackgroundColor,
+                  systemNavigationBarIconBrightness:
+                      koyu ? Brightness.light : Brightness.dark,
+                ),
+                child: child!,
               ),
-              child: child!,
             );
           },
           home: const Splash(),

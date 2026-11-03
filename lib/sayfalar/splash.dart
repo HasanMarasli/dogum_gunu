@@ -49,7 +49,7 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
     Future.delayed(const Duration(milliseconds: 600), () {
       if (mounted) setState(() => _yukleniyorGoster = true);
     });
-    Future.delayed(const Duration(milliseconds: 2000), _devamEt);
+    Future.delayed(const Duration(milliseconds: 1000), _devamEt);
   }
 
   Future<void> _devamEt() async {

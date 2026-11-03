@@ -4,6 +4,10 @@ import 'package:get_storage/get_storage.dart';
 import 'package:dogum_gunu/tercumeler/tr.dart';
 import 'package:dogum_gunu/tercumeler/en.dart';
 
+/// Sayı 1 ise tekil (`.one`) anahtarı kullanır; "1 days" gibi hataları önler.
+String trSayi(String anahtar, int sayi, Map<String, String> degerler) =>
+    (sayi == 1 ? '$anahtar.one' : anahtar).trParams(degerler);
+
 class Tercumeler extends Translations {
   // Desteklenen dillerin listesi
   static Map<String, Locale> diller = {

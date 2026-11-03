@@ -39,6 +39,7 @@ class _TarihSeciciState extends State<_TarihSecici> {
   late int _gorunenYil;
   late int _gorunenAy;
   bool _yillar = false;
+  bool _aylar = false;
   late int _onYil;
 
   final ScrollController _yilKaydirma = ScrollController();
@@ -58,6 +59,14 @@ class _TarihSeciciState extends State<_TarihSecici> {
     _gorunenAy = acilis.month;
     _onYil = _onYilOf(acilis.year);
     _yilKaydirma.addListener(_yilKaydirildi);
+    // Yeni kişide sıra yıl → ay → gün; böylece geçmiş tarihe hızlı varılır.
+    if (b == null) {
+      _yillar = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _yilaKaydir(_gorunenYil, ortala: true);
+        _seridiOrtala(_onYil, animasyon: false);
+      });
+    }
   }
 
   @override
@@ -93,6 +102,7 @@ class _TarihSeciciState extends State<_TarihSecici> {
   void _yilGorunumuAc() {
     setState(() {
       _yillar = !_yillar;
+      _aylar = false;
       _onYil = _onYilOf(_gorunenYil);
     });
     if (_yillar) {
@@ -189,82 +199,82 @@ class _TarihSeciciState extends State<_TarihSecici> {
       ),
       padding: EdgeInsets.fromLTRB(
           20, 10, 20, 20 + MediaQuery.of(context).padding.bottom),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: Container(
-              width: 32,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: r.bd2,
-                borderRadius: BorderRadius.circular(2),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 32,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: r.bd2,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
-          ),
-          Container(
-            padding: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: r.bd)),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'picker.title'.tr,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                          color: r.tx2,
+            Container(
+              padding: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: r.bd)),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'picker.title'.tr,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                            color: r.tx2,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        secili == null
-                            ? 'picker.empty'.tr
-                            : DogumGunu.tarihYazdir(secili),
-                        style: metin.headlineMedium?.copyWith(
-                          color: secili == null ? r.tx3 : null,
+                        const SizedBox(height: 2),
+                        Text(
+                          secili == null
+                              ? 'picker.empty'.tr
+                              : DogumGunu.tarihYazdir(secili),
+                          style: metin.headlineMedium?.copyWith(
+                            color: secili == null ? r.tx3 : null,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        secili == null ? 'picker.hint'.tr : '$gunAdi · $burc',
-                        style: metin.bodyMedium?.copyWith(color: r.tx2),
-                      ),
-                    ],
+                        const SizedBox(height: 2),
+                        Text(
+                          secili == null ? 'picker.hint'.tr : '$gunAdi · $burc',
+                          style: metin.bodyMedium?.copyWith(color: r.tx2),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 14),
-                burcId == null
-                    ? Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: r.s2,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Icon(Icons.cake_rounded, size: 28, color: r.tx3),
-                      )
-                    : BurcRozeti(burcId: burcId, boyut: 56),
-              ],
+                  const SizedBox(width: 14),
+                  burcId == null
+                      ? Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: r.s2,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child:
+                              Icon(Icons.cake_rounded, size: 28, color: r.tx3),
+                        )
+                      : BurcRozeti(burcId: burcId, boyut: 56),
+                ],
+              ),
             ),
-          ),
-          SizedBox(
-            height: 56,
-            child: Row(
-              children: [
-                Transform.translate(
-                  offset: const Offset(-8, 0),
-                  child: TextButton(
+            SizedBox(
+              height: 56,
+              child: Row(
+                children: [
+                  TextButton(
                     onPressed: _yilGorunumuAc,
                     style: TextButton.styleFrom(
-                      backgroundColor: _yillar ? scheme.primaryContainer : null,
+                      backgroundColor: _yillar ? scheme.primaryContainer : r.s2,
                       foregroundColor:
                           _yillar ? scheme.onPrimaryContainer : r.tx,
                       minimumSize: const Size(0, 44),
@@ -278,7 +288,7 @@ class _TarihSeciciState extends State<_TarihSecici> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(_yillar
+                        Text(_yillar || _aylar
                             ? '$_gorunenYil'
                             : toBeginningOfSentenceCase(DateFormat(
                                     'MMMM y', _dil)
@@ -292,64 +302,123 @@ class _TarihSeciciState extends State<_TarihSecici> {
                       ],
                     ),
                   ),
-                ),
-                const Spacer(),
-                if (!_yillar) ...[
-                  IconButton(
-                    tooltip: 'picker.prevMonth'.tr,
-                    onPressed: ilkAyda ? null : () => _ayKaydir(-1),
-                    color: r.tx2,
-                    disabledColor: r.bd2,
-                    icon: const Icon(Icons.chevron_left_rounded),
-                  ),
-                  IconButton(
-                    tooltip: 'picker.nextMonth'.tr,
-                    onPressed: sonAyda ? null : () => _ayKaydir(1),
-                    color: r.tx2,
-                    disabledColor: r.bd2,
-                    icon: const Icon(Icons.chevron_right_rounded),
-                  ),
+                  const Spacer(),
+                  if (!_yillar && !_aylar) ...[
+                    IconButton(
+                      tooltip: 'picker.prevMonth'.tr,
+                      onPressed: ilkAyda ? null : () => _ayKaydir(-1),
+                      color: r.tx2,
+                      disabledColor: r.bd2,
+                      icon: const Icon(Icons.chevron_left_rounded),
+                    ),
+                    IconButton(
+                      tooltip: 'picker.nextMonth'.tr,
+                      onPressed: sonAyda ? null : () => _ayKaydir(1),
+                      color: r.tx2,
+                      disabledColor: r.bd2,
+                      icon: const Icon(Icons.chevron_right_rounded),
+                    ),
+                  ],
                 ],
+              ),
+            ),
+            SizedBox(
+              height: 308,
+              child: _yillar
+                  ? _yilGorunumu(r, scheme)
+                  : _aylar
+                      ? _ayGorunumu(r, scheme)
+                      : _gunGorunumu(r, scheme),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(0, 48),
+                      shape: const StadiumBorder(),
+                      side: BorderSide(color: r.bd2, width: 1.5),
+                      foregroundColor: scheme.primary,
+                      textStyle: metin.labelLarge,
+                    ),
+                    child: Text('picker.cancel'.tr),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: secili == null
+                        ? null
+                        : () => Navigator.of(context).pop(secili),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(0, 48),
+                    ),
+                    icon: const Icon(Icons.check_rounded, size: 20),
+                    label: Text('picker.ok'.tr),
+                  ),
+                ),
               ],
             ),
-          ),
-          SizedBox(
-            height: 308,
-            child: _yillar ? _yilGorunumu(r, scheme) : _gunGorunumu(r, scheme),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(0, 48),
-                    shape: const StadiumBorder(),
-                    side: BorderSide(color: r.bd2, width: 1.5),
-                    foregroundColor: scheme.primary,
-                    textStyle: metin.labelLarge,
-                  ),
-                  child: Text('picker.cancel'.tr),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: FilledButton.icon(
-                  onPressed: secili == null
-                      ? null
-                      : () => Navigator.of(context).pop(secili),
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size(0, 48),
-                  ),
-                  icon: const Icon(Icons.check_rounded, size: 20),
-                  label: Text('picker.ok'.tr),
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _ayGorunumu(AppRenkler r, ColorScheme scheme) {
+    return GridView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        mainAxisExtent: 66,
+        mainAxisSpacing: 8,
+        crossAxisSpacing: 6,
+      ),
+      itemCount: 12,
+      itemBuilder: (context, i) {
+        final ay = i + 1;
+        final tarih = DateTime(_gorunenYil, ay);
+        final gelecek = tarih.isAfter(_bugun);
+        final secili = _secili?.year == _gorunenYil && _secili?.month == ay;
+        final gorunen = ay == _gorunenAy && !secili;
+        return Material(
+          color: secili
+              ? scheme.primary
+              : gorunen
+                  ? scheme.primaryContainer
+                  : Colors.transparent,
+          shape: const StadiumBorder(),
+          child: InkWell(
+            customBorder: const StadiumBorder(),
+            onTap: gelecek
+                ? null
+                : () => setState(() {
+                      _gorunenAy = ay;
+                      _aylar = false;
+                    }),
+            child: Center(
+              child: Text(
+                toBeginningOfSentenceCase(
+                    DateFormat('MMMM', _dil).format(tarih)),
+                style: TextStyle(
+                  fontWeight: secili ? FontWeight.w700 : FontWeight.w500,
+                  fontSize: 15,
+                  color: secili
+                      ? scheme.onPrimary
+                      : gelecek
+                          ? r.bd2
+                          : gorunen
+                              ? scheme.onPrimaryContainer
+                              : r.tx,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -531,6 +600,7 @@ class _TarihSeciciState extends State<_TarihSecici> {
                       _gorunenAy = _bugun.month;
                     }
                     _yillar = false;
+                    _aylar = true;
                   }),
                   child: Center(
                     child: Text(

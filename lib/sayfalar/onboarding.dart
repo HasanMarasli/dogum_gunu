@@ -46,6 +46,15 @@ class _OnboardingState extends State<Onboarding> {
     );
   }
 
+  // Atla, bildirim izni adımını da geçmesin diye son adıma götürür.
+  void _sonAdimaGit() {
+    _sayfa.animateToPage(
+      _adimSayisi - 1,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
   void _ileri() {
     _sayfa.nextPage(
       duration: const Duration(milliseconds: 300),
@@ -102,7 +111,7 @@ class _OnboardingState extends State<Onboarding> {
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 4),
                         child: TextButton(
-                          onPressed: _bitir,
+                          onPressed: _sonAdimaGit,
                           style: TextButton.styleFrom(
                             foregroundColor: r.tx2,
                             minimumSize: const Size(44, 44),
@@ -265,8 +274,11 @@ class _CizimCercevesi extends StatelessWidget {
       borderRadius: BorderRadius.circular(32),
       child: ColoredBox(
         color: zemin,
-        child: FittedBox(
-          child: SizedBox(width: 312, height: 348, child: icerik),
+        // Çizim sabit ölçüde tasarlandı; yazı boyutu ayarı içini taşırmasın.
+        child: MediaQuery.withNoTextScaling(
+          child: FittedBox(
+            child: SizedBox(width: 312, height: 348, child: icerik),
+          ),
         ),
       ),
     );
@@ -991,24 +1003,8 @@ class _Cizim4 extends StatelessWidget {
                                   fontSize: 14,
                                   color: r.tx)),
                         ),
-                        Container(
-                          width: 36,
-                          height: 20,
-                          padding: const EdgeInsets.symmetric(horizontal: 3),
-                          alignment: Alignment.centerRight,
-                          decoration: BoxDecoration(
-                            color: scheme.primary,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Container(
-                            width: 14,
-                            height: 14,
-                            decoration: BoxDecoration(
-                              color: scheme.onPrimary,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
+                        Icon(Icons.check_circle_rounded,
+                            size: 20, color: scheme.primary),
                       ],
                     ),
                   ),

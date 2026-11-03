@@ -48,7 +48,7 @@ Kişiselleştirme
 
 Gizlilik
 • Hesap, kayıt veya oturum açma yok
-• Tüm bilgiler yalnızca cihazında saklanır, buluta gönderilmez
+• Bilgilerin sunucularımıza gönderilmez; yalnızca cihazında ve varsa telefonunun kendi yedeğinde bulunur
 • Reklam ve takip yok
 
 ---
@@ -82,7 +82,7 @@ Make it yours
 
 Privacy
 • No account, sign-up or login
-• Everything is stored only on your device and never sent to the cloud
+• Your details are never sent to our servers; they stay on your device and, if enabled, in your phone’s own backup
 • No ads, no tracking
 
 ---
@@ -90,7 +90,7 @@ Privacy
 ## Veri güvenliği (Data safety) cevapları
 
 - Uygulama kullanıcı verisi topluyor veya paylaşıyor mu? **Hayır**
-  (Kişi adları ve doğum tarihleri yalnızca cihazda saklanır, cihazdan çıkmaz.)
+  (Kişi adları ve doğum tarihleri geliştiriciye gönderilmez; cihazda ve varsa kullanıcının Android yedeğinde bulunur.)
 - Hesap oluşturma: Yok
 
 ## İçerik derecelendirmesi (IARC) cevapları

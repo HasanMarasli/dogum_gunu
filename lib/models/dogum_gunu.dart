@@ -13,6 +13,35 @@ class DogumGunu {
     required this.isim,
   });
 
+  /// 29 Şubat doğumlular artık olmayan yıllarda 28 Şubat'ta kutlanır.
+  static DateTime yildakiDogumGunu(DateTime dogum, int yil) {
+    if (dogum.month == 2 && dogum.day == 29) {
+      final artik = (yil % 4 == 0 && yil % 100 != 0) || yil % 400 == 0;
+      return DateTime(yil, 2, artik ? 29 : 28);
+    }
+    return DateTime(yil, dogum.month, dogum.day);
+  }
+
+  /// Bir sonraki doğum gününe kalan gün; bugünse 0.
+  static int kalanGun(DateTime dogum) {
+    final simdi = DateTime.now();
+    final bugun = DateTime(simdi.year, simdi.month, simdi.day);
+    var sonraki = yildakiDogumGunu(dogum, bugun.year);
+    if (sonraki.isBefore(bugun)) {
+      sonraki = yildakiDogumGunu(dogum, bugun.year + 1);
+    }
+    // Yaz saati geçişlerinde saat farkı gün hesabını bozmasın.
+    return (sonraki.difference(bugun).inHours / 24).round();
+  }
+
+  /// Kişinin bugünkü yaşı; bu yılki doğum günü gelmediyse bir eksik.
+  static int yasGetir(DateTime dogum) {
+    final simdi = DateTime.now();
+    final bugun = DateTime(simdi.year, simdi.month, simdi.day);
+    final yas = bugun.year - dogum.year;
+    return bugun.isBefore(yildakiDogumGunu(dogum, bugun.year)) ? yas - 1 : yas;
+  }
+
   static String burcIdGetir(DateTime tarih) {
     final gun = tarih.day;
     final ay = tarih.month;

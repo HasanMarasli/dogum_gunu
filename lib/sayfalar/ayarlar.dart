@@ -3,11 +3,14 @@ import 'package:dogum_gunu/models/bildirim_yoneticisi.dart';
 import 'package:dogum_gunu/veriTabani/dogum_gunu_veri_tabani.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../tema/renkler.dart';
 import '../tercumeler/tercumeler.dart';
 import '../tema/tema_yoneticisi.dart';
 import '../widgets/bildirim_uyarisi.dart';
+import '../widgets/ozel_snackbar.dart';
 
 class Ayarlar extends StatefulWidget {
   const Ayarlar({super.key});
@@ -17,7 +20,12 @@ class Ayarlar extends StatefulWidget {
 }
 
 class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
+  static const String _gizlilikAdresi =
+      'https://muhammethasanmarasli.com/gizlilik-politikasi/dogumGunu';
+  static const String _iletisimAdresi = 'mailto:m.hasan.marasli@gmail.com';
+
   bool _izinVar = true;
+  final Future<PackageInfo> _uygulamaBilgisi = PackageInfo.fromPlatform();
 
   @override
   void initState() {
@@ -66,6 +74,52 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [
+            _grup(
+              baslik: 'settings.notifications.title'.tr,
+              children: [
+                if (!_izinVar)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
+                    child: BildirimUyarisi(
+                      baslik: 'home.notifOff.title'.tr,
+                      mesaj: 'settings.notifOff.desc'.tr,
+                      eylem: 'home.notifOff.action'.tr,
+                    ),
+                  ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 2, 16, 8),
+                  child: Text(
+                    'settings.notifications.subtitle'.tr,
+                    style:
+                        TextStyle(fontSize: 14, height: 20 / 14, color: r.tx2),
+                  ),
+                ),
+                Obx(() {
+                  final secili = bildirimAyar.seciliGunler;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final gun in BildirimAyarlarYoneticisi.tumSecenekler)
+                        _secimSatiri(
+                          yazi: _gunMetni(gun),
+                          secili: secili.contains(gun),
+                          onTap: () => _gunSecimiDegistir(bildirimAyar, gun),
+                        ),
+                      if (secili.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 2, 16, 8),
+                          child: Text(
+                            'settings.notifications.allOff'.tr,
+                            style: TextStyle(
+                                fontSize: 14, height: 20 / 14, color: r.err),
+                          ),
+                        ),
+                    ],
+                  );
+                }),
+              ],
+            ),
+            const SizedBox(height: 20),
             _grup(
               baslik: 'settings.selectLanguage'.tr,
               children: [
@@ -119,42 +173,28 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
             ),
             const SizedBox(height: 20),
             _grup(
-              baslik: 'settings.notifications.title'.tr,
+              baslik: 'settings.about.title'.tr,
               children: [
-                if (!_izinVar)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
-                    child: BildirimUyarisi(
-                      baslik: 'home.notifOff.title'.tr,
-                      mesaj: 'settings.notifOff.desc'.tr,
-                      eylem: 'home.notifOff.action'.tr,
+                _baglantiSatiri(
+                  ikon: Icons.privacy_tip_rounded,
+                  yazi: 'settings.about.privacy'.tr,
+                  adres: _gizlilikAdresi,
+                ),
+                _baglantiSatiri(
+                  ikon: Icons.mail_rounded,
+                  yazi: 'settings.about.contact'.tr,
+                  adres: _iletisimAdresi,
+                ),
+                FutureBuilder<PackageInfo>(
+                  future: _uygulamaBilgisi,
+                  builder: (context, bilgi) => Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                    child: Text(
+                      'settings.about.version'
+                          .trParams({'version': bilgi.data?.version ?? ''}),
+                      style: TextStyle(fontSize: 14, color: r.tx2),
                     ),
                   ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 2, 16, 8),
-                  child: Text(
-                    'settings.notifications.subtitle'.tr,
-                    style:
-                        TextStyle(fontSize: 14, height: 20 / 14, color: r.tx2),
-                  ),
-                ),
-                AnimatedOpacity(
-                  opacity: _izinVar ? 1 : 0.5,
-                  duration: const Duration(milliseconds: 200),
-                  child: Obx(() {
-                    final secili = bildirimAyar.seciliGunler;
-                    return Column(
-                      children: [
-                        for (final gun
-                            in BildirimAyarlarYoneticisi.tumSecenekler)
-                          _secimSatiri(
-                            yazi: _gunMetni(gun),
-                            secili: secili.contains(gun),
-                            onTap: () => _gunSecimiDegistir(bildirimAyar, gun),
-                          ),
-                      ],
-                    );
-                  }),
                 ),
               ],
             ),
@@ -201,17 +241,68 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
     );
   }
 
+  Future<void> _baglantiAc(String adres) async {
+    var acildi = false;
+    try {
+      acildi = await launchUrl(Uri.parse(adres),
+          mode: LaunchMode.externalApplication);
+    } catch (_) {
+      acildi = false;
+    }
+    if (!acildi) {
+      OzelSnackbar.uyari(
+        baslik: 'settings.about.error.title'.tr,
+        mesaj: 'settings.about.error.msg'.tr,
+      );
+    }
+  }
+
+  Widget _baglantiSatiri({
+    required IconData ikon,
+    required String yazi,
+    required String adres,
+  }) {
+    final r = context.renk;
+    return InkWell(
+      onTap: () => _baglantiAc(adres),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 56),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              Icon(ikon, size: 24, color: r.tx2),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  yazi,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                    color: r.tx,
+                  ),
+                ),
+              ),
+              Icon(Icons.open_in_new_rounded, size: 20, color: r.tx3),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _geccerliRozeti() {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      height: 24,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      constraints: const BoxConstraints(minHeight: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
       decoration: BoxDecoration(
         color: scheme.primaryContainer,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Center(
         widthFactor: 1,
+        heightFactor: 1,
         child: Text(
           'settings.current'.tr,
           style: TextStyle(
@@ -378,14 +469,16 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
                 if (secili) ...[
                   const SizedBox(height: 8),
                   Container(
-                    height: 22,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    constraints: const BoxConstraints(minHeight: 22),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
                       color: scheme.primaryContainer,
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Center(
                       widthFactor: 1,
+                      heightFactor: 1,
                       child: Text(
                         'settings.current'.tr,
                         style: TextStyle(

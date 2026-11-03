@@ -1,5 +1,6 @@
 import 'package:dogum_gunu/models/bildirim_ayarlar_yoneticisi.dart';
 import 'package:dogum_gunu/sayfalar/tavsiye.dart';
+import 'package:dogum_gunu/tercumeler/tercumeler.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:get/get.dart';
@@ -31,7 +32,7 @@ class BildirimYoneticisi {
       // Bilinmeyen bölge adı gelirse UTC ile devam edilir.
     }
 
-    const androidAyari = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidAyari = AndroidInitializationSettings('@drawable/ic_bildirim');
     // İzin, onboarding'in son adımında açıkça istenir.
     const iosAyari = DarwinInitializationSettings(
       requestAlertPermission: false,
@@ -78,10 +79,12 @@ class BildirimYoneticisi {
         final hedef = hedefler[sira];
         final dogumGunuTarihi = hedef.add(Duration(days: gun));
         final yas = dogumGunuTarihi.year - dogumGunu.dogumTarihi.year;
+        // Bu yıl doğan biri için "0 yaşında" bildirimi gönderilmez.
+        if (yas < 1) continue;
         final govde = gun == 0
             ? 'notification.body.today'
                 .trParams({'name': dogumGunu.isim, 'age': '$yas'})
-            : 'notification.body.before'.trParams(
+            : trSayi('notification.body.before', gun,
                 {'name': dogumGunu.isim, 'age': '$yas', 'days': '$gun'});
 
         final detay = NotificationDetails(
@@ -91,7 +94,7 @@ class BildirimYoneticisi {
             channelDescription: 'notification.channel.desc'.tr,
             importance: Importance.max,
             priority: Priority.high,
-            icon: '@mipmap/ic_launcher',
+            icon: '@drawable/ic_bildirim',
             styleInformation: BigTextStyleInformation(govde),
           ),
           iOS: const DarwinNotificationDetails(),
@@ -176,21 +179,12 @@ class BildirimYoneticisi {
     return (base + gun + sira * 1000) & 0x7fffffff;
   }
 
-  /// 29 Şubat doğumlular artık olmayan yıllarda 28 Şubat'ta kutlanır.
-  DateTime _yildakiDogumGunu(DateTime dogum, int yil) {
-    if (dogum.month == 2 && dogum.day == 29) {
-      final artik = (yil % 4 == 0 && yil % 100 != 0) || yil % 400 == 0;
-      return DateTime(yil, 2, artik ? 29 : 28);
-    }
-    return DateTime(yil, dogum.month, dogum.day);
-  }
-
   /// Doğum gününden `gunOnce` gün öncesinin gelecekteki ilk iki 09:00'ını verir.
   List<DateTime> _hedefTarihler(DateTime dogumTarihi, int gunOnce) {
     final simdi = DateTime.now();
     final sonuc = <DateTime>[];
     for (var yil = simdi.year; sonuc.length < _planlananYil; yil++) {
-      final gun = _yildakiDogumGunu(dogumTarihi, yil);
+      final gun = DogumGunu.yildakiDogumGunu(dogumTarihi, yil);
       final hedef = DateTime(gun.year, gun.month, gun.day - gunOnce, 9);
       if (hedef.isAfter(simdi)) sonuc.add(hedef);
     }

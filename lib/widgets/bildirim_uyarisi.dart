@@ -11,11 +11,17 @@ class BildirimUyarisi extends StatelessWidget {
     required this.baslik,
     required this.mesaj,
     required this.eylem,
+    this.onKapat,
+    this.kapatEtiketi,
   });
 
   final String baslik;
   final String mesaj;
   final String eylem;
+
+  /// Verilirse kartta kapatma düğmesi görünür.
+  final VoidCallback? onKapat;
+  final String? kapatEtiketi;
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +66,14 @@ class BildirimUyarisi extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (onKapat != null)
+                  IconButton(
+                    tooltip: kapatEtiketi,
+                    onPressed: onKapat,
+                    color: r.onWarnc,
+                    visualDensity: VisualDensity.compact,
+                    icon: const Icon(Icons.close_rounded, size: 20),
+                  ),
               ],
             ),
             const SizedBox(height: 6),

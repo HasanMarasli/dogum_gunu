@@ -5,6 +5,7 @@ import 'package:dogum_gunu/models/dogum_gunu.dart';
 import 'package:dogum_gunu/veriTabani/dogum_gunu_veri_tabani.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:dogum_gunu/sayfalar/dogum_gunu_ekle.dart';
 import 'package:dogum_gunu/sayfalar/tavsiye.dart';
 import 'package:dogum_gunu/sayfalar/ayarlar.dart';
@@ -27,7 +28,10 @@ class AnaSayfa extends StatefulWidget {
 class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   bool isLoading = true;
   bool _iskeletGoster = false;
+  static const String _uyariKapaliKey = 'notif_banner_closed';
+
   bool _izinVar = true;
+  bool _uyariKapali = GetStorage().read<bool>(_uyariKapaliKey) ?? false;
   Timer? _iskeletZamanlayici;
   DogumGunuVeriYonetim dogumGunuVeriYonetim = Get.find<DogumGunuVeriYonetim>();
 
@@ -55,7 +59,11 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) _izinKontrol();
+    if (state == AppLifecycleState.resumed) {
+      _izinKontrol();
+      // Uygulama arka planda gün değiştirdiyse sayaçlar güncellensin.
+      dogumGunuVeriYonetim.dogumGunuListe.refresh();
+    }
   }
 
   Future<void> _izinKontrol() async {
@@ -130,7 +138,8 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                       child: _istatistikKart(
                         baslik: 'home.stats.total'.tr,
                         deger: liste.length,
-                        altYazi: 'home.stats.total.suffix'.tr,
+                        altYazi:
+                            trSayi('home.stats.total.suffix', liste.length, {}),
                         vurgulu: false,
                       ),
                     ),
@@ -163,8 +172,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                           liste.sort(
                               (a, b) => _kalanGun(a).compareTo(_kalanGun(b)));
 
-                          final banner = !_izinVar;
-                          if (liste.isEmpty && !banner) return _bosDurum();
+                          final banner = !_izinVar && !_uyariKapali;
+                          if (liste.isEmpty) {
+                            return _bosDurum(banner ? _izinUyarisi() : null);
+                          }
 
                           return ListView.separated(
                             physics: const AlwaysScrollableScrollPhysics(),
@@ -175,11 +186,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                                 const SizedBox(height: 10),
                             itemBuilder: (context, index) {
                               if (banner && index == 0) {
-                                return BildirimUyarisi(
-                                  baslik: 'home.notifOff.title'.tr,
-                                  mesaj: 'home.notifOff.desc'.tr,
-                                  eylem: 'home.notifOff.action'.tr,
-                                );
+                                return _izinUyarisi();
                               }
                               return _dogumKart(
                                   liste[index - (banner ? 1 : 0)]);
@@ -195,6 +202,19 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       floatingActionButton: _YeniKisiButonu(
         onPressed: () => Get.to(() => const DogumGunuEkle()),
       ),
+    );
+  }
+
+  Widget _izinUyarisi() {
+    return BildirimUyarisi(
+      baslik: 'home.notifOff.title'.tr,
+      mesaj: 'home.notifOff.desc'.tr,
+      eylem: 'home.notifOff.action'.tr,
+      kapatEtiketi: 'home.notifOff.dismiss'.tr,
+      onKapat: () {
+        GetStorage().write(_uyariKapaliKey, true);
+        setState(() => _uyariKapali = true);
+      },
     );
   }
 
@@ -245,8 +265,6 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           const SizedBox(height: 2),
           Text(
             altYazi,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
             style: TextStyle(
                 fontWeight: FontWeight.w500, fontSize: 13, color: ikincil),
           ),
@@ -320,7 +338,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     );
   }
 
-  Widget _bosDurum() {
+  Widget _bosDurum(Widget? uyari) {
     final r = context.renk;
     final scheme = Theme.of(context).colorScheme;
     return LayoutBuilder(
@@ -328,35 +346,46 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         physics: const AlwaysScrollableScrollPhysics(),
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: c.maxHeight),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(32, 24, 32, 120),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 88,
-                  height: 88,
-                  decoration: BoxDecoration(
-                    color: scheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                  child: Icon(Icons.cake_rounded,
-                      size: 44, color: scheme.onPrimaryContainer),
+          child: Column(
+            mainAxisAlignment: uyari == null
+                ? MainAxisAlignment.center
+                : MainAxisAlignment.start,
+            children: [
+              if (uyari != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                  child: uyari,
                 ),
-                const SizedBox(height: 18),
-                Text(
-                  'home.empty.title'.tr,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleLarge,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(32, 24, 32, 120),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 88,
+                      height: 88,
+                      decoration: BoxDecoration(
+                        color: scheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                      child: Icon(Icons.cake_rounded,
+                          size: 44, color: scheme.onPrimaryContainer),
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      'home.empty.title'.tr,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'home.empty.desc'.tr,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 15, height: 1.5, color: r.tx2),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  'home.empty.desc'.tr,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 15, height: 1.5, color: r.tx2),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -368,7 +397,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     final scheme = Theme.of(context).colorScheme;
     final kalanGun = _kalanGun(dogum);
     final bugun = kalanGun == 0;
-    final yas = DateTime.now().year - dogum.dogumTarihi.year;
+    final yas = DogumGunu.yasGetir(dogum.dogumTarihi);
     final signId = DogumGunu.burcIdGetir(dogum.dogumTarihi);
     final localeCode = Get.locale?.languageCode ?? 'tr';
     final translations =
@@ -422,8 +451,6 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                         Flexible(
                           child: Text(
                             DogumGunu.tarihYazdir(dogum.dogumTarihi),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                                 fontSize: 13, height: 18 / 13, color: r.tx2),
                           ),
@@ -435,8 +462,11 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                       spacing: 6,
                       runSpacing: 4,
                       children: [
-                        _etiket('home.age'.trParams({'age': yas.toString()})),
+                        if (yas > 0)
+                          _etiket(trSayi('home.age', yas, {'age': '$yas'})),
                         _etiket(burc),
+                        _etiket('home.card.ideas'.tr,
+                            ikon: Icons.redeem_rounded),
                       ],
                     ),
                   ],
@@ -444,21 +474,22 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
               ),
               const SizedBox(width: 8),
               Container(
-                constraints: const BoxConstraints(minWidth: 60),
-                height: 46,
-                padding: const EdgeInsets.symmetric(horizontal: 10),
+                constraints: const BoxConstraints(minWidth: 60, minHeight: 46),
+                alignment: Alignment.center,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: bugun ? r.suc : scheme.primaryContainer,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       bugun
                           ? 'home.countdown.today'.tr
-                          : 'home.countdown.days'
-                              .trParams({'days': kalanGun.toString()}),
+                          : trSayi('home.countdown.days', kalanGun,
+                              {'days': '$kalanGun'}),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontSize: 15,
                             height: 1.15,
@@ -489,8 +520,8 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   Widget _menuButonu(DogumGunu dogum) {
     final r = context.renk;
     return SizedBox(
-      width: 36,
-      height: 44,
+      width: 48,
+      height: 48,
       child: PopupMenuButton<String>(
         tooltip: 'home.menu.more'.tr,
         padding: EdgeInsets.zero,
@@ -546,48 +577,41 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     );
   }
 
-  Widget _etiket(String yazi) {
+  Widget _etiket(String yazi, {IconData? ikon}) {
     final r = context.renk;
+    final scheme = Theme.of(context).colorScheme;
+    final vurgulu = ikon != null;
+    final renk = vurgulu ? scheme.onPrimaryContainer : r.tx2;
     return Container(
-      height: 22,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      constraints: const BoxConstraints(minHeight: 22),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: r.s2,
+        color: vurgulu ? scheme.primaryContainer : r.s2,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Center(
-        widthFactor: 1,
-        child: Text(
-          yazi,
-          style: TextStyle(
-            color: r.tx2,
-            fontWeight: FontWeight.w600,
-            fontSize: 12,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (ikon != null) ...[
+            Icon(ikon, size: 14, color: renk),
+            const SizedBox(width: 4),
+          ],
+          Flexible(
+            child: Text(
+              yazi,
+              style: TextStyle(
+                color: renk,
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 
-  /// 29 Şubat doğumlular artık olmayan yıllarda 28 Şubat'ta kutlanır.
-  DateTime _buYilkiDogumGunu(DateTime dogum, int yil) {
-    if (dogum.month == 2 && dogum.day == 29) {
-      final artik = (yil % 4 == 0 && yil % 100 != 0) || yil % 400 == 0;
-      return DateTime(yil, 2, artik ? 29 : 28);
-    }
-    return DateTime(yil, dogum.month, dogum.day);
-  }
-
-  int _kalanGun(DogumGunu dogum) {
-    final simdi = DateTime.now();
-    final bugun = DateTime(simdi.year, simdi.month, simdi.day);
-    var sonrakiDogum = _buYilkiDogumGunu(dogum.dogumTarihi, bugun.year);
-    if (sonrakiDogum.isBefore(bugun)) {
-      sonrakiDogum = _buYilkiDogumGunu(dogum.dogumTarihi, bugun.year + 1);
-    }
-    // Yaz saati geçişlerinde saat farkı gün hesabını bozmasın.
-    return (sonrakiDogum.difference(bugun).inHours / 24).round();
-  }
+  int _kalanGun(DogumGunu dogum) => DogumGunu.kalanGun(dogum.dogumTarihi);
 
   int _yaklasanSayisi() {
     return dogumGunuVeriYonetim.dogumGunuListe
@@ -617,7 +641,7 @@ class _YeniKisiButonu extends StatelessWidget {
   Widget build(BuildContext context) {
     final r = context.renk;
     return Container(
-      height: 56,
+      constraints: const BoxConstraints(minHeight: 56),
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: [r.g1, r.g2]),
         borderRadius: BorderRadius.circular(18),
@@ -629,7 +653,8 @@ class _YeniKisiButonu extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           onTap: onPressed,
           child: Padding(
-            padding: const EdgeInsets.only(left: 18, right: 22),
+            padding:
+                const EdgeInsets.only(left: 18, right: 22, top: 8, bottom: 8),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
