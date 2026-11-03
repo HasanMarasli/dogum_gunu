@@ -85,9 +85,9 @@ final Map<String, String> en = {
   'onboarding.1.title': 'Add your loved ones',
   'onboarding.1.desc':
       'A name, a birth date and a gender are all you need. The next birthday is always at the top of your list.',
-  'onboarding.2.title': 'Ideas for every sign',
+  'onboarding.2.title': 'Ideas made for them',
   'onboarding.2.desc':
-      'Their zodiac sign is found from the birth date, with gift and surprise ideas that suit it.',
+      'Gift and surprise ideas that fit their age, gender, your relationship and their zodiac sign.',
   'onboarding.3.title': 'Your data stays with you',
   'onboarding.3.desc':
       'Your details are never sent to our servers, and there’s no account or sign-up. They may only be included in your phone’s own backup.',
@@ -160,7 +160,13 @@ final Map<String, String> en = {
   'advice.countdown': '@days days left',
   'advice.countdown.one': '@days day left',
   'advice.info':
-      'These are general ideas based on the zodiac sign. You know this person best.',
+      'These ideas are chosen by age, gender, relationship and zodiac sign. You know this person best.',
+  'advice.info.relation': 'Add a relationship for better ideas.',
+  'advice.budget.all': 'All',
+  'advice.budget.uygun': 'Budget',
+  'advice.budget.orta': 'Mid-range',
+  'advice.budget.ozel': 'Premium',
+  'advice.more': 'Suggest others',
   'advice.gifts.title': 'Gift Ideas',
   'advice.surprises.title': 'Surprise Ideas',
 // Zodiac names
@@ -168,107 +174,59 @@ final Map<String, String> en = {
   'zodiac.aries.range': '21 March - 19 April',
   'zodiac.aries.short':
       'Energetic, bold and direct; acts fast and wants movement. Clarity and action motivate them.',
-  'zodiac.aries.gifts':
-      '• Sports/activity gear\n• Experiences like karting/climbing\n• Smart accessories (earbuds, power bank)\n• Ticket for a short course/workshop',
-  'zodiac.aries.surprises':
-      '• Spontaneous mini getaway\n• Small task game with clues\n• An adrenaline activity',
 
   'zodiac.taurus.name': 'Taurus',
   'zodiac.taurus.range': '20 April - 20 May',
   'zodiac.taurus.short':
       'Loves comfort, quality and safety; calm pleasure is their space. Good food and a serene setting impress.',
-  'zodiac.taurus.gifts':
-      '• Gourmet coffee/chocolate box\n• Elegant perfume or care set\n• Home comfort (candles, throw)\n• Quality wallet/card holder',
-  'zodiac.taurus.surprises':
-      '• Reservation at a nice restaurant\n• Cozy night at home\n• Massage/spa day',
 
   'zodiac.gemini.name': 'Gemini',
   'zodiac.gemini.range': '21 May - 20 June',
   'zodiac.gemini.short':
       'Curious and talkative; seeks novelty and mental buzz. Monotony bores them quickly; fun plans help.',
-  'zodiac.gemini.gifts':
-      '• An interesting book/subscription\n• Brain game or puzzle\n• Workshop ticket (photo, barista etc.)\n• Small tech gadget',
-  'zodiac.gemini.surprises':
-      '• City discovery route\n• Mini treasure hunt\n• Concert/stand-up',
 
   'zodiac.cancer.name': 'Cancer',
   'zodiac.cancer.range': '21 June - 22 July',
   'zodiac.cancer.short':
       'Emotional and protective; memories and bonding matter. Thoughtful, personal gestures move them.',
-  'zodiac.cancer.gifts':
-      '• Photo album or memory box\n• Personal letter/note\n• Homey gift (mug, lamp)\n• Calming aromatherapy set',
-  'zodiac.cancer.surprises':
-      '• Warm home celebration with close ones\n• Short video/slideshow of memories\n• Small handmade surprise',
 
   'zodiac.leo.name': 'Leo',
   'zodiac.leo.range': '23 July - 22 August',
   'zodiac.leo.short':
       'Wants to feel special and appreciated; loves the stage. Chic “wow” surprises lift them up.',
-  'zodiac.leo.gifts':
-      '• Stylish accessory (watch/bracelet)\n• Quality perfume\n• Event ticket (concert/theatre)\n• Personalized design item',
-  'zodiac.leo.surprises':
-      '• Themed celebration\n• Surprise mini party\n• Card set filled with compliments',
 
   'zodiac.virgo.name': 'Virgo',
   'zodiac.virgo.range': '23 August - 22 September',
   'zodiac.virgo.short':
       'Organized, meticulous and practical; prefers what works. Simple but quality choices please more.',
-  'zodiac.virgo.gifts':
-      '• Planner/agenda\n• Minimal desk/office organizer\n• Thermos or wellness item\n• Quality pen/notebook',
-  'zodiac.virgo.surprises':
-      '• A flawlessly planned day\n• “I anticipated your need” pack\n• Simple-elegant presentation',
 
   'zodiac.libra.name': 'Libra',
   'zodiac.libra.range': '23 September - 22 October',
   'zodiac.libra.short':
       'Loves grace and harmony; cares about aesthetic details. A lovely ambiance and thoughtful gestures impress.',
-  'zodiac.libra.gifts':
-      '• Delicate jewelry\n• Chic perfume/care set\n• Exhibition/concert ticket\n• Minimal decorative object',
-  'zodiac.libra.surprises':
-      '• An elegant evening out\n• Exhibit + coffee plan\n• Aesthetic-themed celebration',
 
   'zodiac.scorpio.name': 'Scorpio',
   'zodiac.scorpio.range': '23 October - 21 November',
   'zodiac.scorpio.short':
       'Deep and intuitive; prefers meaningful gifts. Personal, special choices over anything shallow.',
-  'zodiac.scorpio.gifts':
-      '• Symbolic/message jewelry\n• Lasting, characterful perfume\n• Mystery/psychology book\n• A special one-on-one experience',
-  'zodiac.scorpio.surprises':
-      '• Mystery surprise with clues\n• Quiet but intense one-on-one celebration\n• Personal letter',
 
   'zodiac.sagittarius.name': 'Sagittarius',
   'zodiac.sagittarius.range': '22 November - 21 December',
   'zodiac.sagittarius.short':
       'Free-spirited and adventurous; new experiences feed them. Loves exploration, travel and active plans.',
-  'zodiac.sagittarius.gifts':
-      '• Travel accessory (bag, organizer)\n• Outdoor/activity experience\n• Language/online course\n• Photo gear',
-  'zodiac.sagittarius.surprises':
-      '• Weekend getaway\n• Discovery route\n• Outdoor activity',
 
   'zodiac.capricorn.name': 'Capricorn',
   'zodiac.capricorn.range': '22 December - 19 January',
   'zodiac.capricorn.short':
       'Goal-focused and disciplined; values durable, functional gifts. Quality and seriousness matter.',
-  'zodiac.capricorn.gifts':
-      '• Leather wallet/card holder\n• Elegant pen and planner\n• Laptop/work bag\n• Training/certificate program',
-  'zodiac.capricorn.surprises':
-      '• Small celebration highlighting success\n• Quality, calm dinner\n• Goal journal + motivating note',
 
   'zodiac.aquarius.name': 'Aquarius',
   'zodiac.aquarius.range': '20 January - 18 February',
   'zodiac.aquarius.short':
       'Original and independent; dislikes clichés. Enjoys smart, different and innovative things.',
-  'zodiac.aquarius.gifts':
-      '• Interesting gadget/tech item\n• Distinctive design accessory\n• Science/tech-themed book\n• Workshop/experience ticket',
-  'zodiac.aquarius.surprises':
-      '• Themed day (retro/future)\n• A small DIY project gift\n• Game/activity night with friends',
 
   'zodiac.pisces.name': 'Pisces',
   'zodiac.pisces.range': '19 February - 20 March',
   'zodiac.pisces.short':
       'Sensitive and romantic; vivid imagination. Soft ambiance and meaningful gestures delight them.',
-  'zodiac.pisces.gifts':
-      '• Art kit/inspiration journal\n• Concert/music ticket\n• Candle/aromatherapy/bath set\n• Personal letter or photo gift',
-  'zodiac.pisces.surprises':
-      '• Romantic-themed celebration\n• Creative activity together\n• “Feelings box” (notes/memories)',
 };

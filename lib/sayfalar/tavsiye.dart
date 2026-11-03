@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dogum_gunu/models/dogum_gunu.dart';
+import 'package:dogum_gunu/models/oneri_motoru.dart';
 import 'package:dogum_gunu/sayfalar/dogum_gunu_ekle.dart';
 import 'package:dogum_gunu/tercumeler/tercumeler.dart';
 import 'package:dogum_gunu/tercumeler/tr.dart';
@@ -21,6 +22,7 @@ class Tavsiye extends StatefulWidget {
 
 class _TavsiyeState extends State<Tavsiye> {
   late DogumGunu _kisi = widget.dogumGunu;
+  Butce? _butce;
 
   Future<void> _duzenle() async {
     final guncel = await Get.to<DogumGunu>(
@@ -28,6 +30,22 @@ class _TavsiyeState extends State<Tavsiye> {
     );
     if (guncel != null && mounted) setState(() => _kisi = guncel);
   }
+
+  void _baskaOner(OneriTipi tip) {
+    OneriMotoru.turArtir(_kisi.id, tip);
+    setState(() {});
+  }
+
+  List<String> _oneriler(OneriTipi tip, {Butce? butce}) => OneriMotoru.sec(
+        _kisi,
+        tip,
+        tur: OneriMotoru.turGetir(_kisi.id, tip),
+        butce: butce,
+      ).map((a) => a.tr).toList();
+
+  bool _yenilenebilir(OneriTipi tip, {Butce? butce}) =>
+      OneriMotoru.sirala(_kisi, tip, butce: butce).length >
+      OneriMotoru.adet(tip);
 
   @override
   Widget build(BuildContext context) {
@@ -42,8 +60,6 @@ class _TavsiyeState extends State<Tavsiye> {
         Tercumeler().keys[localeCode] ?? tr; // fallback to tr for safety
     final signName = tZodiac(signId, 'name', translations);
     final shortText = tZodiac(signId, 'short', translations);
-    final giftItems = tZodiacList(signId, 'gifts', translations);
-    final surpriseItems = tZodiacList(signId, 'surprises', translations);
     final dateRange = tZodiac(signId, 'range', translations);
     final kalan = DogumGunu.kalanGun(_kisi.dogumTarihi);
     final yas = DogumGunu.yasGetir(_kisi.dogumTarihi);
@@ -182,13 +198,20 @@ class _TavsiyeState extends State<Tavsiye> {
             _bolum(
               ikon: Icons.redeem_rounded,
               baslik: 'advice.gifts.title'.tr,
-              ogeler: giftItems,
+              ust: _butceSecici(),
+              ogeler: _oneriler(OneriTipi.hediye, butce: _butce),
+              onYenile: _yenilenebilir(OneriTipi.hediye, butce: _butce)
+                  ? () => _baskaOner(OneriTipi.hediye)
+                  : null,
             ),
             const SizedBox(height: 28),
             _bolum(
               ikon: Icons.auto_awesome_rounded,
               baslik: 'advice.surprises.title'.tr,
-              ogeler: surpriseItems,
+              ogeler: _oneriler(OneriTipi.surpriz),
+              onYenile: _yenilenebilir(OneriTipi.surpriz)
+                  ? () => _baskaOner(OneriTipi.surpriz)
+                  : null,
             ),
             const SizedBox(height: 28),
             Container(
@@ -204,7 +227,9 @@ class _TavsiyeState extends State<Tavsiye> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'advice.info'.tr,
+                      _kisi.yakinlik == null
+                          ? '${'advice.info'.tr} ${'advice.info.relation'.tr}'
+                          : 'advice.info'.tr,
                       style: TextStyle(
                         fontSize: 14,
                         height: 20 / 14,
@@ -221,10 +246,58 @@ class _TavsiyeState extends State<Tavsiye> {
     );
   }
 
+  Widget _butceSecici() {
+    final r = context.renk;
+    final scheme = Theme.of(context).colorScheme;
+
+    Widget secenek(String etiket, Butce? deger) {
+      final secili = _butce == deger;
+      return Semantics(
+        button: true,
+        selected: secili,
+        child: Material(
+          color: secili ? scheme.primaryContainer : r.s2,
+          borderRadius: BorderRadius.circular(999),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(999),
+            onTap: () => setState(() => _butce = deger),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 40),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                child: Text(
+                  etiket,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    height: 24 / 13,
+                    color: secili ? scheme.onPrimaryContainer : r.tx2,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        secenek('advice.budget.all'.tr, null),
+        for (final b in Butce.values) secenek('advice.budget.${b.name}'.tr, b),
+      ],
+    );
+  }
+
   Widget _bolum({
     required IconData ikon,
     required String baslik,
     required List<String> ogeler,
+    Widget? ust,
+    VoidCallback? onYenile,
   }) {
     final r = context.renk;
     final scheme = Theme.of(context).colorScheme;
@@ -255,6 +328,10 @@ class _TavsiyeState extends State<Tavsiye> {
           ],
         ),
         const SizedBox(height: 12),
+        if (ust != null) ...[
+          ust,
+          const SizedBox(height: 12),
+        ],
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           decoration: BoxDecoration(
@@ -301,6 +378,18 @@ class _TavsiyeState extends State<Tavsiye> {
             ],
           ),
         ),
+        if (onYenile != null)
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: TextButton.icon(
+                onPressed: onYenile,
+                icon: const Icon(Icons.refresh_rounded, size: 20),
+                label: Text('advice.more'.tr),
+              ),
+            ),
+          ),
       ],
     );
   }

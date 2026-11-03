@@ -1,5 +1,6 @@
 import 'package:dogum_gunu/models/bildirim_yoneticisi.dart';
 import 'package:dogum_gunu/models/dogum_gunu.dart';
+import 'package:dogum_gunu/models/oneri_motoru.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -148,6 +149,7 @@ class DogumGunuVeriTabani {
       BildirimYoneticisi bildirimYoneticisi = BildirimYoneticisi();
       await bildirimYoneticisi.bildirimIptalEt(dogumGunu);
     }
+    OneriMotoru.turlariSil(id);
 
     return sonuc;
   }

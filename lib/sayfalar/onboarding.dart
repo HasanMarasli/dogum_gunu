@@ -293,11 +293,6 @@ String _burcAdi(String id) {
   return tZodiac(id, 'name', Tercumeler().keys[dil] ?? tr);
 }
 
-List<String> _burcListe(String id, String bolum) {
-  final dil = Get.locale?.languageCode ?? 'tr';
-  return tZodiacList(id, bolum, Tercumeler().keys[dil] ?? tr);
-}
-
 Widget _okRozeti(BuildContext context, Color zemin) {
   final scheme = Theme.of(context).colorScheme;
   return Container(
@@ -502,8 +497,6 @@ class _Cizim2 extends StatelessWidget {
   Widget build(BuildContext context) {
     final r = context.renk;
     final scheme = Theme.of(context).colorScheme;
-    final hediyeler = _burcListe('leo', 'gifts');
-    final surprizler = _burcListe('leo', 'surprises');
 
     Widget yuzenRozet(String burc, double aci) => Transform.rotate(
           angle: aci * math.pi / 180,
@@ -614,20 +607,18 @@ class _Cizim2 extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                oge(Icons.watch_rounded, hediyeler.first),
+                oge(Icons.watch_rounded, 'gift.saat'.tr),
                 const SizedBox(height: 4),
-                oge(Icons.local_activity_rounded,
-                    hediyeler.length > 2 ? hediyeler[2] : hediyeler.last),
+                oge(Icons.local_activity_rounded, 'gift.tiyatro'.tr),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Divider(color: r.bd),
                 ),
                 baslik(Icons.celebration_rounded, 'advice.surprises.title'.tr),
                 const SizedBox(height: 4),
-                oge(Icons.cake_rounded,
-                    surprizler.length > 1 ? surprizler[1] : surprizler.first),
+                oge(Icons.cake_rounded, 'surprise.miniParti'.tr),
                 const SizedBox(height: 4),
-                oge(Icons.auto_awesome_rounded, surprizler.first),
+                oge(Icons.auto_awesome_rounded, 'surprise.konsept'.tr),
               ],
             ),
           ),

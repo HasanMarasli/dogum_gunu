@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:dogum_gunu/tercumeler/tr.dart';
 import 'package:dogum_gunu/tercumeler/en.dart';
+import 'package:dogum_gunu/tercumeler/oneri_en.dart';
+import 'package:dogum_gunu/tercumeler/oneri_tr.dart';
 
 /// Sayı 1 ise tekil (`.one`) anahtarı kullanır; "1 days" gibi hataları önler.
 String trSayi(String anahtar, int sayi, Map<String, String> degerler) =>
@@ -25,11 +27,13 @@ class Tercumeler extends Translations {
     return null; // Değer bulunamazsa null döner
   }
 
+  static final Map<String, Map<String, String>> _anahtarlar = {
+    'tr': {...tr, ...oneriTr},
+    'en': {...en, ...oneriEn},
+  };
+
   @override
-  Map<String, Map<String, String>> get keys => {
-        'tr': tr,
-        'en': en,
-      };
+  Map<String, Map<String, String>> get keys => _anahtarlar;
 }
 
 class DilSecimiController extends GetxController {
