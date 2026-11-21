@@ -2,7 +2,7 @@ name: dogum_gunu
 description: "Doğum günlerini hatırlatan, burcu gösteren ve hediye öneren uygulama."
 publish_to: "none"
 
-version: 1.0.2+2
+version: 1.1.0+4
 
 environment:
   sdk: ^3.10.0
