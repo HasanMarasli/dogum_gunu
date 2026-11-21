@@ -1,0 +1,5 @@
+- iPad ve tabletlerde, yatay ekranda da rahat kullanım
+- Sistem, Açık veya Koyu tema seçimi
+- Daha fazla ve daha isabetli hediye ve sürpriz önerisi
+- Bildirimler daha güvenilir çalışıyor
+- Erişilebilirlik ve görünüm iyileştirmeleri

@@ -1,0 +1,5 @@
+- Uso cómodo en iPad y tabletas, también en horizontal
+- Elige el tema Sistema, Claro u Oscuro
+- Más ideas de regalos y sorpresas, y más acertadas
+- Notificaciones más fiables
+- Mejoras de accesibilidad y de aspecto

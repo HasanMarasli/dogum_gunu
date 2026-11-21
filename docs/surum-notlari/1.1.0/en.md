@@ -1,0 +1,5 @@
+- Comfortable use on iPads and tablets, including landscape
+- Choose System, Light or Dark theme
+- More and better-matched gift and surprise ideas
+- More reliable notifications
+- Accessibility and visual improvements
