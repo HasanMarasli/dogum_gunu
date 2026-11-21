@@ -1,6 +1,7 @@
 import 'package:dogum_gunu/models/bildirim_yoneticisi.dart';
 import 'package:dogum_gunu/models/dogum_gunu.dart';
 import 'package:dogum_gunu/models/oneri_motoru.dart';
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -66,9 +67,7 @@ class DogumGunuVeriTabani {
       'yakinlik': dogum.yakinlik?.name,
     });
 
-    // Bildirim ekleniyor
-    BildirimYoneticisi bildirimYoneticisi = BildirimYoneticisi();
-    await bildirimYoneticisi.bildirimZamanlamasiYap(dogum);
+    await _bildirimleriGuncelle();
 
     return sonuc;
   }
@@ -90,23 +89,32 @@ class DogumGunuVeriTabani {
     });
   }
 
-  static Future<void> tumBildirimleriYenidenPlanla() async {
-    final liste = await tumVerileriGetir();
-    final bildirimYoneticisi = BildirimYoneticisi();
+  /// Açılışta ve ayar/dil değişikliğinde çağrılır; plan imzası değişmediyse
+  /// iş yapmaz. Çalışmalar sıralı kuyrukta birleştirilir, hata fırlatmaz.
+  static Future<void> tumBildirimleriYenidenPlanla() {
+    return BildirimYoneticisi().yenidenPlanla();
+  }
 
-    for (final dogum in liste) {
-      await bildirimYoneticisi.bildirimIptalEt(dogum);
-      await bildirimYoneticisi.bildirimZamanlamasiYap(dogum);
+  /// Kişi verisi değiştiğinde planı hemen yeniler. Bildirim adımındaki bir
+  /// hata, başarılı veritabanı işleminin sonucunu engellemez.
+  static Future<void> _bildirimleriGuncelle() async {
+    try {
+      await BildirimYoneticisi().yenidenPlanla(zorla: true);
+    } catch (hata, yigin) {
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: hata,
+          stack: yigin,
+          library: 'veritabani',
+          context: ErrorDescription('bildirimler güncellenemedi'),
+        ),
+      );
     }
   }
 
   // Veri güncelleme
   static Future<int> veriGuncelle(DogumGunu dogum) async {
     final db = await veritabani;
-
-    // İlk olarak eski bildirim iptal edilir
-    BildirimYoneticisi bildirimYoneticisi = BildirimYoneticisi();
-    await bildirimYoneticisi.bildirimIptalEt(dogum);
 
     // Veritabanında güncelleme yapılır
     int sonuc = await db.update(
@@ -121,8 +129,8 @@ class DogumGunuVeriTabani {
       whereArgs: [dogum.id],
     );
 
-    // Yeni bildirim eklenir
-    await bildirimYoneticisi.bildirimZamanlamasiYap(dogum);
+    // Eski bildirimler iptal edilip yenileri planlanır.
+    await _bildirimleriGuncelle();
 
     return sonuc;
   }
@@ -131,18 +139,12 @@ class DogumGunuVeriTabani {
   static Future<int> veriSil(String id) async {
     final db = await veritabani;
 
-    // Bildirimi iptal etmek için kaydı silmeden önce getiriyoruz
-    DogumGunu? dogumGunu = await DogumGunu.getDogumGunuById(id);
-
     // Veritabanından doğum günü silinir
     int sonuc = await db.delete('dogumlar', where: 'id = ?', whereArgs: [id]);
 
-    // Doğum günü silindiğinde, bildirim iptal edilir
-    if (dogumGunu != null) {
-      BildirimYoneticisi bildirimYoneticisi = BildirimYoneticisi();
-      await bildirimYoneticisi.bildirimIptalEt(dogumGunu);
-    }
     OneriMotoru.turlariSil(id);
+    // Silinen kişinin bekleyen bildirimleri planda olmadığı için iptal edilir.
+    await _bildirimleriGuncelle();
 
     return sonuc;
   }
