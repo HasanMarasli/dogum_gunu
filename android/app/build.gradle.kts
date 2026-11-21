@@ -11,6 +11,20 @@ val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
     keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
+} else {
+    // Release çıktısı debug anahtarıyla imzalanıp mağazaya gitmesin; debug derlemesi etkilenmez.
+    val releaseIsteniyor =
+        gradle.startParameter.taskNames.any {
+            val gorev = it.substringAfterLast(':')
+            gorev.endsWith("Release") &&
+                (gorev.startsWith("assemble") || gorev.startsWith("bundle") ||
+                    gorev.startsWith("install") || gorev.startsWith("package"))
+        }
+    if (releaseIsteniyor) {
+        throw GradleException(
+            "android/key.properties bulunamadı: release derlemesi için imzalama ayarlarını ekleyin.",
+        )
+    }
 }
 
 android {
@@ -23,10 +37,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
         // Required by flutter_local_notifications
         isCoreLibraryDesugaringEnabled = true
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
     defaultConfig {
@@ -56,14 +66,16 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            // key.properties yoksa debug imzasına düşer, böylece `flutter run --release` çalışır.
-            signingConfig =
-                if (keystorePropertiesFile.exists()) {
-                    signingConfigs.getByName("release")
-                } else {
-                    signingConfigs.getByName("debug")
-                }
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
     }
 }
 
