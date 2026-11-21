@@ -8,7 +8,7 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
-            android:name=".MainActivity"
+            android:name=".AnaAktivite"
             android:exported="true"
             android:launchMode="singleTop"
             android:taskAffinity=""
@@ -24,11 +24,41 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+        </activity>
+        <!-- Launcher ikonları: aynı anda yalnızca biri açıktır, IkonYoneticisi değiştirir.
+             Varsayılan alias eski aktivite adını taşır ki mevcut ana ekran kısayolları korunsun. -->
+        <activity-alias
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:targetActivity=".AnaAktivite">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-        </activity>
+        </activity-alias>
+        <activity-alias
+            android:name=".DogumGunuIkonu"
+            android:label="@string/app_name"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_dogum_gunu"
+            android:targetActivity=".AnaAktivite">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <receiver android:exported="false" android:name=".IkonAlici">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.TIME_SET"/>
+                <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
+            </intent-filter>
+        </receiver>
         <!-- Planlı bildirimler ve cihaz yeniden başlatıldığında yeniden kurulmaları -->
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
