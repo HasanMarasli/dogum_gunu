@@ -149,15 +149,13 @@ class _OnboardingState extends State<Onboarding> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  basliklar[i],
-                                  style: metin.headlineMedium,
-                                ),
+                                Text(basliklar[i], style: metin.headlineMedium),
                                 const SizedBox(height: 10),
                                 Text(
                                   aciklamalar[i],
-                                  style:
-                                      metin.bodyLarge?.copyWith(color: r.tx2),
+                                  style: metin.bodyLarge?.copyWith(
+                                    color: r.tx2,
+                                  ),
                                 ),
                               ],
                             ),
@@ -317,12 +315,19 @@ class _Cizim1 extends StatelessWidget {
     final r = context.renk;
     final scheme = Theme.of(context).colorScheme;
 
-    Widget satir(String isim, DateTime tarih, String burc, int gun,
-        {bool vurgulu = false}) {
+    Widget satir(
+      String isim,
+      DateTime tarih,
+      String burc,
+      int gun, {
+      bool vurgulu = false,
+    }) {
       return Container(
         margin: EdgeInsets.symmetric(horizontal: vurgulu ? 6 : 0),
-        padding:
-            EdgeInsets.symmetric(horizontal: vurgulu ? 6 : 12, vertical: 6),
+        padding: EdgeInsets.symmetric(
+          horizontal: vurgulu ? 6 : 12,
+          vertical: 6,
+        ),
         decoration: vurgulu
             ? BoxDecoration(
                 color: Color.lerp(r.s1, scheme.primary, 0.12),
@@ -338,13 +343,18 @@ class _Cizim1 extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(isim,
-                      style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: r.tx)),
-                  Text(_gunAy(tarih),
-                      style: TextStyle(fontSize: 12, color: r.tx2)),
+                  Text(
+                    isim,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: r.tx,
+                    ),
+                  ),
+                  Text(
+                    _gunAy(tarih),
+                    style: TextStyle(fontSize: 12, color: r.tx2),
+                  ),
                 ],
               ),
             ),
@@ -384,18 +394,19 @@ class _Cizim1 extends StatelessWidget {
             child: Column(
               children: [
                 satir('Deniz Öztürk', DateTime(1990, 10, 25), 'scorpio', 4),
-                satir('Ayşe Yılmaz', DateTime(1994, 11, 2), 'scorpio', 12,
-                    vurgulu: true),
+                satir(
+                  'Ayşe Yılmaz',
+                  DateTime(1994, 11, 2),
+                  'scorpio',
+                  12,
+                  vurgulu: true,
+                ),
                 satir('Can Arslan', DateTime(1992, 12, 3), 'sagittarius', 43),
               ],
             ),
           ),
         ),
-        Positioned(
-          left: 140,
-          top: 156,
-          child: _okRozeti(context, zemin),
-        ),
+        Positioned(left: 140, top: 156, child: _okRozeti(context, zemin)),
         Positioned(
           left: 30,
           right: 30,
@@ -421,16 +432,19 @@ class _Cizim1 extends StatelessWidget {
                           color: scheme.primaryContainer,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Icon(Icons.person_add_rounded,
-                            size: 16, color: scheme.onPrimaryContainer),
+                        child: Icon(
+                          Icons.person_add_rounded,
+                          size: 16,
+                          color: scheme.onPrimaryContainer,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         'onboarding.ill.newPerson'.tr,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(fontSize: 15, height: 1.2),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontSize: 15,
+                          height: 1.2,
+                        ),
                       ),
                     ],
                   ),
@@ -439,8 +453,10 @@ class _Cizim1 extends StatelessWidget {
                   const SizedBox(height: 6),
                   _sahteAlan(
                     context,
-                    DateFormat('d MMMM y', Get.locale?.languageCode ?? 'tr')
-                        .format(DateTime(1994, 11, 2)),
+                    DateFormat(
+                      'd MMMM y',
+                      Get.locale?.languageCode ?? 'tr',
+                    ).format(DateTime(1994, 11, 2)),
                     odakli: true,
                     ikon: Icons.calendar_month_rounded,
                   ),
@@ -454,8 +470,12 @@ class _Cizim1 extends StatelessWidget {
   }
 }
 
-Widget _sahteAlan(BuildContext context, String yazi,
-    {required bool odakli, IconData? ikon}) {
+Widget _sahteAlan(
+  BuildContext context,
+  String yazi, {
+  required bool odakli,
+  IconData? ikon,
+}) {
   final r = context.renk;
   final scheme = Theme.of(context).colorScheme;
   return Container(
@@ -480,9 +500,14 @@ Widget _sahteAlan(BuildContext context, String yazi,
           Icon(ikon, size: 18, color: scheme.primary),
           const SizedBox(width: 8),
         ],
-        Text(yazi,
-            style: TextStyle(
-                fontWeight: FontWeight.w500, fontSize: 14, color: r.tx)),
+        Text(
+          yazi,
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+            color: r.tx,
+          ),
+        ),
       ],
     ),
   );
@@ -499,66 +524,68 @@ class _Cizim2 extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
 
     Widget yuzenRozet(String burc, double aci) => Transform.rotate(
-          angle: aci * math.pi / 180,
-          child: Container(
-            width: 40,
-            height: 40,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: r.s1,
-              borderRadius: BorderRadius.circular(13),
-              boxShadow: r.e1,
-            ),
-            child: BurcIkonu(burcId: burc, boyut: 20, renk: r.tx3),
-          ),
-        );
+      angle: aci * math.pi / 180,
+      child: Container(
+        width: 40,
+        height: 40,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: r.s1,
+          borderRadius: BorderRadius.circular(13),
+          boxShadow: r.e1,
+        ),
+        child: BurcIkonu(burcId: burc, boyut: 20, renk: r.tx3),
+      ),
+    );
 
     Widget baslik(IconData ikon, String yazi, {Widget? sag}) => SizedBox(
-          height: 18,
-          child: Row(
-            children: [
-              Icon(ikon, size: 17, color: scheme.primary),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  yazi,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(fontSize: 13, height: 1.2),
-                ),
-              ),
-              if (sag != null) sag,
-            ],
+      height: 18,
+      child: Row(
+        children: [
+          Icon(ikon, size: 17, color: scheme.primary),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              yazi,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontSize: 13, height: 1.2),
+            ),
           ),
-        );
+          if (sag != null) sag,
+        ],
+      ),
+    );
 
     Widget oge(IconData ikon, String yazi) => SizedBox(
-          height: 30,
-          child: Row(
-            children: [
-              Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: scheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(9),
-                ),
-                child: Icon(ikon, size: 17, color: scheme.onPrimaryContainer),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  yazi,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      fontWeight: FontWeight.w500, fontSize: 13, color: r.tx),
-                ),
-              ),
-            ],
+      height: 30,
+      child: Row(
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: scheme.primaryContainer,
+              borderRadius: BorderRadius.circular(9),
+            ),
+            child: Icon(ikon, size: 17, color: scheme.onPrimaryContainer),
           ),
-        );
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              yazi,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 13,
+                color: r.tx,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
 
     return Stack(
       children: [
@@ -590,9 +617,10 @@ class _Cizim2 extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         BurcIkonu(
-                            burcId: 'leo',
-                            boyut: 12,
-                            renk: scheme.onPrimaryContainer),
+                          burcId: 'leo',
+                          boyut: 12,
+                          renk: scheme.onPrimaryContainer,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           _burcAdi('leo'),
@@ -650,17 +678,21 @@ class _Cizim2 extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.calendar_month_rounded,
-                              size: 17, color: r.tx2),
+                          Icon(
+                            Icons.calendar_month_rounded,
+                            size: 17,
+                            color: r.tx2,
+                          ),
                           const SizedBox(width: 6),
                           Flexible(
                             child: Text(
                               _gunAy(DateTime(1990, 8, 2)),
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 13,
-                                  color: r.tx),
+                                fontWeight: FontWeight.w500,
+                                fontSize: 13,
+                                color: r.tx,
+                              ),
                             ),
                           ),
                         ],
@@ -675,7 +707,10 @@ class _Cizim2 extends StatelessWidget {
                   Text(
                     _burcAdi('leo'),
                     style: TextStyle(
-                        fontWeight: FontWeight.w700, fontSize: 14, color: r.tx),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: r.tx,
+                    ),
                   ),
                 ],
               ),
@@ -698,70 +733,78 @@ class _Cizim3 extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
 
     Widget kisi(String isim, DateTime tarih) => SizedBox(
-          height: 30,
-          child: Row(
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: scheme.primaryContainer,
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  isim.characters.first,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 11,
-                    color: scheme.onPrimaryContainer,
-                  ),
-                ),
+      height: 30,
+      child: Row(
+        children: [
+          Container(
+            width: 24,
+            height: 24,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: scheme.primaryContainer,
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              isim.characters.first,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 11,
+                color: scheme.onPrimaryContainer,
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(isim,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                        color: r.tx)),
-              ),
-              Text(
-                DateFormat('d MMM', Get.locale?.languageCode ?? 'tr')
-                    .format(tarih),
-                style: TextStyle(
-                    fontWeight: FontWeight.w500, fontSize: 11, color: r.tx3),
-              ),
-            ],
+            ),
           ),
-        );
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              isim,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+                color: r.tx,
+              ),
+            ),
+          ),
+          Text(
+            DateFormat('d MMM', Get.locale?.languageCode ?? 'tr').format(tarih),
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 11,
+              color: r.tx3,
+            ),
+          ),
+        ],
+      ),
+    );
 
     Widget rozet(IconData ikon, String yazi, double aci) => Transform.rotate(
-          angle: aci * math.pi / 180,
-          child: Container(
-            height: 34,
-            padding: const EdgeInsets.only(left: 9, right: 12),
-            decoration: BoxDecoration(
-              color: r.s1,
-              borderRadius: BorderRadius.circular(999),
-              boxShadow: r.e1,
+      angle: aci * math.pi / 180,
+      child: Container(
+        height: 34,
+        padding: const EdgeInsets.only(left: 9, right: 12),
+        decoration: BoxDecoration(
+          color: r.s1,
+          borderRadius: BorderRadius.circular(999),
+          boxShadow: r.e1,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(ikon, size: 18, color: scheme.primary),
+            const SizedBox(width: 6),
+            Text(
+              yazi,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+                color: r.tx,
+              ),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(ikon, size: 18, color: scheme.primary),
-                const SizedBox(width: 6),
-                Text(yazi,
-                    style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                        color: r.tx)),
-              ],
-            ),
-          ),
-        );
+          ],
+        ),
+      ),
+    );
 
     return Stack(
       children: [
@@ -798,10 +841,10 @@ class _Cizim3 extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 2, bottom: 4),
                     child: Text(
                       'home.title'.tr,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontSize: 13, height: 1.2),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontSize: 13,
+                        height: 1.2,
+                      ),
                     ),
                   ),
                   kisi('Ayşe', DateTime(2000, 8, 2)),
@@ -827,15 +870,21 @@ class _Cizim3 extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(color: zemin, width: 5),
             ),
-            child:
-                const Icon(Icons.lock_rounded, size: 28, color: Colors.white),
+            child: const Icon(
+              Icons.lock_rounded,
+              size: 28,
+              color: Colors.white,
+            ),
           ),
         ),
         Positioned(
           right: 16,
           top: 64,
           child: rozet(
-              Icons.no_accounts_rounded, 'onboarding.ill.noAccount'.tr, -8),
+            Icons.no_accounts_rounded,
+            'onboarding.ill.noAccount'.tr,
+            -8,
+          ),
         ),
         Positioned(
           right: 22,
@@ -845,8 +894,11 @@ class _Cizim3 extends StatelessWidget {
         Positioned(
           right: 14,
           top: 208,
-          child:
-              rozet(Icons.cloud_off_rounded, 'onboarding.ill.noCloud'.tr, -5),
+          child: rozet(
+            Icons.cloud_off_rounded,
+            'onboarding.ill.noCloud'.tr,
+            -5,
+          ),
         ),
       ],
     );
@@ -901,8 +953,11 @@ class _Cizim4 extends StatelessWidget {
                     gradient: r.gradyan,
                     borderRadius: BorderRadius.circular(11),
                   ),
-                  child: const Icon(Icons.cake_rounded,
-                      size: 22, color: Colors.white),
+                  child: const Icon(
+                    Icons.cake_rounded,
+                    size: 22,
+                    color: Colors.white,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -917,27 +972,34 @@ class _Cizim4 extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13,
-                                  color: r.tx),
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
+                                color: r.tx,
+                              ),
                             ),
                           ),
-                          Text('09:00',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 12,
-                                  color: r.tx3)),
+                          Text(
+                            '09:00',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 12,
+                              color: r.tx3,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'notification.body.today'
-                            .trParams({'name': 'Ayşe Yılmaz', 'age': '30'}),
+                        'notification.body.today'.trParams({
+                          'name': 'Ayşe Yılmaz',
+                          'age': '30',
+                        }),
                         style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 13,
-                            height: 18 / 13,
-                            color: r.tx2),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 13,
+                          height: 18 / 13,
+                          color: r.tx2,
+                        ),
                       ),
                     ],
                   ),
@@ -964,8 +1026,11 @@ class _Cizim4 extends StatelessWidget {
                   height: 28,
                   child: Row(
                     children: [
-                      Icon(Icons.schedule_rounded,
-                          size: 18, color: scheme.primary),
+                      Icon(
+                        Icons.schedule_rounded,
+                        size: 18,
+                        color: scheme.primary,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         'onboarding.4.eachAt'.tr,
@@ -988,14 +1053,20 @@ class _Cizim4 extends StatelessWidget {
                     child: Row(
                       children: [
                         Expanded(
-                          child: Text(g,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  color: r.tx)),
+                          child: Text(
+                            g,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: r.tx,
+                            ),
+                          ),
                         ),
-                        Icon(Icons.check_circle_rounded,
-                            size: 20, color: scheme.primary),
+                        Icon(
+                          Icons.check_circle_rounded,
+                          size: 20,
+                          color: scheme.primary,
+                        ),
                       ],
                     ),
                   ),

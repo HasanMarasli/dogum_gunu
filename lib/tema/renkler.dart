@@ -20,11 +20,7 @@ class PaletTonlari {
 }
 
 class Palet {
-  const Palet({
-    required this.seed,
-    required this.acik,
-    required this.koyu,
-  });
+  const Palet({required this.seed, required this.acik, required this.koyu});
 
   final Color seed;
   final PaletTonlari acik;
@@ -282,10 +278,10 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
   final Color onInfoc;
 
   LinearGradient get gradyan => LinearGradient(
-        colors: [g1, g2],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
+    colors: [g1, g2],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 
   static AppRenkler olustur(Palet palet, Brightness parlaklik) {
     final p = palet.tonlar(parlaklik);
@@ -310,19 +306,34 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
         scrim: const Color(0x99000000),
         e1: const [
           BoxShadow(
-              color: Color(0x59000000), blurRadius: 2, offset: Offset(0, 1)),
+            color: Color(0x59000000),
+            blurRadius: 2,
+            offset: Offset(0, 1),
+          ),
         ],
         e2: const [
           BoxShadow(
-              color: Color(0x73000000), blurRadius: 16, offset: Offset(0, 6)),
+            color: Color(0x73000000),
+            blurRadius: 16,
+            offset: Offset(0, 6),
+          ),
           BoxShadow(
-              color: Color(0x4D000000), blurRadius: 3, offset: Offset(0, 1)),
+            color: Color(0x4D000000),
+            blurRadius: 3,
+            offset: Offset(0, 1),
+          ),
         ],
         e3: const [
           BoxShadow(
-              color: Color(0x99000000), blurRadius: 40, offset: Offset(0, 16)),
+            color: Color(0x99000000),
+            blurRadius: 40,
+            offset: Offset(0, 16),
+          ),
           BoxShadow(
-              color: Color(0x59000000), blurRadius: 8, offset: Offset(0, 3)),
+            color: Color(0x59000000),
+            blurRadius: 8,
+            offset: Offset(0, 3),
+          ),
         ],
         suc: const Color(0xFF6FD39B),
         onSuc: const Color(0xFF0B2E1C),
@@ -358,33 +369,39 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
       scrim: notr(0.35, 0.06).withAlpha(0x6B),
       e1: [
         BoxShadow(
-            color: notr(0.45, 0.13).withAlpha(0x0F),
-            blurRadius: 2,
-            offset: const Offset(0, 1)),
+          color: notr(0.45, 0.13).withAlpha(0x0F),
+          blurRadius: 2,
+          offset: const Offset(0, 1),
+        ),
         BoxShadow(
-            color: notr(0.45, 0.13).withAlpha(0x0D),
-            blurRadius: 3,
-            offset: const Offset(0, 1)),
+          color: notr(0.45, 0.13).withAlpha(0x0D),
+          blurRadius: 3,
+          offset: const Offset(0, 1),
+        ),
       ],
       e2: [
         BoxShadow(
-            color: notr(0.45, 0.13).withAlpha(0x17),
-            blurRadius: 16,
-            offset: const Offset(0, 6)),
+          color: notr(0.45, 0.13).withAlpha(0x17),
+          blurRadius: 16,
+          offset: const Offset(0, 6),
+        ),
         BoxShadow(
-            color: notr(0.45, 0.13).withAlpha(0x0F),
-            blurRadius: 3,
-            offset: const Offset(0, 1)),
+          color: notr(0.45, 0.13).withAlpha(0x0F),
+          blurRadius: 3,
+          offset: const Offset(0, 1),
+        ),
       ],
       e3: [
         BoxShadow(
-            color: notr(0.45, 0.13).withAlpha(0x29),
-            blurRadius: 40,
-            offset: const Offset(0, 16)),
+          color: notr(0.45, 0.13).withAlpha(0x29),
+          blurRadius: 40,
+          offset: const Offset(0, 16),
+        ),
         BoxShadow(
-            color: notr(0.45, 0.13).withAlpha(0x14),
-            blurRadius: 8,
-            offset: const Offset(0, 3)),
+          color: notr(0.45, 0.13).withAlpha(0x14),
+          blurRadius: 8,
+          offset: const Offset(0, 3),
+        ),
       ],
       suc: const Color(0xFF1E7A45),
       onSuc: const Color(0xFFFFFFFF),

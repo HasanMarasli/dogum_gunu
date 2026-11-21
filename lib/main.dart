@@ -25,19 +25,25 @@ Future<void> main() async {
 
   Get.put(DogumGunuVeriYonetim());
 
-  runApp(MyApp(
-    // Seçim yoksa telefonun dili; Türkçe dışındaki her dilde İngilizce.
-    initialLocale: storedLocale ??
-        (Get.deviceLocale?.languageCode == 'tr'
-            ? const Locale('tr')
-            : const Locale('en')),
-    themeController: themeController,
-  ));
+  runApp(
+    MyApp(
+      // Seçim yoksa telefonun dili; Türkçe dışındaki her dilde İngilizce.
+      initialLocale:
+          storedLocale ??
+          (Get.deviceLocale?.languageCode == 'tr'
+              ? const Locale('tr')
+              : const Locale('en')),
+      themeController: themeController,
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp(
-      {super.key, required this.initialLocale, required this.themeController});
+  const MyApp({
+    super.key,
+    required this.initialLocale,
+    required this.themeController,
+  });
 
   final Locale initialLocale;
   final TemaYoneticisi themeController;
@@ -68,16 +74,19 @@ class MyApp extends StatelessWidget {
             return MediaQuery.withClampedTextScaling(
               maxScaleFactor: 1.6,
               child: AnnotatedRegion<SystemUiOverlayStyle>(
-                value: (koyu
-                        ? SystemUiOverlayStyle.light
-                        : SystemUiOverlayStyle.dark)
-                    .copyWith(
-                  statusBarColor: Colors.transparent,
-                  systemNavigationBarColor:
-                      Theme.of(context).scaffoldBackgroundColor,
-                  systemNavigationBarIconBrightness:
-                      koyu ? Brightness.light : Brightness.dark,
-                ),
+                value:
+                    (koyu
+                            ? SystemUiOverlayStyle.light
+                            : SystemUiOverlayStyle.dark)
+                        .copyWith(
+                          statusBarColor: Colors.transparent,
+                          systemNavigationBarColor: Theme.of(
+                            context,
+                          ).scaffoldBackgroundColor,
+                          systemNavigationBarIconBrightness: koyu
+                              ? Brightness.light
+                              : Brightness.dark,
+                        ),
                 child: child!,
               ),
             );

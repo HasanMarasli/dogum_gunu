@@ -57,7 +57,8 @@ class BildirimYoneticisi {
   }
 
   static Future<void> bildirimSecilme(
-      NotificationResponse notificationResponse) async {
+    NotificationResponse notificationResponse,
+  ) async {
     final payload = notificationResponse.payload;
     if (payload == null) return;
     final DogumGunu? dogumGunu = await DogumGunu.getDogumGunuById(payload);
@@ -82,10 +83,15 @@ class BildirimYoneticisi {
         // Bu yıl doğan biri için "0 yaşında" bildirimi gönderilmez.
         if (yas < 1) continue;
         final govde = gun == 0
-            ? 'notification.body.today'
-                .trParams({'name': dogumGunu.isim, 'age': '$yas'})
-            : trSayi('notification.body.before', gun,
-                {'name': dogumGunu.isim, 'age': '$yas', 'days': '$gun'});
+            ? 'notification.body.today'.trParams({
+                'name': dogumGunu.isim,
+                'age': '$yas',
+              })
+            : trSayi('notification.body.before', gun, {
+                'name': dogumGunu.isim,
+                'age': '$yas',
+                'days': '$gun',
+              });
 
         final detay = NotificationDetails(
           android: AndroidNotificationDetails(
@@ -122,16 +128,23 @@ class BildirimYoneticisi {
   /// İşletim sisteminin bildirim izni penceresini gösterir.
   Future<bool> izinIste() async {
     await hazirla();
-    final android = bildirimYoneticisi.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final android = bildirimYoneticisi
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     if (android != null) {
       return await android.requestNotificationsPermission() ?? false;
     }
-    final ios = bildirimYoneticisi.resolvePlatformSpecificImplementation<
-        IOSFlutterLocalNotificationsPlugin>();
+    final ios = bildirimYoneticisi
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >();
     if (ios != null) {
       return await ios.requestPermissions(
-              alert: true, badge: true, sound: true) ??
+            alert: true,
+            badge: true,
+            sound: true,
+          ) ??
           false;
     }
     return true;
@@ -140,13 +153,17 @@ class BildirimYoneticisi {
   /// Bildirimlerin sistem düzeyinde açık olup olmadığını döner.
   Future<bool> izinVarMi() async {
     await hazirla();
-    final android = bildirimYoneticisi.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final android = bildirimYoneticisi
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     if (android != null) {
       return await android.areNotificationsEnabled() ?? true;
     }
-    final ios = bildirimYoneticisi.resolvePlatformSpecificImplementation<
-        IOSFlutterLocalNotificationsPlugin>();
+    final ios = bildirimYoneticisi
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >();
     if (ios != null) {
       final durum = await ios.checkPermissions();
       return durum?.isEnabled ?? true;
@@ -158,8 +175,9 @@ class BildirimYoneticisi {
     await hazirla();
     for (var gun in BildirimAyarlarYoneticisi.tumSecenekler) {
       for (var sira = 0; sira < _planlananYil; sira++) {
-        await bildirimYoneticisi
-            .cancel(_bildirimIdUret(dogumGunu.id, gun, sira));
+        await bildirimYoneticisi.cancel(
+          _bildirimIdUret(dogumGunu.id, gun, sira),
+        );
       }
     }
   }

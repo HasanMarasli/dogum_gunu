@@ -15,7 +15,8 @@ class BildirimAyarlarYoneticisi extends GetxController {
   void onInit() {
     super.onInit();
     final kayitli = _box.read<List<dynamic>>(_key);
-    final gecerliGunler = kayitli
+    final gecerliGunler =
+        kayitli
             ?.whereType<int>()
             .where((gun) => tumSecenekler.contains(gun))
             .toSet() ??

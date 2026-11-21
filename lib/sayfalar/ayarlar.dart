@@ -90,8 +90,11 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
                   padding: const EdgeInsets.fromLTRB(16, 2, 16, 8),
                   child: Text(
                     'settings.notifications.subtitle'.tr,
-                    style:
-                        TextStyle(fontSize: 14, height: 20 / 14, color: r.tx2),
+                    style: TextStyle(
+                      fontSize: 14,
+                      height: 20 / 14,
+                      color: r.tx2,
+                    ),
                   ),
                 ),
                 Obx(() {
@@ -111,7 +114,10 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
                           child: Text(
                             'settings.notifications.allOff'.tr,
                             style: TextStyle(
-                                fontSize: 14, height: 20 / 14, color: r.err),
+                              fontSize: 14,
+                              height: 20 / 14,
+                              color: r.err,
+                            ),
                           ),
                         ),
                     ],
@@ -135,9 +141,7 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
             const SizedBox(height: 20),
             _grup(
               baslik: 'settings.appearance'.tr,
-              children: [
-                _koyuModSatiri(tema),
-              ],
+              children: [_koyuModSatiri(tema)],
             ),
             const SizedBox(height: 20),
             _grup(
@@ -154,10 +158,11 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              for (final (i, key) in tema.palettes.keys
-                                  .skip(s)
-                                  .take(3)
-                                  .indexed) ...[
+                              for (final (i, key)
+                                  in tema.palettes.keys
+                                      .skip(s)
+                                      .take(3)
+                                      .indexed) ...[
                                 if (i > 0) const SizedBox(width: 8),
                                 Expanded(child: _paletKarosu(tema, key)),
                               ],
@@ -189,8 +194,9 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
                   builder: (context, bilgi) => Padding(
                     padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
                     child: Text(
-                      'settings.about.version'
-                          .trParams({'version': bilgi.data?.version ?? ''}),
+                      'settings.about.version'.trParams({
+                        'version': bilgi.data?.version ?? '',
+                      }),
                       style: TextStyle(fontSize: 14, color: r.tx2),
                     ),
                   ),
@@ -243,8 +249,10 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
   Future<void> _baglantiAc(String adres) async {
     var acildi = false;
     try {
-      acildi = await launchUrl(Uri.parse(adres),
-          mode: LaunchMode.externalApplication);
+      acildi = await launchUrl(
+        Uri.parse(adres),
+        mode: LaunchMode.externalApplication,
+      );
     } catch (_) {
       acildi = false;
     }
@@ -365,8 +373,11 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
                 if (secili) ...[
                   _geccerliRozeti(),
                   const SizedBox(width: 14),
-                  Icon(Icons.check_circle_rounded,
-                      size: 22, color: scheme.primary),
+                  Icon(
+                    Icons.check_circle_rounded,
+                    size: 22,
+                    color: scheme.primary,
+                  ),
                 ],
               ],
             ),
@@ -398,10 +409,7 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
                   ),
                 ),
               ),
-              Switch(
-                value: tema.koyuMod,
-                onChanged: tema.setKoyuMod,
-              ),
+              Switch(value: tema.koyuMod, onChanged: tema.setKoyuMod),
             ],
           ),
         ),
@@ -448,8 +456,11 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
                     ),
                   ),
                   child: secili
-                      ? const Icon(Icons.check_rounded,
-                          size: 22, color: Colors.white)
+                      ? const Icon(
+                          Icons.check_rounded,
+                          size: 22,
+                          color: Colors.white,
+                        )
                       : null,
                 ),
                 const SizedBox(height: 8),
@@ -469,8 +480,10 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
                   const SizedBox(height: 8),
                   Container(
                     constraints: const BoxConstraints(minHeight: 22),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: scheme.primaryContainer,
                       borderRadius: BorderRadius.circular(999),
@@ -527,8 +540,11 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
                     ),
                   ),
                   child: secili
-                      ? Icon(Icons.check_rounded,
-                          size: 16, color: scheme.onPrimary)
+                      ? Icon(
+                          Icons.check_rounded,
+                          size: 16,
+                          color: scheme.onPrimary,
+                        )
                       : null,
                 ),
                 const SizedBox(width: 14),
@@ -568,13 +584,16 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
       case 0:
         return 'settings.notifications.option.0'.tr;
       default:
-        return 'settings.notifications.option.dynamic'
-            .trParams({'days': gun.toString()});
+        return 'settings.notifications.option.dynamic'.trParams({
+          'days': gun.toString(),
+        });
     }
   }
 
   Future<void> _gunSecimiDegistir(
-      BildirimAyarlarYoneticisi controller, int gun) async {
+    BildirimAyarlarYoneticisi controller,
+    int gun,
+  ) async {
     controller.toggleGun(gun);
     await DogumGunuVeriTabani.tumBildirimleriYenidenPlanla();
   }

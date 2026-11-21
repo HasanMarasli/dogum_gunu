@@ -55,8 +55,9 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
   Future<void> _devamEt() async {
     if (!mounted) return;
     final onboardingBitti = Onboarding.tamamlandiMi(GetStorage());
-    final yuk =
-        onboardingBitti ? await BildirimYoneticisi().acilisYuku() : null;
+    final yuk = onboardingBitti
+        ? await BildirimYoneticisi().acilisYuku()
+        : null;
     if (!mounted) return;
     Get.off(
       () => onboardingBitti ? const AnaSayfa() : const Onboarding(),
@@ -80,9 +81,9 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
   }
 
   Animation<double> _aralik(double bas, double son) => CurvedAnimation(
-        parent: _girisCtrl,
-        curve: Interval(bas, son, curve: const Cubic(0.2, 0, 0, 1)),
-      );
+    parent: _girisCtrl,
+    curve: Interval(bas, son, curve: const Cubic(0.2, 0, 0, 1)),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -110,8 +111,9 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
                     center: const Alignment(0, -0.2),
                     radius: 0.75,
                     colors: [
-                      scheme.primaryContainer
-                          .withValues(alpha: koyu ? 0.45 : 0.75),
+                      scheme.primaryContainer.withValues(
+                        alpha: koyu ? 0.45 : 0.75,
+                      ),
                       scheme.primaryContainer.withValues(alpha: 0),
                     ],
                   ),
@@ -131,8 +133,10 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
                             FadeTransition(
                               opacity: amblem,
                               child: ScaleTransition(
-                                scale: Tween(begin: 0.92, end: 1.0)
-                                    .animate(amblem),
+                                scale: Tween(
+                                  begin: 0.92,
+                                  end: 1.0,
+                                ).animate(amblem),
                                 child: _amblem(scheme, r, azHareket),
                               ),
                             ),
@@ -161,19 +165,26 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
                             FadeTransition(
                               opacity: etiketler,
                               child: ConstrainedBox(
-                                constraints:
-                                    const BoxConstraints(maxWidth: 300),
+                                constraints: const BoxConstraints(
+                                  maxWidth: 300,
+                                ),
                                 child: Wrap(
                                   alignment: WrapAlignment.center,
                                   spacing: 8,
                                   runSpacing: 8,
                                   children: [
-                                    _etiket(Icons.group_add_rounded,
-                                        'splash.pill.add'.tr),
-                                    _etiket(Icons.notifications_active_rounded,
-                                        'splash.pill.reminder'.tr),
-                                    _etiket(Icons.lock_rounded,
-                                        'splash.pill.privacy'.tr),
+                                    _etiket(
+                                      Icons.group_add_rounded,
+                                      'splash.pill.add'.tr,
+                                    ),
+                                    _etiket(
+                                      Icons.notifications_active_rounded,
+                                      'splash.pill.reminder'.tr,
+                                    ),
+                                    _etiket(
+                                      Icons.lock_rounded,
+                                      'splash.pill.privacy'.tr,
+                                    ),
                                   ],
                                 ),
                               ),
@@ -226,8 +237,10 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
     return FadeTransition(
       opacity: anim,
       child: SlideTransition(
-        position:
-            Tween(begin: const Offset(0, 0.25), end: Offset.zero).animate(anim),
+        position: Tween(
+          begin: const Offset(0, 0.25),
+          end: Offset.zero,
+        ).animate(anim),
         child: child,
       ),
     );
@@ -309,8 +322,8 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
                       final s = azHareket
                           ? 1.0
                           : 1 -
-                              0.14 *
-                                  Curves.easeInOut.transform(_alevCtrl.value);
+                                0.14 *
+                                    Curves.easeInOut.transform(_alevCtrl.value);
                       return Transform.scale(scale: s, child: child);
                     },
                     child: Transform.rotate(
@@ -364,8 +377,9 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         color: r.s1,
         borderRadius: BorderRadius.circular(999),
-        boxShadow:
-            Theme.of(context).brightness == Brightness.dark ? null : r.e1,
+        boxShadow: Theme.of(context).brightness == Brightness.dark
+            ? null
+            : r.e1,
         border: Theme.of(context).brightness == Brightness.dark
             ? Border.all(color: r.bd)
             : null,
@@ -394,8 +408,10 @@ class _MumCizgileri extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.drawRect(Offset.zero & size,
-        Paint()..color = Colors.white.withValues(alpha: 0.62));
+    canvas.drawRect(
+      Offset.zero & size,
+      Paint()..color = Colors.white.withValues(alpha: 0.62),
+    );
     final p = Paint()
       ..color = Colors.white
       ..strokeWidth = 7;

@@ -58,16 +58,13 @@ class DogumGunuVeriTabani {
     String formattedDate = DateFormat('yyyy-MM-dd').format(dogum.dogumTarihi);
 
     // Veritabanına doğum günü ekleniyor
-    int sonuc = await db.insert(
-      'dogumlar',
-      {
-        'id': dogum.id,
-        'isim': dogum.isim,
-        'dogumTarihi': formattedDate,
-        'cinsiyet': dogum.cinsiyet?.name,
-        'yakinlik': dogum.yakinlik?.name,
-      },
-    );
+    int sonuc = await db.insert('dogumlar', {
+      'id': dogum.id,
+      'isim': dogum.isim,
+      'dogumTarihi': formattedDate,
+      'cinsiyet': dogum.cinsiyet?.name,
+      'yakinlik': dogum.yakinlik?.name,
+    });
 
     // Bildirim ekleniyor
     BildirimYoneticisi bildirimYoneticisi = BildirimYoneticisi();
@@ -138,11 +135,7 @@ class DogumGunuVeriTabani {
     DogumGunu? dogumGunu = await DogumGunu.getDogumGunuById(id);
 
     // Veritabanından doğum günü silinir
-    int sonuc = await db.delete(
-      'dogumlar',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    int sonuc = await db.delete('dogumlar', where: 'id = ?', whereArgs: [id]);
 
     // Doğum günü silindiğinde, bildirim iptal edilir
     if (dogumGunu != null) {

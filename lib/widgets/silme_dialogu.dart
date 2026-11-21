@@ -13,8 +13,10 @@ Future<bool> silmeOnayiIste(BuildContext context, String isim) async {
     transitionDuration: const Duration(milliseconds: 200),
     pageBuilder: (context, _, __) => _SilmeDialogu(isim: isim),
     transitionBuilder: (context, anim, _, child) {
-      final egri =
-          CurvedAnimation(parent: anim, curve: const Cubic(0.2, 0, 0, 1));
+      final egri = CurvedAnimation(
+        parent: anim,
+        curve: const Cubic(0.2, 0, 0, 1),
+      );
       return FadeTransition(
         opacity: egri,
         child: ScaleTransition(
@@ -83,7 +85,9 @@ class _SilmeDialogu extends StatelessWidget {
                         TextSpan(
                           text: isim,
                           style: TextStyle(
-                              fontWeight: FontWeight.w700, color: r.tx),
+                            fontWeight: FontWeight.w700,
+                            color: r.tx,
+                          ),
                         ),
                         if (parcalar.length > 1) TextSpan(text: parcalar[1]),
                       ],

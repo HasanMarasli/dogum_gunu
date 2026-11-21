@@ -1,5 +1,5 @@
 final Map<String, String> en = {
-// Settings
+  // Settings
   'settings.title': 'Settings',
   'settings.language': 'Language',
   'settings.selectLanguage': 'Select a language',
@@ -36,9 +36,9 @@ final Map<String, String> en = {
   'theme.sky': 'Sky Blue',
   'theme.orchid': 'Orchid',
   'theme.gold': 'Gold',
-// App
+  // App
   'app.title': 'Birthday Reminder',
-// Home
+  // Home
   'home.title': 'Birthdays',
   'home.subtitle': 'Never miss your loved ones’ birthdays',
   'home.stats.total': 'Total',
@@ -71,7 +71,7 @@ final Map<String, String> en = {
   'home.loading': 'Loading',
   'home.menu.more': 'More',
   'home.card.ideas': 'Gift ideas',
-// Splash
+  // Splash
   'splash.subtitle': 'Never miss celebrating your loved ones',
   'splash.pill.add': 'Add loved ones',
   'splash.pill.reminder': 'Smart reminders',
@@ -108,7 +108,7 @@ final Map<String, String> en = {
   'notification.body.before.one': '@name turns @age tomorrow!',
   'notification.channel.name': 'Birthday Notifications',
   'notification.channel.desc': 'Channel for birthday reminders',
-// Add person
+  // Add person
   'add.title': 'Add New Person',
   'add.hero':
       'Enter their details and we’ll remind you when the birthday is near and suggest ideas that suit them.',
@@ -155,7 +155,7 @@ final Map<String, String> en = {
   'picker.nextMonth': 'Next month',
   'picker.empty': 'No date yet',
   'picker.hint': 'Pick the year, then month and day',
-// Advice/Tavsiye
+  // Advice/Tavsiye
   'advice.appbar': 'For @name',
   'advice.countdown': '@days days left',
   'advice.countdown.one': '@days day left',
@@ -169,7 +169,7 @@ final Map<String, String> en = {
   'advice.more': 'Suggest others',
   'advice.gifts.title': 'Gift Ideas',
   'advice.surprises.title': 'Surprise Ideas',
-// Zodiac names
+  // Zodiac names
   'zodiac.aries.name': 'Aries',
   'zodiac.aries.range': '21 March - 19 April',
   'zodiac.aries.short':

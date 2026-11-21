@@ -11,10 +11,7 @@ import '../widgets/burc_rozeti.dart';
 
 class Tavsiye extends StatefulWidget {
   final DogumGunu dogumGunu;
-  const Tavsiye({
-    required this.dogumGunu,
-    super.key,
-  });
+  const Tavsiye({required this.dogumGunu, super.key});
 
   @override
   State<Tavsiye> createState() => _TavsiyeState();
@@ -37,11 +34,11 @@ class _TavsiyeState extends State<Tavsiye> {
   }
 
   List<String> _oneriler(OneriTipi tip, {Butce? butce}) => OneriMotoru.sec(
-        _kisi,
-        tip,
-        tur: OneriMotoru.turGetir(_kisi.id, tip),
-        butce: butce,
-      ).map((a) => a.tr).toList();
+    _kisi,
+    tip,
+    tur: OneriMotoru.turGetir(_kisi.id, tip),
+    butce: butce,
+  ).map((a) => a.tr).toList();
 
   bool _yenilenebilir(OneriTipi tip, {Butce? butce}) =>
       OneriMotoru.sirala(_kisi, tip, butce: butce).length >
@@ -136,8 +133,11 @@ class _TavsiyeState extends State<Tavsiye> {
                     ],
                   ),
                   alignment: Alignment.center,
-                  child:
-                      BurcIkonu(burcId: signId, boyut: 60, renk: Colors.white),
+                  child: BurcIkonu(
+                    burcId: signId,
+                    boyut: 60,
+                    renk: Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -264,8 +264,10 @@ class _TavsiyeState extends State<Tavsiye> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 40),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 child: Text(
                   etiket,
                   style: TextStyle(
@@ -319,19 +321,15 @@ class _TavsiyeState extends State<Tavsiye> {
             Expanded(
               child: Text(
                 baslik,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontSize: 20),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontSize: 20),
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        if (ust != null) ...[
-          ust,
-          const SizedBox(height: 12),
-        ],
+        if (ust != null) ...[ust, const SizedBox(height: 12)],
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           decoration: BoxDecoration(
@@ -345,8 +343,9 @@ class _TavsiyeState extends State<Tavsiye> {
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
-                    border:
-                        i == 0 ? null : Border(top: BorderSide(color: r.bd)),
+                    border: i == 0
+                        ? null
+                        : Border(top: BorderSide(color: r.bd)),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,

@@ -138,8 +138,11 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                       child: _istatistikKart(
                         baslik: 'home.stats.total'.tr,
                         deger: liste.length,
-                        altYazi:
-                            trSayi('home.stats.total.suffix', liste.length, {}),
+                        altYazi: trSayi(
+                          'home.stats.total.suffix',
+                          liste.length,
+                          {},
+                        ),
                         vurgulu: false,
                       ),
                     ),
@@ -164,36 +167,36 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                         await _verileriCek();
                         await _izinKontrol();
                       },
-                      child: Obx(
-                        () {
-                          final liste = [
-                            ...dogumGunuVeriYonetim.dogumGunuListe
-                          ];
-                          liste.sort(
-                              (a, b) => _kalanGun(a).compareTo(_kalanGun(b)));
+                      child: Obx(() {
+                        final liste = [...dogumGunuVeriYonetim.dogumGunuListe];
+                        liste.sort(
+                          (a, b) => _kalanGun(a).compareTo(_kalanGun(b)),
+                        );
 
-                          final banner = !_izinVar && !_uyariKapali;
-                          if (liste.isEmpty) {
-                            return _bosDurum(banner ? _izinUyarisi() : null);
-                          }
+                        final banner = !_izinVar && !_uyariKapali;
+                        if (liste.isEmpty) {
+                          return _bosDurum(banner ? _izinUyarisi() : null);
+                        }
 
-                          return ListView.separated(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            padding: EdgeInsets.fromLTRB(20, 12, 20,
-                                104 + MediaQuery.of(context).padding.bottom),
-                            itemCount: liste.length + (banner ? 1 : 0),
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 10),
-                            itemBuilder: (context, index) {
-                              if (banner && index == 0) {
-                                return _izinUyarisi();
-                              }
-                              return _dogumKart(
-                                  liste[index - (banner ? 1 : 0)]);
-                            },
-                          );
-                        },
-                      ),
+                        return ListView.separated(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: EdgeInsets.fromLTRB(
+                            20,
+                            12,
+                            20,
+                            104 + MediaQuery.of(context).padding.bottom,
+                          ),
+                          itemCount: liste.length + (banner ? 1 : 0),
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 10),
+                          itemBuilder: (context, index) {
+                            if (banner && index == 0) {
+                              return _izinUyarisi();
+                            }
+                            return _dogumKart(liste[index - (banner ? 1 : 0)]);
+                          },
+                        );
+                      }),
                     ),
             ),
           ],
@@ -227,8 +230,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     final r = context.renk;
     final scheme = Theme.of(context).colorScheme;
     final renk = vurgulu ? scheme.onPrimaryContainer : r.tx;
-    final ikincil =
-        vurgulu ? scheme.onPrimaryContainer.withValues(alpha: 0.85) : r.tx2;
+    final ikincil = vurgulu
+        ? scheme.onPrimaryContainer.withValues(alpha: 0.85)
+        : r.tx2;
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
       decoration: BoxDecoration(
@@ -241,7 +245,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           Text(
             baslik,
             style: TextStyle(
-                fontWeight: FontWeight.w600, fontSize: 13, color: ikincil),
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+              color: ikincil,
+            ),
           ),
           const SizedBox(height: 2),
           isLoading
@@ -257,16 +264,19 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
               : Text(
                   '$deger',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontSize: 30,
-                        height: 34 / 30,
-                        color: renk,
-                      ),
+                    fontSize: 30,
+                    height: 34 / 30,
+                    color: renk,
+                  ),
                 ),
           const SizedBox(height: 2),
           Text(
             altYazi,
             style: TextStyle(
-                fontWeight: FontWeight.w500, fontSize: 13, color: ikincil),
+              fontWeight: FontWeight.w500,
+              fontSize: 13,
+              color: ikincil,
+            ),
           ),
         ],
       ),
@@ -276,13 +286,13 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   Widget _iskelet() {
     final r = context.renk;
     Widget blok(double w, double h, double yaricap) => Container(
-          width: w,
-          height: h,
-          decoration: BoxDecoration(
-            color: r.s3,
-            borderRadius: BorderRadius.circular(yaricap),
-          ),
-        );
+      width: w,
+      height: h,
+      decoration: BoxDecoration(
+        color: r.s3,
+        borderRadius: BorderRadius.circular(yaricap),
+      ),
+    );
     const genislikler = [
       [0.68, 0.44],
       [0.56, 0.40],
@@ -319,11 +329,13 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                         const SizedBox(height: 8),
                         blok(c.maxWidth * genislikler[i][1], 12, 6),
                         const SizedBox(height: 8),
-                        Row(children: [
-                          blok(44, 20, 8),
-                          const SizedBox(width: 6),
-                          blok(44, 20, 8),
-                        ]),
+                        Row(
+                          children: [
+                            blok(44, 20, 8),
+                            const SizedBox(width: 6),
+                            blok(44, 20, 8),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -367,8 +379,11 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                         color: scheme.primaryContainer,
                         borderRadius: BorderRadius.circular(28),
                       ),
-                      child: Icon(Icons.cake_rounded,
-                          size: 44, color: scheme.onPrimaryContainer),
+                      child: Icon(
+                        Icons.cake_rounded,
+                        size: 44,
+                        color: scheme.onPrimaryContainer,
+                      ),
                     ),
                     const SizedBox(height: 18),
                     Text(
@@ -454,7 +469,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                           child: Text(
                             DogumGunu.tarihYazdir(dogum.dogumTarihi),
                             style: TextStyle(
-                                fontSize: 13, height: 18 / 13, color: r.tx2),
+                              fontSize: 13,
+                              height: 18 / 13,
+                              color: r.tx2,
+                            ),
                           ),
                         ),
                       ],
@@ -467,8 +485,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                         if (yas > 0)
                           _etiket(trSayi('home.age', yas, {'age': '$yas'})),
                         _etiket(burc),
-                        _etiket('home.card.ideas'.tr,
-                            ikon: Icons.redeem_rounded),
+                        _etiket(
+                          'home.card.ideas'.tr,
+                          ikon: Icons.redeem_rounded,
+                        ),
                       ],
                     ),
                   ],
@@ -478,8 +498,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
               Container(
                 constraints: const BoxConstraints(minWidth: 60, minHeight: 46),
                 alignment: Alignment.center,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: bugun ? scheme.primary : scheme.primaryContainer,
                   borderRadius: BorderRadius.circular(16),
@@ -490,15 +512,16 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                     Text(
                       bugun
                           ? 'home.countdown.today'.tr
-                          : trSayi('home.countdown.days', kalanGun,
-                              {'days': '$kalanGun'}),
+                          : trSayi('home.countdown.days', kalanGun, {
+                              'days': '$kalanGun',
+                            }),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontSize: 15,
-                            height: 1.15,
-                            color: bugun
-                                ? scheme.onPrimary
-                                : scheme.onPrimaryContainer,
-                          ),
+                        fontSize: 15,
+                        height: 1.15,
+                        color: bugun
+                            ? scheme.onPrimary
+                            : scheme.onPrimaryContainer,
+                      ),
                     ),
                     if (!bugun)
                       Text(
@@ -657,8 +680,12 @@ class _YeniKisiButonu extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           onTap: onPressed,
           child: Padding(
-            padding:
-                const EdgeInsets.only(left: 18, right: 22, top: 8, bottom: 8),
+            padding: const EdgeInsets.only(
+              left: 18,
+              right: 22,
+              top: 8,
+              bottom: 8,
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -717,8 +744,10 @@ class _NabizState extends State<_Nabiz> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
-      opacity: Tween(begin: 1.0, end: 0.45)
-          .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut)),
+      opacity: Tween(
+        begin: 1.0,
+        end: 0.45,
+      ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut)),
       child: widget.child,
     );
   }

@@ -217,8 +217,11 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                             color: scheme.primaryContainer,
                             borderRadius: BorderRadius.circular(11),
                           ),
-                          child: Icon(Icons.person_rounded,
-                              size: 20, color: scheme.onPrimaryContainer),
+                          child: Icon(
+                            Icons.person_rounded,
+                            size: 20,
+                            color: scheme.onPrimaryContainer,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Text(
@@ -245,7 +248,7 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                                 BoxShadow(
                                   color: scheme.primary.withValues(alpha: 0.2),
                                   spreadRadius: 3,
-                                )
+                                ),
                               ]
                             : null,
                       ),
@@ -255,18 +258,22 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                         textCapitalization: TextCapitalization.words,
                         textInputAction: TextInputAction.done,
                         maxLength: 60,
-                        buildCounter: (_,
-                                {required currentLength,
-                                required isFocused,
-                                maxLength}) =>
-                            null,
+                        buildCounter:
+                            (
+                              _, {
+                              required currentLength,
+                              required isFocused,
+                              maxLength,
+                            }) => null,
                         cursorColor: scheme.primary,
                         style: metin.bodyLarge,
                         decoration: InputDecoration(
                           hintText: 'add.field.name.hint'.tr,
                           errorText: _adHatasi ? 'add.error.name'.tr : null,
                           contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 14),
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                         ),
                       ),
                     ),
@@ -291,8 +298,8 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                             color: _tarihHatasi
                                 ? r.err
                                 : _tarihAcik
-                                    ? scheme.primary
-                                    : r.bd2,
+                                ? scheme.primary
+                                : r.bd2,
                             width: 1.5,
                           ),
                         ),
@@ -303,29 +310,41 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                             constraints: const BoxConstraints(minHeight: 52),
                             child: Padding(
                               padding: const EdgeInsets.only(
-                                  left: 14, right: 10, top: 6, bottom: 6),
+                                left: 14,
+                                right: 10,
+                                top: 6,
+                                bottom: 6,
+                              ),
                               child: Row(
                                 children: [
-                                  Icon(Icons.calendar_month_rounded,
-                                      size: 22, color: scheme.primary),
+                                  Icon(
+                                    Icons.calendar_month_rounded,
+                                    size: 22,
+                                    color: scheme.primary,
+                                  ),
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
                                       secilenTarih == null
                                           ? 'add.field.date.placeholder'.tr
                                           : DogumGunu.tarihYazdir(
-                                              secilenTarih!),
+                                              secilenTarih!,
+                                            ),
                                       style: metin.bodyLarge?.copyWith(
-                                        color:
-                                            secilenTarih == null ? r.tx3 : r.tx,
+                                        color: secilenTarih == null
+                                            ? r.tx3
+                                            : r.tx,
                                       ),
                                     ),
                                   ),
                                   Container(
-                                    constraints:
-                                        const BoxConstraints(minHeight: 32),
+                                    constraints: const BoxConstraints(
+                                      minHeight: 32,
+                                    ),
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 14, vertical: 4),
+                                      horizontal: 14,
+                                      vertical: 4,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: scheme.primaryContainer,
                                       borderRadius: BorderRadius.circular(999),
@@ -491,8 +510,8 @@ class _SecimKutusu extends StatelessWidget {
             color: hatali
                 ? r.err
                 : secili
-                    ? scheme.primary
-                    : r.bd2,
+                ? scheme.primary
+                : r.bd2,
             width: 1.5,
           ),
         ),

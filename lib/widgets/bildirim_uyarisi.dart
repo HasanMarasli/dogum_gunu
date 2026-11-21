@@ -88,10 +88,9 @@ class BildirimUyarisi extends StatelessWidget {
                   foregroundColor: r.onWarn,
                   minimumSize: const Size(0, 36),
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  textStyle: Theme.of(context)
-                      .textTheme
-                      .labelLarge
-                      ?.copyWith(fontSize: 14),
+                  textStyle: Theme.of(
+                    context,
+                  ).textTheme.labelLarge?.copyWith(fontSize: 14),
                 ),
                 iconAlignment: IconAlignment.end,
                 icon: const Icon(Icons.open_in_new_rounded, size: 18),

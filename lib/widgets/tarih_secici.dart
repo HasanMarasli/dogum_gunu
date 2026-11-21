@@ -123,8 +123,11 @@ class _TarihSeciciState extends State<_TarihSecici> {
     if (ortala) hedef -= pos.viewportDimension / 2 - _yilSatir / 2;
     hedef = hedef.clamp(0.0, pos.maxScrollExtent);
     if (animasyon) {
-      _yilKaydirma.animateTo(hedef,
-          duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+      _yilKaydirma.animateTo(
+        hedef,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     } else {
       _yilKaydirma.jumpTo(hedef);
     }
@@ -138,8 +141,11 @@ class _TarihSeciciState extends State<_TarihSecici> {
     final hedef = (i * genislik - pos.viewportDimension / 2 + genislik / 2)
         .clamp(0.0, pos.maxScrollExtent);
     if (animasyon) {
-      _seritKaydirma.animateTo(hedef,
-          duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+      _seritKaydirma.animateTo(
+        hedef,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
     } else {
       _seritKaydirma.jumpTo(hedef);
     }
@@ -170,7 +176,7 @@ class _TarihSeciciState extends State<_TarihSecici> {
       'lar',
       'ler',
       'ler',
-      'lar'
+      'lar',
     ];
     return "$yil'${ekler[(yil ~/ 10) % 10]}";
   }
@@ -198,7 +204,11 @@ class _TarihSeciciState extends State<_TarihSecici> {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       padding: EdgeInsets.fromLTRB(
-          20, 10, 20, 20 + MediaQuery.of(context).padding.bottom),
+        20,
+        10,
+        20,
+        20 + MediaQuery.of(context).padding.bottom,
+      ),
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -260,8 +270,11 @@ class _TarihSeciciState extends State<_TarihSecici> {
                             color: r.s2,
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          child:
-                              Icon(Icons.cake_rounded, size: 28, color: r.tx3),
+                          child: Icon(
+                            Icons.cake_rounded,
+                            size: 28,
+                            color: r.tx3,
+                          ),
                         )
                       : BurcRozeti(burcId: burcId, boyut: 56),
                 ],
@@ -275,8 +288,9 @@ class _TarihSeciciState extends State<_TarihSecici> {
                     onPressed: _yilGorunumuAc,
                     style: TextButton.styleFrom(
                       backgroundColor: _yillar ? scheme.primaryContainer : r.s2,
-                      foregroundColor:
-                          _yillar ? scheme.onPrimaryContainer : r.tx,
+                      foregroundColor: _yillar
+                          ? scheme.onPrimaryContainer
+                          : r.tx,
                       minimumSize: const Size(0, 44),
                       padding: const EdgeInsets.only(left: 12, right: 6),
                       textStyle: const TextStyle(
@@ -288,11 +302,16 @@ class _TarihSeciciState extends State<_TarihSecici> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(_yillar || _aylar
-                            ? '$_gorunenYil'
-                            : toBeginningOfSentenceCase(DateFormat(
-                                    'MMMM y', _dil)
-                                .format(DateTime(_gorunenYil, _gorunenAy)))),
+                        Text(
+                          _yillar || _aylar
+                              ? '$_gorunenYil'
+                              : toBeginningOfSentenceCase(
+                                  DateFormat(
+                                    'MMMM y',
+                                    _dil,
+                                  ).format(DateTime(_gorunenYil, _gorunenAy)),
+                                ),
+                        ),
                         Icon(
                           _yillar
                               ? Icons.arrow_drop_up_rounded
@@ -327,8 +346,8 @@ class _TarihSeciciState extends State<_TarihSecici> {
               child: _yillar
                   ? _yilGorunumu(r, scheme)
                   : _aylar
-                      ? _ayGorunumu(r, scheme)
-                      : _gunGorunumu(r, scheme),
+                  ? _ayGorunumu(r, scheme)
+                  : _gunGorunumu(r, scheme),
             ),
             const SizedBox(height: 16),
             Row(
@@ -388,31 +407,32 @@ class _TarihSeciciState extends State<_TarihSecici> {
           color: secili
               ? scheme.primary
               : gorunen
-                  ? scheme.primaryContainer
-                  : Colors.transparent,
+              ? scheme.primaryContainer
+              : Colors.transparent,
           shape: const StadiumBorder(),
           child: InkWell(
             customBorder: const StadiumBorder(),
             onTap: gelecek
                 ? null
                 : () => setState(() {
-                      _gorunenAy = ay;
-                      _aylar = false;
-                    }),
+                    _gorunenAy = ay;
+                    _aylar = false;
+                  }),
             child: Center(
               child: Text(
                 toBeginningOfSentenceCase(
-                    DateFormat('MMMM', _dil).format(tarih)),
+                  DateFormat('MMMM', _dil).format(tarih),
+                ),
                 style: TextStyle(
                   fontWeight: secili ? FontWeight.w700 : FontWeight.w500,
                   fontSize: 15,
                   color: secili
                       ? scheme.onPrimary
                       : gelecek
-                          ? r.bd2
-                          : gorunen
-                              ? scheme.onPrimaryContainer
-                              : r.tx,
+                      ? r.bd2
+                      : gorunen
+                      ? scheme.onPrimaryContainer
+                      : r.tx,
                 ),
               ),
             ),
@@ -490,16 +510,17 @@ class _TarihSeciciState extends State<_TarihSecici> {
                         child: Text(
                           '$gun',
                           style: TextStyle(
-                            fontWeight:
-                                secili ? FontWeight.w700 : FontWeight.w500,
+                            fontWeight: secili
+                                ? FontWeight.w700
+                                : FontWeight.w500,
                             fontSize: 15,
                             color: secili
                                 ? scheme.onPrimary
                                 : gelecek
-                                    ? r.bd2
-                                    : bugun
-                                        ? scheme.primary
-                                        : r.tx,
+                                ? r.bd2
+                                : bugun
+                                ? scheme.primary
+                                : r.tx,
                           ),
                         ),
                       ),
@@ -515,9 +536,7 @@ class _TarihSeciciState extends State<_TarihSecici> {
   }
 
   Widget _yilGorunumu(AppRenkler r, ColorScheme scheme) {
-    final onYillar = [
-      for (var y = _minYil; y <= _maxYil; y += 10) y,
-    ];
+    final onYillar = [for (var y = _minYil; y <= _maxYil; y += 10) y];
     final yilSayisi = _maxYil - _minYil + 1;
 
     return Column(
@@ -545,12 +564,12 @@ class _TarihSeciciState extends State<_TarihSecici> {
                     padding: EdgeInsets.zero,
                     minimumSize: const Size(0, 32),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    side: BorderSide(
-                      color: aktif ? Colors.transparent : r.bd2,
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    backgroundColor:
-                        aktif ? scheme.primaryContainer : Colors.transparent,
+                    side: BorderSide(color: aktif ? Colors.transparent : r.bd2),
+                    backgroundColor: aktif
+                        ? scheme.primaryContainer
+                        : Colors.transparent,
                     foregroundColor: aktif ? scheme.onPrimaryContainer : r.tx2,
                     textStyle: const TextStyle(
                       fontFamily: 'Figtree',
@@ -585,8 +604,8 @@ class _TarihSeciciState extends State<_TarihSecici> {
                 color: secili
                     ? scheme.primary
                     : gorunen
-                        ? scheme.primaryContainer
-                        : Colors.transparent,
+                    ? scheme.primaryContainer
+                    : Colors.transparent,
                 shape: StadiumBorder(
                   side: buYil && !secili
                       ? BorderSide(color: scheme.primary, width: 1.5)
@@ -611,10 +630,10 @@ class _TarihSeciciState extends State<_TarihSecici> {
                         color: secili
                             ? scheme.onPrimary
                             : gorunen
-                                ? scheme.onPrimaryContainer
-                                : buYil
-                                    ? scheme.primary
-                                    : r.tx,
+                            ? scheme.onPrimaryContainer
+                            : buYil
+                            ? scheme.primary
+                            : r.tx,
                       ),
                     ),
                   ),

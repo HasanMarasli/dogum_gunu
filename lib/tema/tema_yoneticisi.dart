@@ -153,8 +153,10 @@ class TemaYoneticisi extends GetxController {
         filled: true,
         fillColor: r.s1,
         hintStyle: TextStyle(color: r.tx3),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: r.bd2, width: 1.5),
@@ -196,23 +198,26 @@ class TemaYoneticisi extends GetxController {
 
   TextTheme _metinTemasi(Color renk) {
     TextStyle b(double boyut, double yukseklik, double harf) => TextStyle(
-          fontFamily: baslikFontu,
-          fontWeight: FontWeight.w700,
-          fontSize: boyut,
-          height: yukseklik / boyut,
-          letterSpacing: boyut * harf,
-          color: renk,
-        );
-    TextStyle f(FontWeight agirlik, double boyut, double yukseklik,
-            [double harf = 0]) =>
-        TextStyle(
-          fontFamily: metinFontu,
-          fontWeight: agirlik,
-          fontSize: boyut,
-          height: yukseklik / boyut,
-          letterSpacing: boyut * harf,
-          color: renk,
-        );
+      fontFamily: baslikFontu,
+      fontWeight: FontWeight.w700,
+      fontSize: boyut,
+      height: yukseklik / boyut,
+      letterSpacing: boyut * harf,
+      color: renk,
+    );
+    TextStyle f(
+      FontWeight agirlik,
+      double boyut,
+      double yukseklik, [
+      double harf = 0,
+    ]) => TextStyle(
+      fontFamily: metinFontu,
+      fontWeight: agirlik,
+      fontSize: boyut,
+      height: yukseklik / boyut,
+      letterSpacing: boyut * harf,
+      color: renk,
+    );
     return TextTheme(
       displayLarge: b(56, 60, -0.03),
       displayMedium: b(48, 52, -0.025),

@@ -50,31 +50,19 @@ class OzelSnackbar {
     );
   }
 
-  static void basari({
-    required String baslik,
-    required String mesaj,
-  }) {
+  static void basari({required String baslik, required String mesaj}) {
     goster(baslik: baslik, mesaj: mesaj, tip: SnackbarTipi.basari);
   }
 
-  static void hata({
-    required String baslik,
-    required String mesaj,
-  }) {
+  static void hata({required String baslik, required String mesaj}) {
     goster(baslik: baslik, mesaj: mesaj, tip: SnackbarTipi.hata);
   }
 
-  static void uyari({
-    required String baslik,
-    required String mesaj,
-  }) {
+  static void uyari({required String baslik, required String mesaj}) {
     goster(baslik: baslik, mesaj: mesaj, tip: SnackbarTipi.uyari);
   }
 
-  static void bilgi({
-    required String baslik,
-    required String mesaj,
-  }) {
+  static void bilgi({required String baslik, required String mesaj}) {
     goster(baslik: baslik, mesaj: mesaj, tip: SnackbarTipi.bilgi);
   }
 
@@ -151,8 +139,11 @@ class _SnackIcerik extends StatelessWidget {
                         color: config.vurgu,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child:
-                          Icon(config.icon, size: 22, color: config.vurguUstu),
+                      child: Icon(
+                        config.icon,
+                        size: 22,
+                        color: config.vurguUstu,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -216,8 +207,10 @@ class _SureCubugu extends StatefulWidget {
 
 class _SureCubuguState extends State<_SureCubugu>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl =
-      AnimationController(vsync: this, duration: widget.sure)..forward();
+  late final AnimationController _ctrl = AnimationController(
+    vsync: this,
+    duration: widget.sure,
+  )..forward();
 
   @override
   void dispose() {
