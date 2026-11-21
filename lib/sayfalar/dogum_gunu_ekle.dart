@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:dogum_gunu/veriTabani/dogum_gunu_veri_tabani.dart';
 import 'package:uuid/uuid.dart';
 
+import '../tema/ekran.dart';
 import '../tema/renkler.dart';
 import '../widgets/tarih_secici.dart';
 
@@ -20,6 +21,8 @@ class DogumGunuEkle extends StatefulWidget {
 }
 
 class _KisiEkleState extends State<DogumGunuEkle> {
+  static const int _adMaxUzunluk = 60;
+
   final TextEditingController kisiAd = TextEditingController();
   final FocusNode _adOdak = FocusNode();
   DateTime? secilenTarih;
@@ -176,6 +179,25 @@ class _KisiEkleState extends State<DogumGunuEkle> {
     final metin = Theme.of(context).textTheme;
     final klavyeAcik = MediaQuery.of(context).viewInsets.bottom > 0;
     final odakli = _adOdak.hasFocus;
+    final dolgu = Ekran.yatayDolgu(
+      MediaQuery.sizeOf(context).width,
+      azami: Ekran.formGenislik,
+    );
+    // Yatay telefonda sabit alt çubuk klavyeyle birlikte formu kapatmasın diye
+    // kaydet düğmesi formun sonuna taşınır.
+    final alcak = context.alcakMi();
+    final kaydetDugmesi = SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: FilledButton.icon(
+        onPressed: _kaydediliyor ? null : _kaydet,
+        style: FilledButton.styleFrom(
+          textStyle: metin.labelLarge?.copyWith(fontSize: 16),
+        ),
+        icon: const Icon(Icons.check_rounded, size: 20),
+        label: Text(_duzenleme ? 'edit.button.save'.tr : 'add.button.save'.tr),
+      ),
+    );
 
     return PopScope(
       canPop: !_degisti,
@@ -199,7 +221,12 @@ class _KisiEkleState extends State<DogumGunuEkle> {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                padding: EdgeInsets.fromLTRB(
+                  dolgu,
+                  12,
+                  dolgu,
+                  alcak ? 20 + MediaQuery.of(context).padding.bottom : 24,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -257,14 +284,25 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                         focusNode: _adOdak,
                         textCapitalization: TextCapitalization.words,
                         textInputAction: TextInputAction.done,
-                        maxLength: 60,
+                        maxLength: _adMaxUzunluk,
+                        // Sayaç yalnızca sınıra 10 karakter kala görünür.
                         buildCounter:
                             (
                               _, {
                               required currentLength,
                               required isFocused,
                               maxLength,
-                            }) => null,
+                            }) => currentLength < _adMaxUzunluk - 10
+                            ? null
+                            : Text(
+                                '$currentLength/$_adMaxUzunluk',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: currentLength >= _adMaxUzunluk
+                                      ? r.err
+                                      : r.tx2,
+                                ),
+                              ),
                         cursorColor: scheme.primary,
                         style: metin.bodyLarge,
                         decoration: InputDecoration(
@@ -441,40 +479,29 @@ class _KisiEkleState extends State<DogumGunuEkle> {
                           ),
                       ],
                     ),
+                    if (alcak) ...[const SizedBox(height: 24), kaydetDugmesi],
                   ],
                 ),
               ),
             ),
-            Container(
-              padding: EdgeInsets.fromLTRB(
-                20,
-                12,
-                20,
-                klavyeAcik ? 12 : 20 + MediaQuery.of(context).padding.bottom,
-              ),
-              decoration: BoxDecoration(
-                color: r.bg,
-                border: Border(
-                  top: BorderSide(
-                    color: klavyeAcik ? r.bd : Colors.transparent,
+            if (!alcak)
+              Container(
+                padding: EdgeInsets.fromLTRB(
+                  dolgu,
+                  12,
+                  dolgu,
+                  klavyeAcik ? 12 : 20 + MediaQuery.of(context).padding.bottom,
+                ),
+                decoration: BoxDecoration(
+                  color: r.bg,
+                  border: Border(
+                    top: BorderSide(
+                      color: klavyeAcik ? r.bd : Colors.transparent,
+                    ),
                   ),
                 ),
+                child: kaydetDugmesi,
               ),
-              child: SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: FilledButton.icon(
-                  onPressed: _kaydediliyor ? null : _kaydet,
-                  style: FilledButton.styleFrom(
-                    textStyle: metin.labelLarge?.copyWith(fontSize: 16),
-                  ),
-                  icon: const Icon(Icons.check_rounded, size: 20),
-                  label: Text(
-                    _duzenleme ? 'edit.button.save'.tr : 'add.button.save'.tr,
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
       ),

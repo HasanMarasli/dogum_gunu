@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../tema/ekran.dart';
 import '../tema/renkler.dart';
 
 /// Kişi silme onayı. Onaylanırsa true döner.
@@ -13,6 +14,10 @@ Future<bool> silmeOnayiIste(BuildContext context, String isim) async {
     transitionDuration: const Duration(milliseconds: 200),
     pageBuilder: (context, _, __) => _SilmeDialogu(isim: isim),
     transitionBuilder: (context, anim, _, child) {
+      // Hareket azaltma açıksa yalnızca solma kalır.
+      if (MediaQuery.of(context).disableAnimations) {
+        return FadeTransition(opacity: anim, child: child);
+      }
       final egri = CurvedAnimation(
         parent: anim,
         curve: const Cubic(0.2, 0, 0, 1),
@@ -34,6 +39,9 @@ class _SilmeDialogu extends StatelessWidget {
 
   final String isim;
 
+  static const double _telefonGenislik = 312;
+  static const double _tabletGenislik = 400;
+
   @override
   Widget build(BuildContext context) {
     final r = context.renk;
@@ -42,86 +50,118 @@ class _SilmeDialogu extends StatelessWidget {
     final mesaj = 'home.delete.confirm'.trParams({'name': '\u0000'});
     final parcalar = mesaj.split('\u0000');
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 312),
-          child: Material(
-            color: r.raised,
-            borderRadius: BorderRadius.circular(28),
-            elevation: 0,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(28),
-                boxShadow: r.e3,
-                color: r.raised,
-              ),
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 18),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: r.errc,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Icon(Icons.delete_rounded, size: 26, color: r.err),
-                  ),
-                  const SizedBox(height: 14),
-                  Text(
-                    'home.delete.title'.tr,
-                    textAlign: TextAlign.center,
-                    style: metin.titleLarge?.copyWith(height: 1.25),
-                  ),
-                  const SizedBox(height: 14),
-                  Text.rich(
-                    TextSpan(
-                      style: TextStyle(fontSize: 15, height: 1.5, color: r.tx2),
-                      children: [
-                        TextSpan(text: parcalar.first),
-                        TextSpan(
-                          text: isim,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: r.tx,
-                          ),
-                        ),
-                        if (parcalar.length > 1) TextSpan(text: parcalar[1]),
-                      ],
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+    // showGeneralDialog, Dialog gibi rota semantiği eklemez; ekran okuyucu
+    // diyaloğu başlığıyla duyursun diye elle verilir.
+    return Semantics(
+      scopesRoute: true,
+      namesRoute: true,
+      explicitChildNodes: true,
+      label: 'home.delete.title'.tr,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            // Tablette biraz genişler; yatay telefonda içerik kaydırılabilir.
+            constraints: BoxConstraints(
+              maxWidth: context.tabletMi ? _tabletGenislik : _telefonGenislik,
+            ),
+            child: Material(
+              color: r.raised,
+              borderRadius: BorderRadius.circular(28),
+              elevation: 0,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: r.e3,
+                  color: r.raised,
+                ),
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 18),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      TextButton(
-                        autofocus: true,
-                        onPressed: () => Navigator.of(context).pop(false),
-                        style: TextButton.styleFrom(
-                          foregroundColor: scheme.primary,
-                          minimumSize: const Size(0, 44),
-                          padding: const EdgeInsets.symmetric(horizontal: 18),
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: r.errc,
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        child: Text('home.delete.cancel'.tr),
+                        child: Icon(
+                          Icons.delete_rounded,
+                          size: 26,
+                          color: r.err,
+                        ),
                       ),
-                      const SizedBox(width: 8),
-                      FilledButton(
-                        onPressed: () => Navigator.of(context).pop(true),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: r.err,
-                          foregroundColor: r.onErr,
-                          minimumSize: const Size(0, 44),
-                          padding: const EdgeInsets.symmetric(horizontal: 22),
+                      const SizedBox(height: 14),
+                      Text(
+                        'home.delete.title'.tr,
+                        textAlign: TextAlign.center,
+                        style: metin.titleLarge?.copyWith(height: 1.25),
+                      ),
+                      const SizedBox(height: 14),
+                      Text.rich(
+                        TextSpan(
+                          style: TextStyle(
+                            fontSize: 15,
+                            height: 1.5,
+                            color: r.tx2,
+                          ),
+                          children: [
+                            TextSpan(text: parcalar.first),
+                            TextSpan(
+                              text: isim,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: r.tx,
+                              ),
+                            ),
+                            if (parcalar.length > 1)
+                              TextSpan(text: parcalar[1]),
+                          ],
                         ),
-                        child: Text('home.delete.confirmButton'.tr),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 20),
+                      // Uzun çeviri / büyük yazıda düğmeler alt alta geçer.
+                      SizedBox(
+                        width: double.infinity,
+                        child: OverflowBar(
+                          alignment: MainAxisAlignment.end,
+                          spacing: 8,
+                          overflowSpacing: 8,
+                          overflowAlignment: OverflowBarAlignment.end,
+                          children: [
+                            TextButton(
+                              autofocus: true,
+                              onPressed: () => Navigator.of(context).pop(false),
+                              style: TextButton.styleFrom(
+                                foregroundColor: scheme.primary,
+                                minimumSize: const Size(0, 48),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                ),
+                              ),
+                              child: Text('home.delete.cancel'.tr),
+                            ),
+                            FilledButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: r.err,
+                                foregroundColor: r.onErr,
+                                minimumSize: const Size(0, 48),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 22,
+                                ),
+                              ),
+                              child: Text('home.delete.confirmButton'.tr),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
           ),

@@ -2,12 +2,14 @@ import 'dart:math' as math;
 
 import 'package:dogum_gunu/models/bildirim_yoneticisi.dart';
 import 'package:dogum_gunu/tercumeler/tercumeler.dart';
-import 'package:dogum_gunu/tercumeler/tr.dart';
+import 'package:dogum_gunu/tercumeler/en.dart';
+import 'package:dogum_gunu/tercumeler/tr.dart' show tZodiac;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 
+import '../tema/ekran.dart';
 import '../tema/renkler.dart';
 import '../widgets/burc_rozeti.dart';
 import 'ana_sayfa.dart';
@@ -30,6 +32,11 @@ class _OnboardingState extends State<Onboarding> {
   bool _izinBekleniyor = false;
 
   static const int _adimSayisi = 4;
+  static const double _cizimMaxYukseklik = 348;
+  static const double _cizimMinYukseklik = 160;
+  static const double _cizimMaxYukseklikTablet = 420;
+  static const double _dikeyGenislik = 560;
+  static const double _yanYanaGenislik = 960;
 
   @override
   void dispose() {
@@ -46,21 +53,24 @@ class _OnboardingState extends State<Onboarding> {
     );
   }
 
-  // Atla, bildirim izni adımını da geçmesin diye son adıma götürür.
-  void _sonAdimaGit() {
-    _sayfa.animateToPage(
-      _adimSayisi - 1,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
-    );
+  bool get _azHareket => MediaQuery.of(context).disableAnimations;
+
+  void _adimaGit(int adim) {
+    if (_azHareket) {
+      _sayfa.jumpToPage(adim);
+    } else {
+      _sayfa.animateToPage(
+        adim,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+      );
+    }
   }
 
-  void _ileri() {
-    _sayfa.nextPage(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
-    );
-  }
+  // Atla, bildirim izni adımını da geçmesin diye son adıma götürür.
+  void _sonAdimaGit() => _adimaGit(_adimSayisi - 1);
+
+  void _ileri() => _adimaGit(_adim + 1);
 
   Future<void> _izinIste() async {
     if (_izinBekleniyor) return;
@@ -75,9 +85,18 @@ class _OnboardingState extends State<Onboarding> {
   @override
   Widget build(BuildContext context) {
     final r = context.renk;
-    final scheme = Theme.of(context).colorScheme;
     final metin = Theme.of(context).textTheme;
+    final pencere = MediaQuery.sizeOf(context);
     final sonAdim = _adim == _adimSayisi - 1;
+    // Yatay telefon ve yatay geniş tablette çizim ile metin yan yana durur,
+    // düğmeler tek satırda toplanır.
+    final yanYana =
+        context.alcakMi() ||
+        (pencere.width >= Ekran.buyukTabletEsik &&
+            pencere.width > pencere.height);
+    final cizimMax = context.tabletMi
+        ? _cizimMaxYukseklikTablet
+        : _cizimMaxYukseklik;
 
     final basliklar = [
       'onboarding.1.title'.tr,
@@ -92,152 +111,256 @@ class _OnboardingState extends State<Onboarding> {
       'onboarding.4.desc'.tr,
     ];
 
-    return Scaffold(
-      backgroundColor: r.bg,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-          child: Column(
-            children: [
-              SizedBox(
-                height: 64,
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: AnimatedOpacity(
-                    opacity: sonAdim ? 0 : 1,
-                    duration: const Duration(milliseconds: 200),
-                    child: IgnorePointer(
-                      ignoring: sonAdim,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: TextButton(
-                          onPressed: _sonAdimaGit,
-                          style: TextButton.styleFrom(
-                            foregroundColor: r.tx2,
-                            minimumSize: const Size(44, 44),
-                          ),
-                          child: Text('onboarding.skip'.tr),
+    Widget metinBlogu(int i) => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(basliklar[i], style: metin.headlineMedium),
+        const SizedBox(height: 10),
+        Text(aciklamalar[i], style: metin.bodyLarge?.copyWith(color: r.tx2)),
+      ],
+    );
+
+    Widget cizim(int i) => AspectRatio(
+      aspectRatio: 312 / 348,
+      child: RepaintBoundary(child: _CizimCercevesi(adim: i)),
+    );
+
+    final sayfalar = PageView.builder(
+      controller: _sayfa,
+      itemCount: _adimSayisi,
+      onPageChanged: (i) => setState(() => _adim = i),
+      itemBuilder: (context, i) {
+        return LayoutBuilder(
+          builder: (context, c) {
+            if (yanYana) {
+              final cizimYuksekligi = math.min(cizimMax, c.maxHeight);
+              return Row(
+                children: [
+                  if (cizimYuksekligi >= _cizimMinYukseklik) ...[
+                    SizedBox(height: cizimYuksekligi, child: cizim(i)),
+                    const SizedBox(width: 32),
+                  ],
+                  Expanded(
+                    child: Center(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: metinBlogu(i),
                         ),
                       ),
                     ),
                   ),
+                ],
+              );
+            }
+            // Metne yazı ölçeğiyle büyüyen bir alan ayrılır; çizim
+            // kalan yere sığar, çok kısa ekranda hiç gösterilmez.
+            final olcek = MediaQuery.textScalerOf(context).scale(16) / 16;
+            final metinAlani = 150 * olcek;
+            final cizimYuksekligi = math.min(
+              cizimMax,
+              c.maxHeight - 8 - 24 - metinAlani,
+            );
+            final cizimGoster = cizimYuksekligi >= _cizimMinYukseklik;
+            return Column(
+              children: [
+                if (cizimGoster) ...[
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: cizimYuksekligi,
+                    child: Center(child: cizim(i)),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: cizimGoster ? 0 : 8),
+                        child: metinBlogu(i),
+                      ),
+                    ),
+                  ),
                 ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    // Android geri tuşu önceki adıma döner; ilk adımda uygulamadan çıkar.
+    return PopScope(
+      canPop: _adim == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _adimaGit(_adim - 1);
+      },
+      child: Scaffold(
+        backgroundColor: r.bg,
+        body: SafeArea(
+          child: OkunurGenislik(
+            azami: yanYana ? _yanYanaGenislik : _dikeyGenislik,
+            hizalama: Alignment.center,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                24,
+                yanYana ? 12 : 0,
+                24,
+                yanYana ? 12 : 24,
               ),
-              Expanded(
-                child: PageView.builder(
-                  controller: _sayfa,
-                  itemCount: _adimSayisi,
-                  onPageChanged: (i) => setState(() => _adim = i),
-                  itemBuilder: (context, i) {
-                    return Column(
+              child: yanYana
+                  ? Column(
                       children: [
-                        const SizedBox(height: 8),
-                        Flexible(
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxHeight: 348),
-                            child: AspectRatio(
-                              aspectRatio: 312 / 348,
-                              child: _CizimCercevesi(adim: i),
-                            ),
+                        Expanded(child: sayfalar),
+                        const SizedBox(height: 12),
+                        _yatayAltCubuk(sonAdim),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        SizedBox(
+                          height: 64,
+                          child: Align(
+                            alignment: Alignment.bottomRight,
+                            child: _atlaDugmesi(sonAdim),
                           ),
                         ),
-                        const SizedBox(height: 32),
+                        Expanded(child: sayfalar),
+                        _noktalar(),
+                        const SizedBox(height: 24),
                         ConstrainedBox(
-                          constraints: const BoxConstraints(minHeight: 132),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(basliklar[i], style: metin.headlineMedium),
-                                const SizedBox(height: 10),
-                                Text(
-                                  aciklamalar[i],
-                                  style: metin.bodyLarge?.copyWith(
-                                    color: r.tx2,
-                                  ),
-                                ),
-                              ],
-                            ),
+                          constraints: const BoxConstraints(
+                            minWidth: double.infinity,
+                            minHeight: 52,
                           ),
+                          child: _anaDugme(sonAdim),
+                        ),
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 200),
+                          child: sonAdim
+                              ? Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: _sonraDugmesi(),
+                                  ),
+                                )
+                              : const SizedBox(width: double.infinity),
                         ),
                       ],
-                    );
-                  },
-                ),
-              ),
-              Semantics(
-                label: 'onboarding.step'.trParams({
-                  'current': '${_adim + 1}',
-                  'total': '$_adimSayisi',
-                }),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(_adimSayisi, (i) {
-                    final aktif = i == _adim;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      width: aktif ? 24 : 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: aktif ? scheme.primary : r.bd2,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    );
-                  }),
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: FilledButton(
-                  onPressed: sonAdim ? _izinIste : _ileri,
-                  style: FilledButton.styleFrom(
-                    textStyle: metin.labelLarge?.copyWith(fontSize: 16),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: sonAdim
-                        ? [
-                            const Icon(Icons.notifications_rounded, size: 20),
-                            const SizedBox(width: 8),
-                            Flexible(
-                              child: Text(
-                                'onboarding.allow'.tr,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ]
-                        : [
-                            Text('onboarding.next'.tr),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.arrow_forward_rounded, size: 20),
-                          ],
-                  ),
-                ),
-              ),
-              AnimatedSize(
-                duration: const Duration(milliseconds: 200),
-                child: sonAdim
-                    ? Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: 44,
-                          child: TextButton(
-                            onPressed: _izinBekleniyor ? null : _bitir,
-                            style: TextButton.styleFrom(foregroundColor: r.tx2),
-                            child: Text('onboarding.later'.tr),
-                          ),
-                        ),
-                      )
-                    : const SizedBox(width: double.infinity),
-              ),
-            ],
+                    ),
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  /// Yan yana düzende noktalar solda, düğmeler sağda tek satırdadır.
+  Widget _yatayAltCubuk(bool sonAdim) {
+    return Row(
+      children: [
+        _noktalar(),
+        const Spacer(),
+        if (sonAdim) _sonraDugmesi() else _atlaDugmesi(sonAdim),
+        const SizedBox(width: 8),
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 52, minWidth: 160),
+          child: _anaDugme(sonAdim),
+        ),
+      ],
+    );
+  }
+
+  Widget _atlaDugmesi(bool sonAdim) {
+    final r = context.renk;
+    return AnimatedOpacity(
+      opacity: sonAdim ? 0 : 1,
+      duration: const Duration(milliseconds: 200),
+      child: IgnorePointer(
+        ignoring: sonAdim,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 4),
+          child: TextButton(
+            onPressed: _sonAdimaGit,
+            style: TextButton.styleFrom(
+              foregroundColor: r.tx2,
+              minimumSize: const Size(48, 48),
+            ),
+            child: Text('onboarding.skip'.tr),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _sonraDugmesi() {
+    final r = context.renk;
+    return TextButton(
+      onPressed: _izinBekleniyor ? null : _bitir,
+      style: TextButton.styleFrom(
+        foregroundColor: r.tx2,
+        minimumSize: const Size(48, 48),
+      ),
+      child: Text('onboarding.later'.tr),
+    );
+  }
+
+  Widget _noktalar() {
+    final r = context.renk;
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      label: 'onboarding.step'.trParams({
+        'current': '${_adim + 1}',
+        'total': '$_adimSayisi',
+      }),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(_adimSayisi, (i) {
+          final aktif = i == _adim;
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            width: aktif ? 24 : 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: aktif ? scheme.primary : r.bd2,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _anaDugme(bool sonAdim) {
+    final metin = Theme.of(context).textTheme;
+    return FilledButton(
+      onPressed: sonAdim ? _izinIste : _ileri,
+      style: FilledButton.styleFrom(
+        textStyle: metin.labelLarge?.copyWith(fontSize: 16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: sonAdim
+            ? [
+                const Icon(Icons.notifications_rounded, size: 20),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    'onboarding.allow'.tr,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ]
+            : [
+                Text('onboarding.next'.tr),
+                const SizedBox(width: 8),
+                const Icon(Icons.arrow_forward_rounded, size: 20),
+              ],
       ),
     );
   }
@@ -283,12 +406,15 @@ class _CizimCercevesi extends StatelessWidget {
   }
 }
 
+/// Çizimlerdeki örnek kişinin doğum tarihi; bildirimdeki yaş buradan çıkar.
+final DateTime _ornekDogum = DateTime(1994, 11, 2);
+
 String _gunAy(DateTime t) =>
-    DateFormat('d MMMM', Get.locale?.languageCode ?? 'tr').format(t);
+    DateFormat.MMMMd(Get.locale?.languageCode ?? 'en').format(t);
 
 String _burcAdi(String id) {
-  final dil = Get.locale?.languageCode ?? 'tr';
-  return tZodiac(id, 'name', Tercumeler().keys[dil] ?? tr);
+  final dil = Get.locale?.languageCode ?? 'en';
+  return tZodiac(id, 'name', Tercumeler().keys[dil] ?? en);
 }
 
 Widget _okRozeti(BuildContext context, Color zemin) {
@@ -365,7 +491,7 @@ class _Cizim1 extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                'home.countdown.days'.trParams({'days': '$gun'}),
+                trSayi('home.countdown.days', gun, {'days': '$gun'}),
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 12,
@@ -393,15 +519,25 @@ class _Cizim1 extends StatelessWidget {
             ),
             child: Column(
               children: [
-                satir('Deniz Öztürk', DateTime(1990, 10, 25), 'scorpio', 4),
                 satir(
-                  'Ayşe Yılmaz',
-                  DateTime(1994, 11, 2),
+                  'onboarding.sample.other1'.tr,
+                  DateTime(1990, 10, 25),
+                  'scorpio',
+                  4,
+                ),
+                satir(
+                  'onboarding.sample.main'.tr,
+                  _ornekDogum,
                   'scorpio',
                   12,
                   vurgulu: true,
                 ),
-                satir('Can Arslan', DateTime(1992, 12, 3), 'sagittarius', 43),
+                satir(
+                  'onboarding.sample.other2'.tr,
+                  DateTime(1992, 12, 3),
+                  'sagittarius',
+                  43,
+                ),
               ],
             ),
           ),
@@ -449,14 +585,17 @@ class _Cizim1 extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  _sahteAlan(context, 'Ayşe Yılmaz', odakli: false),
+                  _sahteAlan(
+                    context,
+                    'onboarding.sample.main'.tr,
+                    odakli: false,
+                  ),
                   const SizedBox(height: 6),
                   _sahteAlan(
                     context,
-                    DateFormat(
-                      'd MMMM y',
-                      Get.locale?.languageCode ?? 'tr',
-                    ).format(DateTime(1994, 11, 2)),
+                    DateFormat.yMMMMd(
+                      Get.locale?.languageCode ?? 'en',
+                    ).format(_ornekDogum),
                     odakli: true,
                     ikon: Icons.calendar_month_rounded,
                   ),
@@ -500,12 +639,16 @@ Widget _sahteAlan(
           Icon(ikon, size: 18, color: scheme.primary),
           const SizedBox(width: 8),
         ],
-        Text(
-          yazi,
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 14,
-            color: r.tx,
+        Flexible(
+          child: Text(
+            yazi,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+              color: r.tx,
+            ),
           ),
         ),
       ],
@@ -767,7 +910,7 @@ class _Cizim3 extends StatelessWidget {
             ),
           ),
           Text(
-            DateFormat('d MMM', Get.locale?.languageCode ?? 'tr').format(tarih),
+            DateFormat.MMMd(Get.locale?.languageCode ?? 'en').format(tarih),
             style: TextStyle(
               fontWeight: FontWeight.w500,
               fontSize: 11,
@@ -847,13 +990,13 @@ class _Cizim3 extends StatelessWidget {
                       ),
                     ),
                   ),
-                  kisi('Ayşe', DateTime(2000, 8, 2)),
+                  kisi('onboarding.sample.first1'.tr, DateTime(2000, 8, 2)),
                   const SizedBox(height: 6),
-                  kisi('Mehmet', DateTime(2000, 9, 14)),
+                  kisi('onboarding.sample.first2'.tr, DateTime(2000, 9, 14)),
                   const SizedBox(height: 6),
-                  kisi('Zeynep', DateTime(2000, 11, 3)),
+                  kisi('onboarding.sample.first3'.tr, DateTime(2000, 11, 3)),
                   const SizedBox(height: 6),
-                  kisi('Can', DateTime(2000, 12, 21)),
+                  kisi('onboarding.sample.first4'.tr, DateTime(2000, 12, 21)),
                 ],
               ),
             ),
@@ -870,11 +1013,7 @@ class _Cizim3 extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(color: zemin, width: 5),
             ),
-            child: const Icon(
-              Icons.lock_rounded,
-              size: 28,
-              color: Colors.white,
-            ),
+            child: Icon(Icons.lock_rounded, size: 28, color: r.onGradyan),
           ),
         ),
         Positioned(
@@ -953,11 +1092,7 @@ class _Cizim4 extends StatelessWidget {
                     gradient: r.gradyan,
                     borderRadius: BorderRadius.circular(11),
                   ),
-                  child: const Icon(
-                    Icons.cake_rounded,
-                    size: 22,
-                    color: Colors.white,
-                  ),
+                  child: Icon(Icons.cake_rounded, size: 22, color: r.onGradyan),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -979,7 +1114,9 @@ class _Cizim4 extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '09:00',
+                            DateFormat.jm(
+                              Get.locale?.languageCode ?? 'en',
+                            ).format(DateTime(2000, 1, 1, 9)),
                             style: TextStyle(
                               fontWeight: FontWeight.w500,
                               fontSize: 12,
@@ -991,8 +1128,8 @@ class _Cizim4 extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         'notification.body.today'.trParams({
-                          'name': 'Ayşe Yılmaz',
-                          'age': '30',
+                          'name': 'onboarding.sample.main'.tr,
+                          'age': '${DateTime.now().year - _ornekDogum.year}',
                         }),
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
@@ -1032,13 +1169,17 @@ class _Cizim4 extends StatelessWidget {
                         color: scheme.primary,
                       ),
                       const SizedBox(width: 6),
-                      Text(
-                        'onboarding.4.eachAt'.tr,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 12,
-                          letterSpacing: 0.24,
-                          color: r.tx2,
+                      Flexible(
+                        child: Text(
+                          'onboarding.4.eachAt'.tr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
+                            letterSpacing: 0.24,
+                            color: r.tx2,
+                          ),
                         ),
                       ),
                     ],

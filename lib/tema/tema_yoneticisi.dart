@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
+import 'ekran.dart';
 import 'renkler.dart';
 
 class TemaYoneticisi extends GetxController {
@@ -65,7 +66,7 @@ class TemaYoneticisi extends GetxController {
       secondaryContainer: p.pc,
       onSecondaryContainer: p.onPc,
       tertiary: p.g2,
-      onTertiary: Colors.white,
+      onTertiary: r.onGradyan,
       error: r.err,
       onError: r.onErr,
       errorContainer: r.errc,
@@ -115,6 +116,11 @@ class TemaYoneticisi extends GetxController {
         backgroundColor: r.raised,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        // Tablette diyalog satırları ekran boyu uzamasın.
+        constraints: const BoxConstraints(
+          minWidth: 280,
+          maxWidth: Ekran.diyalogGenislik,
+        ),
       ),
       popupMenuTheme: PopupMenuThemeData(
         color: r.raised,
@@ -134,6 +140,7 @@ class TemaYoneticisi extends GetxController {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
+        constraints: const BoxConstraints(maxWidth: Ekran.altSayfaGenislik),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
@@ -244,9 +251,15 @@ class TemaYoneticisi extends GetxController {
     update();
   }
 
-  void setKoyuMod(bool deger) {
-    _koyuTercih = deger;
-    _box.write(_koyuModKey, deger);
+  /// Sistem seçilirse kayıtlı tercih silinir ve telefonun ayarı izlenir.
+  void setTemaModu(ThemeMode mod) {
+    if (mod == ThemeMode.system) {
+      _koyuTercih = null;
+      _box.remove(_koyuModKey);
+    } else {
+      _koyuTercih = mod == ThemeMode.dark;
+      _box.write(_koyuModKey, _koyuTercih);
+    }
     update();
   }
 }

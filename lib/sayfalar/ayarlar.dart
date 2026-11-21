@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../tema/ekran.dart';
 import '../tema/renkler.dart';
 import '../tercumeler/tercumeler.dart';
 import '../tema/tema_yoneticisi.dart';
@@ -53,7 +54,7 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final r = context.renk;
-    final current = Get.locale ?? Get.deviceLocale ?? const Locale('tr');
+    final current = Get.locale ?? Get.deviceLocale ?? const Locale('en');
     final tema = Get.find<TemaYoneticisi>();
     final bildirimAyar = Get.find<BildirimAyarlarYoneticisi>();
 
@@ -72,7 +73,9 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
       body: SafeArea(
         top: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+          padding: EdgeInsets.symmetric(
+            horizontal: Ekran.yatayDolgu(MediaQuery.sizeOf(context).width),
+          ).copyWith(top: 8, bottom: 32),
           children: [
             _grup(
               baslik: 'settings.notifications.title'.tr,
@@ -139,9 +142,32 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
               ],
             ),
             const SizedBox(height: 20),
-            _grup(
-              baslik: 'settings.appearance'.tr,
-              children: [_koyuModSatiri(tema)],
+            // Sistem ↔ seçili mod arasında tema aynı kalabilir; seçim
+            // göstergesi yine de güncellensin diye denetleyici dinlenir.
+            GetBuilder<TemaYoneticisi>(
+              builder: (tema) => _grup(
+                baslik: 'settings.appearance'.tr,
+                children: [
+                  _temaModuSatiri(
+                    tema,
+                    ThemeMode.system,
+                    Icons.brightness_auto_rounded,
+                    'settings.themeMode.system'.tr,
+                  ),
+                  _temaModuSatiri(
+                    tema,
+                    ThemeMode.light,
+                    Icons.light_mode_rounded,
+                    'settings.themeMode.light'.tr,
+                  ),
+                  _temaModuSatiri(
+                    tema,
+                    ThemeMode.dark,
+                    Icons.dark_mode_rounded,
+                    'settings.themeMode.dark'.tr,
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 20),
             _grup(
@@ -191,15 +217,18 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
                 ),
                 FutureBuilder<PackageInfo>(
                   future: _uygulamaBilgisi,
-                  builder: (context, bilgi) => Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-                    child: Text(
-                      'settings.about.version'.trParams({
-                        'version': bilgi.data?.version ?? '',
-                      }),
-                      style: TextStyle(fontSize: 14, color: r.tx2),
-                    ),
-                  ),
+                  // Sürüm okunana kadar yarım "Sürüm" yazısı görünmesin.
+                  builder: (context, bilgi) => bilgi.data == null
+                      ? const SizedBox.shrink()
+                      : Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                          child: Text(
+                            'settings.about.version'.trParams({
+                              'version': bilgi.data!.version,
+                            }),
+                            style: TextStyle(fontSize: 14, color: r.tx2),
+                          ),
+                        ),
                 ),
               ],
             ),
@@ -387,30 +416,47 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
     );
   }
 
-  Widget _koyuModSatiri(TemaYoneticisi tema) {
+  Widget _temaModuSatiri(
+    TemaYoneticisi tema,
+    ThemeMode mod,
+    IconData ikon,
+    String yazi,
+  ) {
     final r = context.renk;
-    return InkWell(
-      onTap: () => tema.setKoyuMod(!tema.koyuMod),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 56),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              Icon(Icons.dark_mode_rounded, size: 24, color: r.tx2),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Text(
-                  'settings.darkMode'.tr,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
-                    color: r.tx,
+    final scheme = Theme.of(context).colorScheme;
+    final secili = tema.themeMode == mod;
+    return Semantics(
+      selected: secili,
+      inMutuallyExclusiveGroup: true,
+      button: true,
+      child: InkWell(
+        onTap: () => tema.setTemaModu(mod),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 56),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Icon(ikon, size: 24, color: secili ? scheme.primary : r.tx2),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    yazi,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                      color: r.tx,
+                    ),
                   ),
                 ),
-              ),
-              Switch(value: tema.koyuMod, onChanged: tema.setKoyuMod),
-            ],
+                if (secili)
+                  Icon(
+                    Icons.check_circle_rounded,
+                    size: 22,
+                    color: scheme.primary,
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -456,11 +502,7 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
                     ),
                   ),
                   child: secili
-                      ? const Icon(
-                          Icons.check_rounded,
-                          size: 22,
-                          color: Colors.white,
-                        )
+                      ? Icon(Icons.check_rounded, size: 22, color: r.onGradyan)
                       : null,
                 ),
                 const SizedBox(height: 8),
@@ -488,11 +530,13 @@ class _AyarlarState extends State<Ayarlar> with WidgetsBindingObserver {
                       color: scheme.primaryContainer,
                       borderRadius: BorderRadius.circular(999),
                     ),
-                    child: Center(
-                      widthFactor: 1,
-                      heightFactor: 1,
+                    // Dar karoda uzun çeviri ("Seleccionado") kırılmasın, küçülsün.
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
                       child: Text(
                         'settings.current'.tr,
+                        maxLines: 1,
+                        softWrap: false,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 11,

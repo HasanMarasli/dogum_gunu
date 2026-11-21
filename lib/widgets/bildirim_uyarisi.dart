@@ -71,7 +71,6 @@ class BildirimUyarisi extends StatelessWidget {
                     tooltip: kapatEtiketi,
                     onPressed: onKapat,
                     color: r.onWarnc,
-                    visualDensity: VisualDensity.compact,
                     icon: const Icon(Icons.close_rounded, size: 20),
                   ),
               ],
@@ -86,7 +85,7 @@ class BildirimUyarisi extends StatelessWidget {
                 style: FilledButton.styleFrom(
                   backgroundColor: r.warn,
                   foregroundColor: r.onWarn,
-                  minimumSize: const Size(0, 36),
+                  minimumSize: const Size(0, 40),
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   textStyle: Theme.of(
                     context,

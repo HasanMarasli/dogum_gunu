@@ -70,7 +70,7 @@ class BurcRozeti extends StatelessWidget {
       child: BurcIkonu(
         burcId: burcId,
         boyut: boyut * 0.55,
-        renk: gradyan ? Colors.white : scheme.onPrimaryContainer,
+        renk: gradyan ? r.onGradyan : scheme.onPrimaryContainer,
       ),
     );
   }

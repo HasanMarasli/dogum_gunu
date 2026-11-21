@@ -1,11 +1,15 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dogum_gunu/models/dogum_gunu.dart';
 import 'package:dogum_gunu/models/oneri_motoru.dart';
 import 'package:dogum_gunu/sayfalar/dogum_gunu_ekle.dart';
 import 'package:dogum_gunu/tercumeler/tercumeler.dart';
-import 'package:dogum_gunu/tercumeler/tr.dart';
+import 'package:dogum_gunu/tercumeler/en.dart';
+import 'package:dogum_gunu/tercumeler/tr.dart' show tZodiac;
 
+import '../tema/ekran.dart';
 import '../tema/renkler.dart';
 import '../widgets/burc_rozeti.dart';
 
@@ -18,6 +22,8 @@ class Tavsiye extends StatefulWidget {
 }
 
 class _TavsiyeState extends State<Tavsiye> {
+  static const double _ikiSutunGenislik = 1100;
+
   late DogumGunu _kisi = widget.dogumGunu;
   Butce? _butce;
 
@@ -52,9 +58,9 @@ class _TavsiyeState extends State<Tavsiye> {
 
     final tarih = DogumGunu.tarihYazdir(_kisi.dogumTarihi);
     final signId = DogumGunu.burcIdGetir(_kisi.dogumTarihi);
-    final localeCode = Get.locale?.languageCode ?? 'tr';
+    final localeCode = Get.locale?.languageCode ?? 'en';
     final translations =
-        Tercumeler().keys[localeCode] ?? tr; // fallback to tr for safety
+        Tercumeler().keys[localeCode] ?? en; // fallback to en for safety
     final signName = tZodiac(signId, 'name', translations);
     final shortText = tZodiac(signId, 'short', translations);
     final dateRange = tZodiac(signId, 'range', translations);
@@ -67,12 +73,18 @@ class _TavsiyeState extends State<Tavsiye> {
         ? '$kalanYazi · ${trSayi('home.age', yas, {'age': '$yas'})}'
         : kalanYazi;
 
+    // İki satırlık başlık büyük yazı ölçeğinde kırpılmasın.
+    final olcek = MediaQuery.textScalerOf(context);
+    final baslikYuksekligi =
+        olcek.scale(20) * 1.3 + olcek.scale(13) * 18 / 13 + 16;
+    final toolbarYuksekligi = math.max(64.0, baslikYuksekligi);
+
     return Scaffold(
       backgroundColor: r.bg,
       appBar: AppBar(
         backgroundColor: r.bg,
         titleSpacing: 0,
-        toolbarHeight: 64,
+        toolbarHeight: toolbarYuksekligi,
         leading: IconButton(
           tooltip: MaterialLocalizations.of(context).backButtonTooltip,
           onPressed: () => Navigator.of(context).maybePop(),
@@ -112,109 +124,110 @@ class _TavsiyeState extends State<Tavsiye> {
       ),
       body: SafeArea(
         top: false,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
-          children: [
-            const SizedBox(height: 16),
-            Center(
-              child: Hero(
-                tag: 'zodiac-${_kisi.id}',
+        child: LayoutBuilder(
+          builder: (context, c) {
+            final profil = <Widget>[
+              const SizedBox(height: 16),
+              Center(
+                child: Hero(
+                  tag: 'zodiac-${_kisi.id}',
+                  child: Container(
+                    width: 112,
+                    height: 112,
+                    decoration: BoxDecoration(
+                      gradient: r.gradyan,
+                      borderRadius: BorderRadius.circular(32),
+                      boxShadow: [
+                        BoxShadow(
+                          color: scheme.primaryContainer,
+                          spreadRadius: 8,
+                        ),
+                      ],
+                    ),
+                    alignment: Alignment.center,
+                    child: BurcIkonu(
+                      burcId: signId,
+                      boyut: 60,
+                      renk: r.onGradyan,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                signName,
+                textAlign: TextAlign.center,
+                style: metin.displaySmall?.copyWith(
+                  fontSize: 34,
+                  height: 38 / 34,
+                  letterSpacing: -0.68,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                dateRange,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 15,
+                  height: 20 / 15,
+                  color: r.tx2,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Center(
                 child: Container(
-                  width: 112,
-                  height: 112,
+                  height: 34,
+                  padding: const EdgeInsets.only(left: 10, right: 14),
                   decoration: BoxDecoration(
-                    gradient: r.gradyan,
-                    borderRadius: BorderRadius.circular(32),
-                    boxShadow: [
-                      BoxShadow(
-                        color: scheme.primaryContainer,
-                        spreadRadius: 8,
+                    color: r.s2,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.cake_rounded, size: 18, color: scheme.primary),
+                      const SizedBox(width: 6),
+                      Text(
+                        tarih,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: r.tx,
+                        ),
                       ),
                     ],
                   ),
-                  alignment: Alignment.center,
-                  child: BurcIkonu(
-                    burcId: signId,
-                    boyut: 60,
-                    renk: Colors.white,
-                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              signName,
-              textAlign: TextAlign.center,
-              style: metin.displaySmall?.copyWith(
-                fontSize: 34,
-                height: 38 / 34,
-                letterSpacing: -0.68,
+              const SizedBox(height: 28),
+              Text(
+                shortText,
+                textAlign: TextAlign.center,
+                style: metin.bodyLarge,
               ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              dateRange,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 15,
-                height: 20 / 15,
-                color: r.tx2,
+            ];
+            final oneriler = <Widget>[
+              _bolum(
+                ikon: Icons.redeem_rounded,
+                baslik: 'advice.gifts.title'.tr,
+                ust: _butceSecici(),
+                ogeler: _oneriler(OneriTipi.hediye, butce: _butce),
+                onYenile: _yenilenebilir(OneriTipi.hediye, butce: _butce)
+                    ? () => _baskaOner(OneriTipi.hediye)
+                    : null,
               ),
-            ),
-            const SizedBox(height: 16),
-            Center(
-              child: Container(
-                height: 34,
-                padding: const EdgeInsets.only(left: 10, right: 14),
-                decoration: BoxDecoration(
-                  color: r.s2,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.cake_rounded, size: 18, color: scheme.primary),
-                    const SizedBox(width: 6),
-                    Text(
-                      tarih,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: r.tx,
-                      ),
-                    ),
-                  ],
-                ),
+              const SizedBox(height: 28),
+              _bolum(
+                ikon: Icons.auto_awesome_rounded,
+                baslik: 'advice.surprises.title'.tr,
+                ogeler: _oneriler(OneriTipi.surpriz),
+                onYenile: _yenilenebilir(OneriTipi.surpriz)
+                    ? () => _baskaOner(OneriTipi.surpriz)
+                    : null,
               ),
-            ),
-            const SizedBox(height: 28),
-            Text(
-              shortText,
-              textAlign: TextAlign.center,
-              style: metin.bodyLarge,
-            ),
-            const SizedBox(height: 28),
-            _bolum(
-              ikon: Icons.redeem_rounded,
-              baslik: 'advice.gifts.title'.tr,
-              ust: _butceSecici(),
-              ogeler: _oneriler(OneriTipi.hediye, butce: _butce),
-              onYenile: _yenilenebilir(OneriTipi.hediye, butce: _butce)
-                  ? () => _baskaOner(OneriTipi.hediye)
-                  : null,
-            ),
-            const SizedBox(height: 28),
-            _bolum(
-              ikon: Icons.auto_awesome_rounded,
-              baslik: 'advice.surprises.title'.tr,
-              ogeler: _oneriler(OneriTipi.surpriz),
-              onYenile: _yenilenebilir(OneriTipi.surpriz)
-                  ? () => _baskaOner(OneriTipi.surpriz)
-                  : null,
-            ),
-            const SizedBox(height: 28),
-            Container(
+            ];
+            final bilgi = Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
                 color: r.infoc,
@@ -239,8 +252,56 @@ class _TavsiyeState extends State<Tavsiye> {
                   ),
                 ],
               ),
-            ),
-          ],
+            );
+
+            // Geniş ekranda burç profili solda, öneriler sağda iki sütun.
+            if (c.maxWidth >= Ekran.buyukTabletEsik) {
+              final dolgu = Ekran.yatayDolgu(
+                c.maxWidth,
+                azami: _ikiSutunGenislik,
+              );
+              return ListView(
+                padding: EdgeInsets.fromLTRB(dolgu, 8, dolgu, 28),
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ...profil,
+                            const SizedBox(height: 28),
+                            bilgi,
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 40),
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [const SizedBox(height: 16), ...oneriler],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            }
+            final dolgu = Ekran.yatayDolgu(c.maxWidth);
+            return ListView(
+              padding: EdgeInsets.fromLTRB(dolgu, 8, dolgu, 28),
+              children: [
+                ...profil,
+                const SizedBox(height: 28),
+                ...oneriler,
+                const SizedBox(height: 28),
+                bilgi,
+              ],
+            );
+          },
         ),
       ),
     );
@@ -262,11 +323,11 @@ class _TavsiyeState extends State<Tavsiye> {
             borderRadius: BorderRadius.circular(999),
             onTap: () => setState(() => _butce = deger),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 40),
+              constraints: const BoxConstraints(minHeight: 48),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,
-                  vertical: 8,
+                  vertical: 12,
                 ),
                 child: Text(
                   etiket,
@@ -339,6 +400,26 @@ class _TavsiyeState extends State<Tavsiye> {
           ),
           child: Column(
             children: [
+              if (ogeler.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  child: Row(
+                    children: [
+                      Icon(Icons.search_off_rounded, size: 20, color: r.tx3),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'advice.empty'.tr,
+                          style: TextStyle(
+                            fontSize: 15,
+                            height: 22 / 15,
+                            color: r.tx2,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               for (var i = 0; i < ogeler.length; i++)
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 12),

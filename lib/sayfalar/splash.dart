@@ -6,6 +6,7 @@ import 'package:get_storage/get_storage.dart';
 
 import '../models/bildirim_yoneticisi.dart';
 import '../models/dogum_gunu.dart';
+import '../tema/ekran.dart';
 import '../tema/renkler.dart';
 import 'ana_sayfa.dart';
 import 'onboarding.dart';
@@ -46,7 +47,9 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 600),
     )..repeat(reverse: true);
 
-    Future.delayed(const Duration(milliseconds: 600), () {
+    // Gösterge yalnızca açılış gecikirse belirir; normal açılışta (≈1 sn)
+    // görünüp hemen kaybolarak yanıp sönmesin.
+    Future.delayed(const Duration(milliseconds: 1600), () {
       if (mounted) setState(() => _yukleniyorGoster = true);
     });
     Future.delayed(const Duration(milliseconds: 1000), _devamEt);
@@ -68,6 +71,18 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
     if (yuk != null) {
       final kisi = await DogumGunu.getDogumGunuById(yuk);
       if (kisi != null) Get.to(() => Tavsiye(dogumGunu: kisi));
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Hareket azaltma açıksa döngüler hiç çalışmaz, giriş anında tamamlanır.
+    if (MediaQuery.of(context).disableAnimations) {
+      _yorungeCtrl.stop();
+      _nefesCtrl.stop();
+      _alevCtrl.stop();
+      _girisCtrl.value = 1;
     }
   }
 
@@ -97,6 +112,68 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
     final baslik = _aralik(0.19, 0.69);
     final altBaslik = _aralik(0.29, 0.79);
     final etiketler = _aralik(0.5, 1);
+    // Yatay telefonda amblem metnin yanına geçer ve küçülür; tablette büyür.
+    final alcak = context.alcakMi();
+    final amblemBoyutu = alcak
+        ? 120.0
+        : context.tabletMi
+        ? 224.0
+        : 176.0;
+
+    final amblemW = FadeTransition(
+      opacity: amblem,
+      child: ScaleTransition(
+        scale: Tween(begin: 0.92, end: 1.0).animate(amblem),
+        child: RepaintBoundary(
+          child: SizedBox.square(
+            dimension: amblemBoyutu,
+            child: FittedBox(child: _amblem(scheme, r, azHareket)),
+          ),
+        ),
+      ),
+    );
+    final metinler = <Widget>[
+      _yukariKay(
+        baslik,
+        Text(
+          'app.title'.tr,
+          textAlign: TextAlign.center,
+          style: metin.displaySmall?.copyWith(
+            letterSpacing: -1.2,
+            height: 1.05,
+          ),
+        ),
+      ),
+      const SizedBox(height: 8),
+      _yukariKay(
+        altBaslik,
+        Text(
+          'splash.subtitle'.tr,
+          textAlign: TextAlign.center,
+          style: metin.bodyLarge?.copyWith(color: r.tx2),
+        ),
+      ),
+      const SizedBox(height: 28),
+      FadeTransition(
+        opacity: etiketler,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 300),
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _etiket(Icons.group_add_rounded, 'splash.pill.add'.tr),
+              _etiket(
+                Icons.notifications_active_rounded,
+                'splash.pill.reminder'.tr,
+              ),
+              _etiket(Icons.lock_rounded, 'splash.pill.privacy'.tr),
+            ],
+          ),
+        ),
+      ),
+    ];
 
     return PopScope(
       canPop: false,
@@ -126,76 +203,42 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
                   Expanded(
                     child: Center(
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(horizontal: 28),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            FadeTransition(
-                              opacity: amblem,
-                              child: ScaleTransition(
-                                scale: Tween(
-                                  begin: 0.92,
-                                  end: 1.0,
-                                ).animate(amblem),
-                                child: _amblem(scheme, r, azHareket),
-                              ),
-                            ),
-                            const SizedBox(height: 28),
-                            _yukariKay(
-                              baslik,
-                              Text(
-                                'app.title'.tr,
-                                textAlign: TextAlign.center,
-                                style: metin.displaySmall?.copyWith(
-                                  letterSpacing: -1.2,
-                                  height: 1.05,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            _yukariKay(
-                              altBaslik,
-                              Text(
-                                'splash.subtitle'.tr,
-                                textAlign: TextAlign.center,
-                                style: metin.bodyLarge?.copyWith(color: r.tx2),
-                              ),
-                            ),
-                            const SizedBox(height: 28),
-                            FadeTransition(
-                              opacity: etiketler,
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 300,
-                                ),
-                                child: Wrap(
-                                  alignment: WrapAlignment.center,
-                                  spacing: 8,
-                                  runSpacing: 8,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 28,
+                          vertical: 16,
+                        ),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: alcak ? 760 : 480,
+                          ),
+                          child: alcak
+                              ? Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    _etiket(
-                                      Icons.group_add_rounded,
-                                      'splash.pill.add'.tr,
-                                    ),
-                                    _etiket(
-                                      Icons.notifications_active_rounded,
-                                      'splash.pill.reminder'.tr,
-                                    ),
-                                    _etiket(
-                                      Icons.lock_rounded,
-                                      'splash.pill.privacy'.tr,
+                                    amblemW,
+                                    const SizedBox(width: 40),
+                                    Flexible(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: metinler,
+                                      ),
                                     ),
                                   ],
+                                )
+                              : Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    amblemW,
+                                    const SizedBox(height: 28),
+                                    ...metinler,
+                                  ],
                                 ),
-                              ),
-                            ),
-                          ],
                         ),
                       ),
                     ),
                   ),
                   SizedBox(
-                    height: 72,
+                    height: alcak ? 48 : 72,
                     child: AnimatedOpacity(
                       opacity: _yukleniyorGoster ? 1 : 0,
                       duration: const Duration(milliseconds: 200),
@@ -331,9 +374,9 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
                       child: Container(
                         width: 18,
                         height: 18,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
+                        decoration: BoxDecoration(
+                          color: r.onGradyan,
+                          borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(9),
                             bottomLeft: Radius.circular(9),
                             bottomRight: Radius.circular(9),
@@ -345,10 +388,12 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
                   const SizedBox(height: 8),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(7),
-                    child: const SizedBox(
+                    child: SizedBox(
                       width: 14,
                       height: 38,
-                      child: CustomPaint(painter: _MumCizgileri()),
+                      child: CustomPaint(
+                        painter: _MumCizgileri(renk: r.onGradyan),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -356,7 +401,7 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
                     width: 48,
                     height: 6,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.55),
+                      color: r.onGradyan.withValues(alpha: 0.55),
                       borderRadius: BorderRadius.circular(3),
                     ),
                   ),
@@ -389,12 +434,16 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
         children: [
           Icon(ikon, size: 18, color: Theme.of(context).colorScheme.primary),
           const SizedBox(width: 6),
-          Text(
-            yazi,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
-              color: r.tx2,
+          Flexible(
+            child: Text(
+              yazi,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+                color: r.tx2,
+              ),
             ),
           ),
         ],
@@ -404,16 +453,18 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
 }
 
 class _MumCizgileri extends CustomPainter {
-  const _MumCizgileri();
+  const _MumCizgileri({required this.renk});
+
+  final Color renk;
 
   @override
   void paint(Canvas canvas, Size size) {
     canvas.drawRect(
       Offset.zero & size,
-      Paint()..color = Colors.white.withValues(alpha: 0.62),
+      Paint()..color = renk.withValues(alpha: 0.62),
     );
     final p = Paint()
-      ..color = Colors.white
+      ..color = renk
       ..strokeWidth = 7;
     for (double y = -size.width; y < size.height + size.width; y += 12) {
       canvas.drawLine(
@@ -425,5 +476,6 @@ class _MumCizgileri extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _MumCizgileri oldDelegate) =>
+      oldDelegate.renk != renk;
 }

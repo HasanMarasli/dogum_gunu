@@ -1,11 +1,16 @@
+import 'dart:math' as math;
+
 import 'package:dogum_gunu/models/dogum_gunu.dart';
 import 'package:dogum_gunu/tercumeler/tercumeler.dart';
-import 'package:dogum_gunu/tercumeler/tr.dart';
+import 'package:dogum_gunu/tercumeler/en.dart';
+import 'package:dogum_gunu/tercumeler/tr.dart' show tZodiac;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import '../tema/ekran.dart';
 import '../tema/renkler.dart';
+import '../tema/tema_yoneticisi.dart';
 import 'burc_rozeti.dart';
 
 /// Doğum tarihi seçici (alt sayfa). Onaylanırsa seçilen tarihi döner.
@@ -13,12 +18,23 @@ Future<DateTime?> dogumTarihiSec(BuildContext context, {DateTime? baslangic}) {
   return showModalBottomSheet<DateTime>(
     context: context,
     isScrollControlled: true,
+    // Yan yana düzende takvim sütunu dar kalmasın diye sayfa genişler.
+    constraints: BoxConstraints(
+      maxWidth: context.alcakMi(_yanYanaEsik)
+          ? _yanYanaGenislik
+          : Ekran.altSayfaGenislik,
+    ),
     useSafeArea: true,
     showDragHandle: false,
     barrierColor: context.renk.scrim,
     builder: (_) => _TarihSecici(baslangic: baslangic),
   );
 }
+
+/// Bu yüksekliğin altındaki yatay pencerede (yatay telefon, küçük tablet
+/// yatay) özet ve düğmeler solda, takvim sağda durur.
+const double _yanYanaEsik = 600;
+const double _yanYanaGenislik = 720;
 
 class _TarihSecici extends StatefulWidget {
   const _TarihSecici({this.baslangic});
@@ -31,7 +47,7 @@ class _TarihSecici extends StatefulWidget {
 
 class _TarihSeciciState extends State<_TarihSecici> {
   static const int _minYil = 1900;
-  static const double _yilSatir = 52;
+  static const double _yilSatir = 56;
 
   late final DateTime _bugun;
   // Yeni kişide seçim boş başlar; bir gün seçilmeden Tamam pasiftir.
@@ -45,7 +61,7 @@ class _TarihSeciciState extends State<_TarihSecici> {
   final ScrollController _yilKaydirma = ScrollController();
   final ScrollController _seritKaydirma = ScrollController();
 
-  String get _dil => Get.locale?.languageCode ?? 'tr';
+  String get _dil => Get.locale?.languageCode ?? 'en';
 
   @override
   void initState() {
@@ -165,7 +181,6 @@ class _TarihSeciciState extends State<_TarihSecici> {
   }
 
   String _onYilEtiketi(int yil) {
-    if (_dil != 'tr') return '${yil}s';
     const ekler = [
       'ler',
       'lar',
@@ -178,7 +193,13 @@ class _TarihSeciciState extends State<_TarihSecici> {
       'ler',
       'lar',
     ];
-    return "$yil'${ekler[(yil ~/ 10) % 10]}";
+    // 1910-1990 arası kısa biçim ("años 90"), 1900 ve 2000+ tam yıl ("años 2000").
+    final kisa = yil >= 1910 && yil < 2000 ? '${yil % 100}' : '$yil';
+    return 'picker.decade'.trParams({
+      'yil': '$yil',
+      'kisa': kisa,
+      'ek': ekler[(yil ~/ 10) % 10],
+    });
   }
 
   @override
@@ -190,7 +211,7 @@ class _TarihSeciciState extends State<_TarihSecici> {
     final burcId = secili == null ? null : DogumGunu.burcIdGetir(secili);
     final burc = burcId == null
         ? ''
-        : tZodiac(burcId, 'name', Tercumeler().keys[_dil] ?? tr);
+        : tZodiac(burcId, 'name', Tercumeler().keys[_dil] ?? en);
     final gunAdi = secili == null
         ? ''
         : toBeginningOfSentenceCase(DateFormat('EEEE', _dil).format(secili));
@@ -198,188 +219,233 @@ class _TarihSeciciState extends State<_TarihSecici> {
     final ilkAyda = _gorunenYil == _minYil && _gorunenAy == 1;
     final sonAyda = _gorunenYil == _bugun.year && _gorunenAy == _bugun.month;
 
-    return Container(
+    final tutamac = Center(
+      child: Container(
+        width: 32,
+        height: 4,
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: r.bd2,
+          borderRadius: BorderRadius.circular(2),
+        ),
+      ),
+    );
+    final ozet = Container(
+      padding: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: r.raised,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        border: Border(bottom: BorderSide(color: r.bd)),
       ),
-      padding: EdgeInsets.fromLTRB(
-        20,
-        10,
-        20,
-        20 + MediaQuery.of(context).padding.bottom,
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'picker.title'.tr,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    color: r.tx2,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  secili == null
+                      ? 'picker.empty'.tr
+                      : DogumGunu.tarihYazdir(secili),
+                  style: metin.headlineMedium?.copyWith(
+                    color: secili == null ? r.tx3 : null,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  secili == null ? 'picker.hint'.tr : '$gunAdi · $burc',
+                  style: metin.bodyMedium?.copyWith(color: r.tx2),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 14),
+          burcId == null
+              ? Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: r.s2,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(Icons.cake_rounded, size: 28, color: r.tx3),
+                )
+              : BurcRozeti(burcId: burcId, boyut: 56),
+        ],
       ),
+    );
+    final gezinti = SizedBox(
+      height: 56,
+      child: Row(
+        children: [
+          Expanded(
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton(
+                onPressed: _yilGorunumuAc,
+                style: TextButton.styleFrom(
+                  backgroundColor: _yillar ? scheme.primaryContainer : r.s2,
+                  foregroundColor: _yillar ? scheme.onPrimaryContainer : r.tx,
+                  minimumSize: const Size(0, 48),
+                  padding: const EdgeInsets.only(left: 12, right: 6),
+                  textStyle: const TextStyle(
+                    fontFamily: TemaYoneticisi.metinFontu,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 17,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        _yillar || _aylar
+                            ? '$_gorunenYil'
+                            : toBeginningOfSentenceCase(
+                                DateFormat.yMMMM(
+                                  _dil,
+                                ).format(DateTime(_gorunenYil, _gorunenAy)),
+                              ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Icon(
+                      _yillar
+                          ? Icons.arrow_drop_up_rounded
+                          : Icons.arrow_drop_down_rounded,
+                      size: 22,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (!_yillar && !_aylar) ...[
+            IconButton(
+              tooltip: 'picker.prevMonth'.tr,
+              onPressed: ilkAyda ? null : () => _ayKaydir(-1),
+              color: r.tx2,
+              disabledColor: r.pasif,
+              icon: const Icon(Icons.chevron_left_rounded),
+            ),
+            IconButton(
+              tooltip: 'picker.nextMonth'.tr,
+              onPressed: sonAyda ? null : () => _ayKaydir(1),
+              color: r.tx2,
+              disabledColor: r.pasif,
+              icon: const Icon(Icons.chevron_right_rounded),
+            ),
+          ],
+        ],
+      ),
+    );
+    final gorunum = _yillar
+        ? _yilGorunumu(r, scheme)
+        : _aylar
+        ? _ayGorunumu(r, scheme)
+        : _gunGorunumu(r, scheme);
+    final dugmeler = Row(
+      children: [
+        Expanded(
+          child: OutlinedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(0, 48),
+              shape: const StadiumBorder(),
+              side: BorderSide(color: r.bd2, width: 1.5),
+              foregroundColor: scheme.primary,
+              textStyle: metin.labelLarge,
+            ),
+            child: Text('picker.cancel'.tr),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: FilledButton.icon(
+            onPressed: secili == null
+                ? null
+                : () => Navigator.of(context).pop(secili),
+            style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
+            icon: const Icon(Icons.check_rounded, size: 20),
+            label: Text('picker.ok'.tr),
+          ),
+        ),
+      ],
+    );
+
+    final dolgu = EdgeInsets.fromLTRB(
+      20,
+      10,
+      20,
+      20 + MediaQuery.of(context).padding.bottom,
+    );
+    final zemin = BoxDecoration(
+      color: r.raised,
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+    );
+
+    if (context.alcakMi(_yanYanaEsik)) {
+      return Container(
+        decoration: zemin,
+        padding: dolgu,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              width: 260,
+              child: CustomScrollView(
+                slivers: [
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        tutamac,
+                        ozet,
+                        gezinti,
+                        const Spacer(),
+                        const SizedBox(height: 12),
+                        dugmeler,
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: gorunum,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      decoration: zemin,
+      padding: dolgu,
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Center(
-              child: Container(
-                width: 32,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: r.bd2,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: r.bd)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'picker.title'.tr,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                            color: r.tx2,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          secili == null
-                              ? 'picker.empty'.tr
-                              : DogumGunu.tarihYazdir(secili),
-                          style: metin.headlineMedium?.copyWith(
-                            color: secili == null ? r.tx3 : null,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          secili == null ? 'picker.hint'.tr : '$gunAdi · $burc',
-                          style: metin.bodyMedium?.copyWith(color: r.tx2),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  burcId == null
-                      ? Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: r.s2,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Icon(
-                            Icons.cake_rounded,
-                            size: 28,
-                            color: r.tx3,
-                          ),
-                        )
-                      : BurcRozeti(burcId: burcId, boyut: 56),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 56,
-              child: Row(
-                children: [
-                  TextButton(
-                    onPressed: _yilGorunumuAc,
-                    style: TextButton.styleFrom(
-                      backgroundColor: _yillar ? scheme.primaryContainer : r.s2,
-                      foregroundColor: _yillar
-                          ? scheme.onPrimaryContainer
-                          : r.tx,
-                      minimumSize: const Size(0, 44),
-                      padding: const EdgeInsets.only(left: 12, right: 6),
-                      textStyle: const TextStyle(
-                        fontFamily: 'Figtree',
-                        fontWeight: FontWeight.w700,
-                        fontSize: 17,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          _yillar || _aylar
-                              ? '$_gorunenYil'
-                              : toBeginningOfSentenceCase(
-                                  DateFormat(
-                                    'MMMM y',
-                                    _dil,
-                                  ).format(DateTime(_gorunenYil, _gorunenAy)),
-                                ),
-                        ),
-                        Icon(
-                          _yillar
-                              ? Icons.arrow_drop_up_rounded
-                              : Icons.arrow_drop_down_rounded,
-                          size: 22,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Spacer(),
-                  if (!_yillar && !_aylar) ...[
-                    IconButton(
-                      tooltip: 'picker.prevMonth'.tr,
-                      onPressed: ilkAyda ? null : () => _ayKaydir(-1),
-                      color: r.tx2,
-                      disabledColor: r.bd2,
-                      icon: const Icon(Icons.chevron_left_rounded),
-                    ),
-                    IconButton(
-                      tooltip: 'picker.nextMonth'.tr,
-                      onPressed: sonAyda ? null : () => _ayKaydir(1),
-                      color: r.tx2,
-                      disabledColor: r.bd2,
-                      icon: const Icon(Icons.chevron_right_rounded),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 308,
-              child: _yillar
-                  ? _yilGorunumu(r, scheme)
-                  : _aylar
-                  ? _ayGorunumu(r, scheme)
-                  : _gunGorunumu(r, scheme),
-            ),
+            tutamac,
+            ozet,
+            gezinti,
+            SizedBox(height: 316, child: gorunum),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(0, 48),
-                      shape: const StadiumBorder(),
-                      side: BorderSide(color: r.bd2, width: 1.5),
-                      foregroundColor: scheme.primary,
-                      textStyle: metin.labelLarge,
-                    ),
-                    child: Text('picker.cancel'.tr),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: secili == null
-                        ? null
-                        : () => Navigator.of(context).pop(secili),
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(0, 48),
-                    ),
-                    icon: const Icon(Icons.check_rounded, size: 20),
-                    label: Text('picker.ok'.tr),
-                  ),
-                ),
-              ],
-            ),
+            dugmeler,
           ],
         ),
       ),
@@ -387,70 +453,88 @@ class _TarihSeciciState extends State<_TarihSecici> {
   }
 
   Widget _ayGorunumu(AppRenkler r, ColorScheme scheme) {
-    return GridView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        mainAxisExtent: 66,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 6,
-      ),
-      itemCount: 12,
-      itemBuilder: (context, i) {
-        final ay = i + 1;
-        final tarih = DateTime(_gorunenYil, ay);
-        final gelecek = tarih.isAfter(_bugun);
-        final secili = _secili?.year == _gorunenYil && _secili?.month == ay;
-        final gorunen = ay == _gorunenAy && !secili;
-        return Material(
-          color: secili
-              ? scheme.primary
-              : gorunen
-              ? scheme.primaryContainer
-              : Colors.transparent,
-          shape: const StadiumBorder(),
-          child: InkWell(
-            customBorder: const StadiumBorder(),
-            onTap: gelecek
-                ? null
-                : () => setState(() {
-                    _gorunenAy = ay;
-                    _aylar = false;
-                  }),
-            child: Center(
-              child: Text(
-                toBeginningOfSentenceCase(
-                  DateFormat('MMMM', _dil).format(tarih),
-                ),
-                style: TextStyle(
-                  fontWeight: secili ? FontWeight.w700 : FontWeight.w500,
-                  fontSize: 15,
-                  color: secili
-                      ? scheme.onPrimary
-                      : gelecek
-                      ? r.bd2
-                      : gorunen
-                      ? scheme.onPrimaryContainer
-                      : r.tx,
+    // 4 satır × 3 sütun; alçak ekranda satırlar alana sığacak kadar kısalır.
+    return LayoutBuilder(
+      builder: (context, c) => GridView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          mainAxisExtent: math.min(66, (c.maxHeight - 8 - 24) / 4),
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 6,
+        ),
+        itemCount: 12,
+        itemBuilder: (context, i) {
+          final ay = i + 1;
+          final tarih = DateTime(_gorunenYil, ay);
+          final gelecek = tarih.isAfter(_bugun);
+          final secili = _secili?.year == _gorunenYil && _secili?.month == ay;
+          final gorunen = ay == _gorunenAy && !secili;
+          final ayAdi = toBeginningOfSentenceCase(
+            DateFormat('MMMM', _dil).format(tarih),
+          );
+          final secMi = gelecek
+              ? null
+              : () => setState(() {
+                  _gorunenAy = ay;
+                  _aylar = false;
+                });
+          return Semantics(
+            container: true,
+            button: true,
+            enabled: !gelecek,
+            selected: secili,
+            label: DateFormat.yMMMM(_dil).format(tarih),
+            onTap: secMi,
+            excludeSemantics: true,
+            child: Material(
+              color: secili
+                  ? scheme.primary
+                  : gorunen
+                  ? scheme.primaryContainer
+                  : Colors.transparent,
+              shape: const StadiumBorder(),
+              child: InkWell(
+                customBorder: const StadiumBorder(),
+                onTap: secMi,
+                child: Center(
+                  child: Text(
+                    ayAdi,
+                    style: TextStyle(
+                      fontWeight: secili ? FontWeight.w700 : FontWeight.w500,
+                      fontSize: 15,
+                      color: secili
+                          ? scheme.onPrimary
+                          : gelecek
+                          ? r.pasif
+                          : gorunen
+                          ? scheme.onPrimaryContainer
+                          : r.tx,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
   Widget _gunGorunumu(AppRenkler r, ColorScheme scheme) {
-    // Pazartesi ile başlayan hafta, sabit 6 satır.
+    // Haftanın ilk günü dile göre (en: Pazar, tr/es: Pazartesi), sabit 6 satır.
+    final ilkHaftaGunu = MaterialLocalizations.of(context).firstDayOfWeekIndex;
     final ilkGun = DateTime(_gorunenYil, _gorunenAy, 1);
-    final bosluk = (ilkGun.weekday + 6) % 7;
+    final bosluk = (ilkGun.weekday % 7 - ilkHaftaGunu + 7) % 7;
     final gunSayisi = DateTime(_gorunenYil, _gorunenAy + 1, 0).day;
+    // 7 Ocak 2024 Pazar'dır.
     final haftaGunleri = List.generate(
       7,
-      (i) => DateFormat('E', _dil).format(DateTime(2024, 1, 1 + i)),
+      (i) =>
+          DateFormat('E', _dil).format(DateTime(2024, 1, 7 + ilkHaftaGunu + i)),
     );
+    final tamTarih = DateFormat.yMMMMEEEEd(_dil);
 
     return Column(
       children: [
@@ -475,58 +559,77 @@ class _TarihSeciciState extends State<_TarihSecici> {
           ],
         ),
         Expanded(
-          child: GridView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.zero,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 7,
-              mainAxisExtent: 46,
-            ),
-            itemCount: 42,
-            itemBuilder: (context, i) {
-              final gun = i - bosluk + 1;
-              if (gun < 1 || gun > gunSayisi) return const SizedBox.shrink();
-              final tarih = DateTime(_gorunenYil, _gorunenAy, gun);
-              final secili = tarih == _secili;
-              final bugun = tarih == _bugun;
-              final gelecek = _gelecekMi(tarih);
-              return Center(
-                child: SizedBox(
-                  width: 44,
-                  height: 44,
-                  child: Material(
-                    color: secili ? scheme.primary : Colors.transparent,
-                    shape: CircleBorder(
-                      side: bugun && !secili
-                          ? BorderSide(color: scheme.primary, width: 1.5)
-                          : BorderSide.none,
-                    ),
-                    child: InkWell(
-                      customBorder: const CircleBorder(),
-                      onTap: gelecek
-                          ? null
-                          : () => setState(() => _secili = tarih),
-                      child: Center(
-                        child: Text(
-                          '$gun',
-                          style: TextStyle(
-                            fontWeight: secili
-                                ? FontWeight.w700
-                                : FontWeight.w500,
-                            fontSize: 15,
-                            color: secili
-                                ? scheme.onPrimary
-                                : gelecek
-                                ? r.bd2
-                                : bugun
-                                ? scheme.primary
-                                : r.tx,
+          // Sabit 6 satır; alçak ekranda hücreler alana sığacak kadar küçülür.
+          child: LayoutBuilder(
+            builder: (context, c) {
+              final hucre = math.min(48.0, c.maxHeight / 6);
+              return GridView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.zero,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 7,
+                  mainAxisExtent: hucre,
+                ),
+                itemCount: 42,
+                itemBuilder: (context, i) {
+                  final gun = i - bosluk + 1;
+                  if (gun < 1 || gun > gunSayisi) {
+                    return const SizedBox.shrink();
+                  }
+                  final tarih = DateTime(_gorunenYil, _gorunenAy, gun);
+                  final secili = tarih == _secili;
+                  final bugun = tarih == _bugun;
+                  final gelecek = _gelecekMi(tarih);
+                  final secMi = gelecek
+                      ? null
+                      : () => setState(() => _secili = tarih);
+                  return Semantics(
+                    container: true,
+                    button: true,
+                    enabled: !gelecek,
+                    selected: secili,
+                    label: tamTarih.format(tarih),
+                    hint: bugun ? 'home.countdown.today'.tr : null,
+                    onTap: secMi,
+                    excludeSemantics: true,
+                    child: Center(
+                      child: SizedBox(
+                        width: hucre,
+                        height: hucre,
+                        child: Material(
+                          color: secili ? scheme.primary : Colors.transparent,
+                          shape: CircleBorder(
+                            side: bugun && !secili
+                                ? BorderSide(color: scheme.primary, width: 1.5)
+                                : BorderSide.none,
+                          ),
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            onTap: secMi,
+                            child: Center(
+                              child: Text(
+                                '$gun',
+                                style: TextStyle(
+                                  fontWeight: secili
+                                      ? FontWeight.w700
+                                      : FontWeight.w500,
+                                  fontSize: 15,
+                                  color: secili
+                                      ? scheme.onPrimary
+                                      : gelecek
+                                      ? r.pasif
+                                      : bugun
+                                      ? scheme.primary
+                                      : r.tx,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                },
               );
             },
           ),
@@ -542,11 +645,11 @@ class _TarihSeciciState extends State<_TarihSecici> {
     return Column(
       children: [
         SizedBox(
-          height: 44,
+          height: 52,
           child: ListView.separated(
             controller: _seritKaydirma,
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.only(bottom: 10, top: 2),
+            padding: const EdgeInsets.only(bottom: 4),
             itemCount: onYillar.length,
             separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, i) {
@@ -563,6 +666,8 @@ class _TarihSeciciState extends State<_TarihSecici> {
                   style: OutlinedButton.styleFrom(
                     padding: EdgeInsets.zero,
                     minimumSize: const Size(0, 32),
+                    // Görünen 32, dokunma alanı 48.
+                    tapTargetSize: MaterialTapTargetSize.padded,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -572,12 +677,18 @@ class _TarihSeciciState extends State<_TarihSecici> {
                         : Colors.transparent,
                     foregroundColor: aktif ? scheme.onPrimaryContainer : r.tx2,
                     textStyle: const TextStyle(
-                      fontFamily: 'Figtree',
+                      fontFamily: TemaYoneticisi.metinFontu,
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),
                   ),
-                  child: Text(_onYilEtiketi(y)),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(_onYilEtiketi(y), maxLines: 1),
+                    ),
+                  ),
                 ),
               );
             },
@@ -590,7 +701,7 @@ class _TarihSeciciState extends State<_TarihSecici> {
             padding: const EdgeInsets.symmetric(vertical: 4),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 5,
-              mainAxisExtent: 44,
+              mainAxisExtent: 48,
               mainAxisSpacing: 8,
               crossAxisSpacing: 6,
             ),
@@ -600,40 +711,43 @@ class _TarihSeciciState extends State<_TarihSecici> {
               final secili = y == _secili?.year;
               final gorunen = y == _gorunenYil && !secili;
               final buYil = y == _bugun.year;
-              return Material(
-                color: secili
-                    ? scheme.primary
-                    : gorunen
-                    ? scheme.primaryContainer
-                    : Colors.transparent,
-                shape: StadiumBorder(
-                  side: buYil && !secili
-                      ? BorderSide(color: scheme.primary, width: 1.5)
-                      : BorderSide.none,
-                ),
-                child: InkWell(
-                  customBorder: const StadiumBorder(),
-                  onTap: () => setState(() {
-                    _gorunenYil = y;
-                    if (DateTime(y, _gorunenAy).isAfter(_bugun)) {
-                      _gorunenAy = _bugun.month;
-                    }
-                    _yillar = false;
-                    _aylar = true;
-                  }),
-                  child: Center(
-                    child: Text(
-                      '$y',
-                      style: TextStyle(
-                        fontWeight: secili ? FontWeight.w700 : FontWeight.w500,
-                        fontSize: 16,
-                        color: secili
-                            ? scheme.onPrimary
-                            : gorunen
-                            ? scheme.onPrimaryContainer
-                            : buYil
-                            ? scheme.primary
-                            : r.tx,
+              return Semantics(
+                container: true,
+                button: true,
+                selected: secili,
+                label: '$y',
+                onTap: () => _yilSec(y),
+                excludeSemantics: true,
+                child: Material(
+                  color: secili
+                      ? scheme.primary
+                      : gorunen
+                      ? scheme.primaryContainer
+                      : Colors.transparent,
+                  shape: StadiumBorder(
+                    side: buYil && !secili
+                        ? BorderSide(color: scheme.primary, width: 1.5)
+                        : BorderSide.none,
+                  ),
+                  child: InkWell(
+                    customBorder: const StadiumBorder(),
+                    onTap: () => _yilSec(y),
+                    child: Center(
+                      child: Text(
+                        '$y',
+                        style: TextStyle(
+                          fontWeight: secili
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                          fontSize: 16,
+                          color: secili
+                              ? scheme.onPrimary
+                              : gorunen
+                              ? scheme.onPrimaryContainer
+                              : buYil
+                              ? scheme.primary
+                              : r.tx,
+                        ),
                       ),
                     ),
                   ),
@@ -645,4 +759,13 @@ class _TarihSeciciState extends State<_TarihSecici> {
       ],
     );
   }
+
+  void _yilSec(int y) => setState(() {
+    _gorunenYil = y;
+    if (DateTime(y, _gorunenAy).isAfter(_bugun)) {
+      _gorunenAy = _bugun.month;
+    }
+    _yillar = false;
+    _aylar = true;
+  });
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../tema/ekran.dart';
 import '../tema/renkler.dart';
+import '../tema/tema_yoneticisi.dart';
 
 enum SnackbarTipi { basari, hata, uyari, bilgi }
 
@@ -37,7 +39,7 @@ class OzelSnackbar {
         padding: EdgeInsets.zero,
         margin: const EdgeInsets.fromLTRB(12, 8, 12, 0),
         borderRadius: 18,
-        maxWidth: 560,
+        maxWidth: Ekran.mesajGenislik,
         boxShadows: r.e3,
         duration: sure,
         isDismissible: true,
@@ -153,7 +155,7 @@ class _SnackIcerik extends StatelessWidget {
                           Text(
                             baslik,
                             style: TextStyle(
-                              fontFamily: 'Figtree',
+                              fontFamily: TemaYoneticisi.metinFontu,
                               fontWeight: FontWeight.w700,
                               fontSize: 15,
                               height: 20 / 15,
@@ -166,7 +168,7 @@ class _SnackIcerik extends StatelessWidget {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontFamily: 'Figtree',
+                              fontFamily: TemaYoneticisi.metinFontu,
                               fontWeight: FontWeight.w400,
                               fontSize: 14,
                               height: 20 / 14,
@@ -184,7 +186,9 @@ class _SnackIcerik extends StatelessWidget {
                 right: 0,
                 bottom: 0,
                 height: 3,
-                child: _SureCubugu(sure: sure, renk: config.vurgu),
+                child: RepaintBoundary(
+                  child: _SureCubugu(sure: sure, renk: config.vurgu),
+                ),
               ),
             ],
           ),

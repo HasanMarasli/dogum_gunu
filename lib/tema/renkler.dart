@@ -92,11 +92,12 @@ const Map<String, Palet> paletler = {
   'blue': Palet(
     seed: Color(0xFF2962FF),
     acik: PaletTonlari(
-      pr: Color(0xFF2962FF),
+      // Açık zeminde metin/simge olarak ≥4.5:1 kontrast için koyulaştırıldı.
+      pr: Color(0xFF1F55EB),
       onPr: Color(0xFFFFFFFF),
       pc: Color(0xFFDCE3FF),
       onPc: Color(0xFF00195E),
-      g1: Color(0xFF2962FF),
+      g1: Color(0xFF1F55EB),
       g2: Color(0xFF4F46E5),
     ),
     koyu: PaletTonlari(
@@ -222,6 +223,8 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
     required this.tx3,
     required this.bd,
     required this.bd2,
+    required this.pasif,
+    required this.onGradyan,
     required this.scrim,
     required this.e1,
     required this.e2,
@@ -256,6 +259,12 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
   final Color tx3;
   final Color bd;
   final Color bd2;
+
+  /// Seçilemeyen öğelerin yazısı (ör. gelecekteki günler); okunur ama sönük.
+  final Color pasif;
+
+  /// Palet gradyanı ([gradyan]) üzerindeki yazı ve simgeler.
+  final Color onGradyan;
   final Color scrim;
   final List<BoxShadow> e1;
   final List<BoxShadow> e2;
@@ -303,6 +312,8 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
         tx3: notr(0.13, 0.63),
         bd: notr(0.16, 0.22),
         bd2: notr(0.14, 0.32),
+        pasif: notr(0.12, 0.48),
+        onGradyan: const Color(0xFFFFFFFF),
         scrim: const Color(0x99000000),
         e1: const [
           BoxShadow(
@@ -366,6 +377,8 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
       tx3: notr(0.14, 0.36),
       bd: notr(0.32, 0.88),
       bd2: notr(0.22, 0.76),
+      pasif: notr(0.14, 0.55),
+      onGradyan: const Color(0xFFFFFFFF),
       scrim: notr(0.35, 0.06).withAlpha(0x6B),
       e1: [
         BoxShadow(
@@ -442,6 +455,8 @@ class AppRenkler extends ThemeExtension<AppRenkler> {
       tx3: c(tx3, other.tx3),
       bd: c(bd, other.bd),
       bd2: c(bd2, other.bd2),
+      pasif: c(pasif, other.pasif),
+      onGradyan: c(onGradyan, other.onGradyan),
       scrim: c(scrim, other.scrim),
       e1: t < 0.5 ? e1 : other.e1,
       e2: t < 0.5 ? e2 : other.e2,
