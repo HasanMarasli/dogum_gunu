@@ -3,7 +3,9 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:dogum_gunu/tercumeler/tr.dart';
 import 'package:dogum_gunu/tercumeler/en.dart';
+import 'package:dogum_gunu/tercumeler/es.dart';
 import 'package:dogum_gunu/tercumeler/oneri_en.dart';
+import 'package:dogum_gunu/tercumeler/oneri_es.dart';
 import 'package:dogum_gunu/tercumeler/oneri_tr.dart';
 
 /// Sayı 1 ise tekil (`.one`) anahtarı kullanır; "1 days" gibi hataları önler.
@@ -15,6 +17,7 @@ class Tercumeler extends Translations {
   static Map<String, Locale> diller = {
     "Türkçe": const Locale("tr"),
     "English": const Locale("en"),
+    "Español": const Locale("es"),
   };
 
   // Locale'den dil adını döner
@@ -30,6 +33,7 @@ class Tercumeler extends Translations {
   static final Map<String, Map<String, String>> _anahtarlar = {
     'tr': {...tr, ...oneriTr},
     'en': {...en, ...oneriEn},
+    'es': {...es, ...oneriEs},
   };
 
   @override

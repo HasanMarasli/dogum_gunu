@@ -1,13 +1,10 @@
 Map<String, String> tr = {
   // Settings
   'settings.title': 'Ayarlar',
-  'settings.language': 'Dil',
   'settings.selectLanguage': 'Dil seç',
   'settings.current': 'Seçili',
-  'settings.theme': 'Tema',
   'settings.selectTheme': 'Tema rengi',
   'settings.appearance': 'Görünüm',
-  'settings.darkMode': 'Karanlık mod',
   'settings.notifOff.desc':
       'Telefonunun ayarlarında bildirim izni kapalı. Açmadan hatırlatma alamazsın.',
   'settings.notifications.title': 'Hatırlatmalar',
@@ -87,7 +84,7 @@ Map<String, String> tr = {
       'İsim, doğum tarihi ve cinsiyet yeterli. Doğum günü en yakın olan, listende hep en üstte.',
   'onboarding.2.title': 'Ona özel öneriler',
   'onboarding.2.desc':
-      'Yaşına, cinsiyetine, yakınlığınıza ve burcuna uygun hediye ve sürpriz fikirleri hazır gelir.',
+      'Yaşına, cinsiyetine, yakınlık derecesine ve burcuna uygun hediye ve sürpriz fikirleri hazır gelir.',
   'onboarding.3.title': 'Verilerin sende kalır',
   'onboarding.3.desc':
       'Bilgilerin sunucularımıza gönderilmez; hesap ve kayıt da yok. Yalnızca telefonunun kendi yedeğine dahil olabilir.',
@@ -154,6 +151,7 @@ Map<String, String> tr = {
   'picker.nextMonth': 'Sonraki ay',
   'picker.empty': 'Tarih seçilmedi',
   'picker.hint': 'Önce yılı, sonra ayı ve günü seç',
+  'picker.decade': "@yil'@ek",
   // Advice/Tavsiye
   'advice.appbar': '@name için',
   'advice.countdown': '@days gün kaldı',
@@ -216,6 +214,22 @@ Map<String, String> tr = {
   'zodiac.pisces.range': '19 Şubat - 20 Mart',
   'zodiac.pisces.short':
       'Hassas ve romantik; hayal gücü güçlüdür. Yumuşak atmosfer ve anlamlı jestler onu çok mutlu eder.',
+  // Arayüz denetimi (tasarimci) ile eklenenler
+  'home.error.title': 'Liste yüklenemedi',
+  'home.error.desc':
+      'Kayıtlı kişiler okunurken bir sorun oluştu. Lütfen tekrar dene.',
+  'home.error.retry': 'Tekrar dene',
+  'advice.empty': 'Bu seçime uygun öneri bulunamadı.',
+  'settings.themeMode.system': 'Sistem ayarı',
+  'settings.themeMode.light': 'Açık',
+  'settings.themeMode.dark': 'Koyu',
+  'onboarding.sample.main': 'Ayşe Yılmaz',
+  'onboarding.sample.other1': 'Deniz Öztürk',
+  'onboarding.sample.other2': 'Can Arslan',
+  'onboarding.sample.first1': 'Ayşe',
+  'onboarding.sample.first2': 'Mehmet',
+  'onboarding.sample.first3': 'Zeynep',
+  'onboarding.sample.first4': 'Can',
 };
 
 String tZodiac(String sign, String section, Map<String, String> translations) =>

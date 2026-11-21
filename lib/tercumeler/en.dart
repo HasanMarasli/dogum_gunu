@@ -1,18 +1,15 @@
 final Map<String, String> en = {
   // Settings
   'settings.title': 'Settings',
-  'settings.language': 'Language',
   'settings.selectLanguage': 'Select a language',
   'settings.current': 'Selected',
-  'settings.theme': 'Theme',
   'settings.selectTheme': 'Theme color',
   'settings.appearance': 'Appearance',
-  'settings.darkMode': 'Dark mode',
   'settings.notifOff.desc':
       'Notification permission is off in your phone settings. You won’t get reminders until you turn it on.',
   'settings.notifications.title': 'Reminders',
   'settings.notifications.subtitle':
-      'Reminders arrive at 09:00. How many days before the birthday should they come? Your choices apply to everyone.',
+      'Reminders arrive at 9:00 AM. How many days before the birthday should they come? Your choices apply to everyone.',
   'settings.notifications.option.7': '7 days before',
   'settings.notifications.option.2': '2 days before',
   'settings.notifications.option.1': '1 day before',
@@ -93,8 +90,8 @@ final Map<String, String> en = {
       'Your details are never sent to our servers, and there’s no account or sign-up. They may only be included in your phone’s own backup.',
   'onboarding.4.title': 'Never miss a day',
   'onboarding.4.desc':
-      'We’ll remind you at 09:00 before the birthday and on the morning itself. Turn off the ones you don’t want in Settings.',
-  'onboarding.4.eachAt': 'EACH AT 09:00',
+      'We’ll remind you at 9:00 AM before the birthday and on the morning itself. Turn off the ones you don’t want in Settings.',
+  'onboarding.4.eachAt': 'EACH AT 9:00 AM',
   'onboarding.4.day7': '7 days before',
   'onboarding.4.day2': '2 days before',
   'onboarding.4.day1': '1 day before',
@@ -155,6 +152,7 @@ final Map<String, String> en = {
   'picker.nextMonth': 'Next month',
   'picker.empty': 'No date yet',
   'picker.hint': 'Pick the year, then month and day',
+  'picker.decade': "@kisa’s",
   // Advice/Tavsiye
   'advice.appbar': 'For @name',
   'advice.countdown': '@days days left',
@@ -229,4 +227,20 @@ final Map<String, String> en = {
   'zodiac.pisces.range': '19 February - 20 March',
   'zodiac.pisces.short':
       'Sensitive and romantic; vivid imagination. Soft ambiance and meaningful gestures delight them.',
+  // Arayüz denetimi (tasarimci) ile eklenenler
+  'home.error.title': 'Couldn’t load your list',
+  'home.error.desc':
+      'Something went wrong while reading your saved people. Please try again.',
+  'home.error.retry': 'Try again',
+  'advice.empty': 'No ideas match this selection.',
+  'settings.themeMode.system': 'System default',
+  'settings.themeMode.light': 'Light',
+  'settings.themeMode.dark': 'Dark',
+  'onboarding.sample.main': 'Emma Johnson',
+  'onboarding.sample.other1': 'Oliver Smith',
+  'onboarding.sample.other2': 'Noah Brown',
+  'onboarding.sample.first1': 'Emma',
+  'onboarding.sample.first2': 'James',
+  'onboarding.sample.first3': 'Olivia',
+  'onboarding.sample.first4': 'Noah',
 };
